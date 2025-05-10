@@ -1,0 +1,33 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: stalhub-app:latest
+    environment:
+      DB_HOST: db
+      DB_PORT: 3306
+      DB_NAME: stalhub_dev
+      DB_USER: dev
+      DB_PASS: secret
+    volumes:
+      - ./:/var/www/html
+    working_dir: /var/www/html
+
+  web:
+    image: nginx:stable
+    volumes:
+      - ./:/var/www/html
+      - ./docker/nginx/conf.d:/etc/nginx/conf.d
+    ports:
+      - "8000:80"
+
+  db:
+    image: mariadb:10.9
+    environment:
+      MYSQL_DATABASE: stalhub_dev
+      MYSQL_USER: dev
+      MYSQL_PASSWORD: secret
+      MYSQL_ROOT_PASSWORD: rootsecret
+    ports:
+      - "3307:3306"

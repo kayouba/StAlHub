@@ -1,0 +1,10 @@
+/vendor/
+/.env
+/docker-compose.override.yml
+/db/schema_dump.sql
+/logs/
+*.log
+/.idea/
+/.vscode/
+.DS_Store
+.phpunit.result.cache
