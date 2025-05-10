@@ -2,6 +2,7 @@
 namespace Core;
 
 use Config\Database;
+use Core\EmailService;
 
 class OTPService
 {
@@ -14,30 +15,61 @@ class OTPService
         $this->pdo = Database::get();
     }
 
-    public function generateAndSend(int $userId, string $phone): void
+    /**
+     * Génère un code OTP, le stocke et l’envoie par email.
+     *
+     * @param int    $userId    ID de l’utilisateur
+     * @param string $recipient Adresse email de l’utilisateur
+     */
+    public function generateAndSend(int $userId, string $recipient): void
     {
-        $code = str_pad(random_int(0, pow(10, $this->length) - 1), $this->length, '0', STR_PAD_LEFT);
+        $code = str_pad(
+            (string) random_int(0, (10 ** $this->length) - 1),
+            $this->length,
+            '0',
+            STR_PAD_LEFT
+        );
         $expires = (new \DateTime())
             ->add(new \DateInterval("PT{$this->ttl}S"))
             ->format('Y-m-d H:i:s');
 
-        // Enregistrer le hash
+        // Sauvegarde en base (hashé)
         $stmt = $this->pdo->prepare(
-            "INSERT INTO otp_codes (user_id, code_hash, expires_at, used, created_at)
-             VALUES (?, ?, ?, 0, NOW())"
+            'INSERT INTO otp_codes (user_id, code_hash, expires_at, used, created_at)
+             VALUES (?, ?, ?, 0, NOW())'
         );
-        $stmt->execute([$userId, password_hash($code, PASSWORD_DEFAULT), $expires]);
+        $stmt->execute([
+            $userId,
+            password_hash($code, PASSWORD_DEFAULT),
+            $expires
+        ]);
 
-        // Envoyer par SMS
-        (new SMSService())->send($phone, "Votre code StalHub est : $code (valide 5 min)");
+        // Envoi email
+        $subject = 'Votre code de vérification StalHub';
+        $body    = "<p>Bonjour,</p>
+                    <p>Votre code de vérification est : <strong>{$code}</strong></p>
+                    <p>Ce code est valide pendant {$this->ttl} secondes.</p>";
+        (new EmailService())->send($recipient, $subject, $body);
+
+        // Log debug pour voir le code dans les logs Docker
+        error_log("[OTP DEBUG] email={$recipient} code={$code}");
     }
 
+    /**
+     * Vérifie le code OTP saisi.
+     *
+     * @param int    $userId
+     * @param string $code
+     * @return bool true si valide
+     */
     public function verify(int $userId, string $code): bool
     {
         $stmt = $this->pdo->prepare(
-            "SELECT id, code_hash, expires_at FROM otp_codes
+            'SELECT id, code_hash, expires_at
+             FROM otp_codes
              WHERE user_id = ? AND used = 0
-             ORDER BY created_at DESC LIMIT 1"
+             ORDER BY created_at DESC
+             LIMIT 1'
         );
         $stmt->execute([$userId]);
         $row = $stmt->fetch();
@@ -46,8 +78,8 @@ class OTPService
         if (new \DateTime() > new \DateTime($row['expires_at'])) return false;
         if (!password_verify($code, $row['code_hash'])) return false;
 
-        // Marquer comme utilisé
-        $upd = $this->pdo->prepare("UPDATE otp_codes SET used = 1 WHERE id = ?");
+        // Marquer utilisé
+        $upd = $this->pdo->prepare('UPDATE otp_codes SET used = 1 WHERE id = ?');
         $upd->execute([$row['id']]);
 
         return true;

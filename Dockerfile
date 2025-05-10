@@ -1,24 +1,21 @@
-# Dockerfile
-
-# 1) On part de l’image PHP-FPM officielle
 FROM php:8.1-fpm
 
-# 2) Installer git, unzip, zip et l’extension PDO MySQL
+# 1) Installer les extensions et Composer
 RUN apt-get update \
- && apt-get install -y git unzip zip \
- && docker-php-ext-install pdo pdo_mysql
+ && apt-get install -y git unzip zip libzip-dev libonig-dev libxml2-dev \
+ && docker-php-ext-install pdo_mysql zip mbstring xml \
+ && curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/bin --filename=composer
 
-# 3) Installer Composer à partir de l’image officielle Composer
-COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+# 2) Forcer PHP-FPM à écouter sur le port TCP 9000
+RUN sed -i "s|^listen = .*|listen = 0.0.0.0:9000|" /usr/local/etc/php-fpm.d/www.conf \
+ && sed -i "s|^;listen.mode = .*|listen.mode = 0666|" /usr/local/etc/php-fpm.d/www.conf
 
-# 4) Définir le répertoire de travail
 WORKDIR /var/www/html
 
-# 5) Copier le code de l’hôte vers le container
+# 3) On copie tout, on installe les dépendances en buildtime
 COPY . .
 
-# (Optionnel) Si tu veux installer les dépendances dès le build :
-# RUN composer install --no-dev --optimize-autoloader
+RUN composer install --no-dev --no-interaction --optimize-autoloader
 
-# 6) Exposer le volume de code (Docker Compose le gérera déjà)
-VOLUME ["/var/www/html"]
+# 4) Lancement par défaut
+CMD ["php-fpm", "-F"]

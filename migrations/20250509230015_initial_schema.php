@@ -7,13 +7,15 @@ final class InitialSchema extends AbstractMigration
 {
     public function change(): void
     {
-        // Exemple : table users
+        // Table users
         $this->table('users')
-             ->addColumn('email', 'string', ['limit' => 255])
-             ->addColumn('password', 'string', ['limit' => 255])
-             ->addColumn('created_at', 'timestamp', ['default' => 'CURRENT_TIMESTAMP'])
+             ->addColumn('email',        'string',  ['limit'=>255])
+             ->addColumn('password',     'string',  ['limit'=>255])
+             ->addColumn('phone_number', 'string',  ['limit'=>20, 'default'=>''])
+             ->addColumn('created_at',   'timestamp', ['default'=>'CURRENT_TIMESTAMP'])
+             ->addIndex(['email'], ['unique'=>true])
              ->create();
 
-        // Ajoute ici tes autres tables : students, companies, requests, documents, notifications, audit…
+        // … autres tables …
     }
 }

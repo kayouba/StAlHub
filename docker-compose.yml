@@ -1,24 +1,36 @@
+version: '3.8'
+
 services:
   app:
     build:
       context: .
       dockerfile: Dockerfile
     image: stalhub-app:latest
+    # pas de `command:` ici, on utilise le CMD du Dockerfile
     environment:
       DB_HOST: db
       DB_PORT: 3306
       DB_NAME: stalhub_dev
       DB_USER: dev
       DB_PASS: secret
+
+      MAIL_HOST: mailhog
+      MAIL_PORT: 1025
+      MAIL_USER: ''
+      MAIL_PASS: ''
+      MAIL_FROM: 'no-reply@stalhub.local'
+      MAIL_FROM_NAME: 'StalHub'
     volumes:
       - ./:/var/www/html
     working_dir: /var/www/html
+    expose:
+      - "9000"
 
   web:
     image: nginx:stable
     volumes:
       - ./:/var/www/html
-      - ./docker/nginx/conf.d:/etc/nginx/conf.d
+      - ./docker/nginx/conf.d:/etc/nginx/conf.d:ro
     ports:
       - "8000:80"
 
@@ -29,5 +41,16 @@ services:
       MYSQL_USER: dev
       MYSQL_PASSWORD: secret
       MYSQL_ROOT_PASSWORD: rootsecret
+    volumes:
+      - db_data:/var/lib/mysql
     ports:
       - "3307:3306"
+
+  mailhog:
+    image: mailhog/mailhog
+    ports:
+      - "8025:8025"
+      - "1025:1025"
+
+volumes:
+  db_data:
