@@ -1,15 +1,12 @@
 <?php
 namespace App\Controller;
 
-use Core\Controller;
+use App\View;
 
-class HomeController extends Controller
+class HomeController
 {
     public function index(): void
     {
-        // Passe un titre à la vue
-        $this->render('home', [
-            'title' => 'Bienvenue sur StalHub',
-        ]);
+        View::render('auth/login');
     }
 }

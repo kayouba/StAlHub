@@ -1,14 +1,14 @@
 <?php
-declare(strict_types=1);
-
 namespace App\Controller;
 
-use Core\Controller;
+use App\View;
+use App\BaseController;
 
-class DashboardController extends Controller
+class DashboardController extends BaseController
 {
     public function index(): void
     {
-        echo '<h1>Dashboard</h1><p>Vous êtes connecté !</p>';
+        $this->requireAuth();
+        View::render('dashboard/student');
     }
 }

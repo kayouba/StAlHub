@@ -1,51 +1,70 @@
 <?php
-declare(strict_types=1);
-
 namespace App\Controller;
 
-use Core\Controller;
-use App\Model\UserModel;
-use Core\OTPService;
+use App\View;
+use PDO;
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
 
-class AuthController extends Controller
+class AuthController
 {
-    /**
-     * Affiche le formulaire de connexion.
-     */
     public function showLoginForm(): void
     {
-        $this->render('auth/login');
+        View::render('auth/login');
     }
 
-    /**
-     * Traite le login, génère et envoie l’OTP par email, puis redirige vers /otp.
-     */
     public function login(): void
     {
-        // Démarre la session avant tout output
-        if (session_status() !== PHP_SESSION_ACTIVE) {
-            session_start();
-        }
+        session_start();
 
-        $email = $_POST['email']    ?? '';
-        $pass  = $_POST['password'] ?? '';
+        $email = $_POST['email'] ?? '';
+        $password = $_POST['password'] ?? '';
 
-        // Charge l’utilisateur
-        $user = (new UserModel())->findByEmail($email);
+        $pdo = new PDO('mysql:host=localhost;dbname=stalhub_dev', 'root', 'root');
 
-        if (!$user || !password_verify($pass, $user['password'])) {
-            $this->render('auth/login', ['error' => 'Identifiants invalides']);
+        $stmt = $pdo->prepare("SELECT * FROM users WHERE email = ? LIMIT 1");
+        $stmt->execute([$email]);
+        $user = $stmt->fetch();
+
+        if (!$user || !password_verify($password, $user['password'])) {
+            View::render('auth/login', ['error' => 'Identifiants incorrects.']);
             return;
         }
 
-        // Prépare l’étape OTP
-        $_SESSION['otp_user_id'] = $user['id'];
+        $_SESSION['user_id'] = $user['id'];
 
-        // Envoie OTP par email
-        (new OTPService())->generateAndSend($user['id'], $user['email']);
+        $otp = random_int(100000, 999999);
+        $hash = password_hash($otp, PASSWORD_DEFAULT);
 
-        // Redirection
-        header('Location: /otp');
+        $stmt = $pdo->prepare("INSERT INTO otp_codes (user_id, code_hash, expires_at) VALUES (?, ?, NOW() + INTERVAL 5 MINUTE)");
+        $stmt->execute([$user['id'], $hash]);
+
+        // Envoi du mail OTP via PHPMailer
+        $mail = new PHPMailer(true);
+
+        try {
+            $mail->isSMTP();
+            $mail->Host = 'localhost';
+            $mail->Port = 1025;
+            $mail->SMTPAuth = false;
+            $mail->SMTPSecure = false;
+
+            $mail->setFrom('no-reply@stalhub.local', 'StalHub');
+            $mail->addAddress($user['email']);
+
+            $mail->isHTML(false);
+            $mail->Subject = 'Votre code OTP';
+            $mail->Body = "Voici votre code OTP : $otp";
+
+            $mail->send();
+        } catch (Exception $e) {
+            View::render('auth/login', [
+                'error' => "Erreur lors de l’envoi de l’e-mail : {$mail->ErrorInfo}"
+            ]);
+            return;
+        }
+
+        header('Location: /stalhub/otp');
         exit;
     }
 }

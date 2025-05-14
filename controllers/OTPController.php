@@ -1,36 +1,49 @@
 <?php
-declare(strict_types=1);
-
 namespace App\Controller;
 
-use Core\Controller;
-use Core\OTPService;
+use App\View;
+use PDO;
 
-class OTPController extends Controller
+class OTPController
 {
     public function show(): void
     {
-        $this->render('auth/otp');
+        View::render('auth/otp');
     }
 
     public function verify(): void
     {
-        if (session_status() !== PHP_SESSION_ACTIVE) {
-            session_start();
-        }
+        session_start();
 
-        $uid  = $_SESSION['otp_user_id'] ?? null;
-        $code = $_POST['otp'] ?? '';
+        $userId = $_SESSION['user_id'] ?? null;
+        $code = $_POST['code'] ?? '';
 
-        if (!$uid || !(new OTPService())->verify($uid, $code)) {
-            $this->render('auth/otp', ['error' => 'Code invalide ou expiré']);
+        if (!$userId || !$code) {
+            View::render('auth/otp', ['error' => 'Code manquant.']);
             return;
         }
 
-        $_SESSION['user_id'] = $uid;
-        unset($_SESSION['otp_user_id']);
+        $pdo = new PDO('mysql:host=localhost;dbname=stalhub_dev', 'root', 'root');
 
-        header('Location: /dashboard');
-        exit;
+        $stmt = $pdo->prepare("
+            SELECT * FROM otp_codes 
+            WHERE user_id = ? AND used = 0 AND expires_at > NOW()
+            ORDER BY created_at DESC LIMIT 1
+        ");
+        $stmt->execute([$userId]);
+        $otp = $stmt->fetch();
+
+        if ($otp && password_verify($code, $otp['code_hash'])) {
+            // Marquer comme utilisé
+            $stmt = $pdo->prepare("UPDATE otp_codes SET used = 1 WHERE id = ?");
+            $stmt->execute([$otp['id']]);
+
+            $_SESSION['authenticated'] = true;
+
+            header('Location: /stalhub/dashboard');
+            exit;
+        }
+
+        View::render('auth/otp', ['error' => 'Code invalide ou expiré.']);
     }
 }

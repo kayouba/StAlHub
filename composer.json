@@ -1,35 +1,33 @@
 {
-    "name": "stalhub/stalhub",
-    "description": "StalHub project – PHP nu MVC avec MariaDB",
-    "type": "project",
-    "require": {
-      "vlucas/phpdotenv": "^5.0",
-      "robmorgan/phinx": "^0.12",
-      "phpmailer/phpmailer": "^6.0",
-      "spomky-labs/otphp": "^11.0",
-        "twilio/sdk": "^8.6"
-    },
-    "require-dev": {
-      "phpunit/phpunit": "^9.5"
-    },
-    "autoload": {
+  "name": "stalhub/stalhub",
+  "description": "StalHub project – PHP MVC avec MariaDB",
+  "type": "project",
+  "require": {
+    "vlucas/phpdotenv": "^5.0",
+    "robmorgan/phinx": "^0.12",
+    "phpmailer/phpmailer": "^6.10",
+    "spomky-labs/otphp": "^11.0",
+    "twilio/sdk": "^8.6"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "^9.5"
+  },
+  "autoload": {
     "psr-4": {
-        "Core\\": "libs/",
-        "App\\Controller\\": "controllers/",
-        "App\\Model\\": "models/",
-        "Config\\": "config/"
+      "App\\Controller\\": "controllers/",
+      "App\\": "./"
     }
-    },
-    "autoload-dev": {
-      "psr-4": {
-        "Tests\\": "tests/"
-      }
-    },
-    "scripts": {
-      "test": "phpunit --configuration phpunit.xml",
-      "phinx:migrate": "vendor/bin/phinx migrate",
-      "phinx:rollback": "vendor/bin/phinx rollback"
-    },
-    "minimum-stability": "stable",
-    "license": "MIT"
-  }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Tests\\": "tests/"
+    }
+  },
+  "scripts": {
+    "test": "phpunit --configuration phpunit.xml",
+    "phinx:migrate": "vendor/bin/phinx migrate",
+    "phinx:rollback": "vendor/bin/phinx rollback"
+  },
+  "minimum-stability": "stable",
+  "license": "MIT"
+}

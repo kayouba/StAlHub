@@ -1,8 +1,11 @@
-<h2>Entrez le code OTP reçu par SMS</h2>
+<h2>Vérification du code OTP</h2>
+
 <?php if (!empty($error)): ?>
-  <p style="color:red"><?= htmlspecialchars($error) ?></p>
+    <p style="color: red;"><?= htmlspecialchars($error) ?></p>
 <?php endif; ?>
-<form method="post" action="/otp/verify">
-  <input type="text" name="otp" placeholder="123456" required autofocus>
-  <button type="submit">Valider</button>
+
+<form method="POST" action="/stalhub/otp/verify">
+    <label for="code">Code OTP</label><br>
+    <input type="text" id="code" name="code" required><br><br>
+    <button type="submit">Valider</button>
 </form>
