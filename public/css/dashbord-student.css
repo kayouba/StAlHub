@@ -1,0 +1,68 @@
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+        }
+        .sidebar {
+            width: 220px;
+            background-color: #074f76;
+            color: white;
+            height: 100vh;
+            float: left;
+            padding: 20px;
+        }
+        .sidebar h2 {
+            margin-top: 0;
+        }
+        .sidebar a {
+            color: white;
+            display: block;
+            margin: 15px 0;
+            text-decoration: none;
+        }
+        .main {
+            margin-left: 240px;
+            padding: 20px;
+        }
+        .header {
+            background-color: #074f76;
+            color: white;
+            padding: 15px;
+        }
+        .welcome {
+            margin: 20px 0;
+        }
+        .stats {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .stat-box {
+            background-color: #eee;
+            padding: 15px;
+            flex: 1;
+            border-radius: 5px;
+            text-align: center;
+        }
+        .stage-section {
+            background-color: #f9f9f9;
+            padding: 15px;
+            border-radius: 5px;
+        }
+        .stage-title {
+            color: #0074cc;
+            font-weight: bold;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: center;
+        }
+        .voir-link {
+            color: #0074cc;
+            text-decoration: underline;
+        }

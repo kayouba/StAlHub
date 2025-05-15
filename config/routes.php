@@ -7,4 +7,8 @@ return [
     '/otp/verify'   => ['App\Controller\OTPController',      'verify'],
     '/dashboard'    => ['App\Controller\DashboardController','index'],
     '/logout'       => ['App\LogoutController',              'logout'],
+    '/student/new-request' => ['App\Controller\StudentController', 'newRequest'],
+    '/student/request/step2' => ['App\Controller\StudentController', 'step2'],
+
+
 ];

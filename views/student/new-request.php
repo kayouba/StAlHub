@@ -1,0 +1,59 @@
+<!-- views/student/new-request.php -->
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Nouvelle Demande - Étudiant</title>
+    <link rel="stylesheet" href="/stalhub/public/css/new-request.css">
+</head>
+<body>
+    <?php include __DIR__ . '/../components/sidebar.php'; ?>
+
+    <main class="request-container">
+        <h1>Nouvelle Demande</h1>
+
+        <div class="steps">
+            <div class="step active"><span>1</span> Infos</div>
+            <div class="step"><span>2</span> Stage</div>
+            <div class="step"><span>3</span> Entreprise</div>
+            <div class="step"><span>4</span> Documents</div>
+            <div class="step"><span>5</span> Finalisation</div>
+        </div>
+
+        <form action="/stalhub/student/request/step2" method="POST" class="request-form">
+
+            <h2>Informations personnelles</h2>
+
+            <label>Nom</label>
+            <input type="text" name="last_name" value="<?= $user['last_name'] ?? '' ?>" required>
+
+            <label>Prénom</label>
+            <input type="text" name="first_name" value="<?= $user['first_name'] ?? '' ?>" required>
+
+            <label>Email</label>
+            <input type="email" name="email" value="<?= $user['email'] ?? '' ?>" required>
+
+            <h2>Étudiant</h2>
+
+            <label>Numéro d'étudiant</label>
+            <input type="text" name="student_number" value="<?= $user['student_number'] ?? '' ?>" required>
+
+            <label>Formation</label>
+            <select name="formation" required>
+                <option value="">-- Sélectionner --</option>
+                <option value="LicenceInformatique">Licence Informatique</option>
+                <option value="MasterInformatique">Master Informatique</option>
+            </select>
+
+            <label>Téléphone</label>
+            <input type="tel" name="phone" pattern="^0[1-9]\d{8}$" placeholder="Ex: 0612345678" required>
+            <p class="error-message">⚠️ Le numéro de téléphone est invalide</p>
+
+            <div class="form-actions">
+                <button type="button" onclick="history.back()">← Retour</button>
+                <button type="submit">Continuer</button>
+            </div>
+        </form>
+    </main>
+</body>
+</html>
