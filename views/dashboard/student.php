@@ -12,7 +12,7 @@
 <body>
 
 
-<div style="display: flex; justify-content: center; align-items: center;">
+<div style="display: flex; justify-content: center;">
     <h1>Bienvenue, <?= htmlspecialchars($user['first_name']) . ' ' . htmlspecialchars($user['last_name']) ?></h1>
 </div>
 

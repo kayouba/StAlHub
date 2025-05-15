@@ -5,7 +5,7 @@
     </div>
 
     <nav class="nav-links">
-        <a href="/dashboard">
+        <a href="/stalhub/dashboard">
             <span>🏠</span>
             Tableau de bord
         </a>
