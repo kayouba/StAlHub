@@ -1,0 +1,120 @@
+body {
+    margin: 0;
+    font-family: 'Segoe UI', sans-serif;
+    background-color: #f6f8fa;
+}
+
+.request-container {
+    margin-left: 240px;
+    padding: 30px;
+    max-width: 800px;
+}
+
+h1 {
+    font-size: 24px;
+    margin-bottom: 25px;
+    color: #333;
+}
+
+.steps {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 30px;
+    max-width: 650px;
+}
+
+.step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    color: #555;
+    font-size: 14px;
+    flex: 1;
+}
+
+.step span,
+.step.active span {
+    display: inline-block;
+    width: 35px;
+    height: 35px;
+    line-height: 35px;
+    border-radius: 50%;
+    background-color: #ddd;
+    color: white;
+    text-align: center;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.step.active span {
+    background-color: #1a73e8;
+}
+
+.step.completed {
+    color: #28a745;
+    font-size: 24px;
+    font-weight: bold;
+}
+.request-form {
+    background: white;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.request-form h2 {
+    margin-top: 0;
+    font-size: 20px;
+    margin-bottom: 20px;
+    color: #222;
+}
+
+label {
+    font-weight: bold;
+    display: block;
+    margin: 15px 0 5px;
+}
+
+small {
+    font-weight: normal;
+    color: #777;
+    font-size: 12px;
+}
+
+input[type="file"] {
+    padding: 10px;
+    width: 100%;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    background-color: #fefefe;
+}
+
+.form-actions {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 30px;
+}
+
+button {
+    padding: 10px 20px;
+    border: none;
+    background-color: #1a73e8;
+    color: white;
+    font-weight: bold;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+button:hover {
+    background-color: #155ab6;
+}
+
+button[type="button"] {
+    background-color: #e0e0e0;
+    color: #333;
+}
+
+button[type="button"]:hover {
+    background-color: #ccc;
+}

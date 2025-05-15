@@ -70,5 +70,37 @@ public function step2(): void
     View::render('student/step2');
 }
 
+    public function step3(): void
+    {
+        session_start();
+
+        // Sauvegarde des données du step 2
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $_SESSION['step2'] = $_POST;
+        }
+
+        View::render('student/step3');
+    }
+
+    public function step4(): void
+    {
+        session_start();
+
+        // Sauvegarde les fichiers ou données précédentes si nécessaire
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $_SESSION['step3'] = $_POST;
+        }
+
+        View::render('student/step4');
+    }
+
+    public function step5(): void
+    {
+        session_start();
+        $_SESSION['step4'] = $_FILES; // si fichiers uploadés
+        View::render('student/step5');
+    }
+
+
 
 }

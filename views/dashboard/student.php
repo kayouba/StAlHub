@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>StalHub - Tableau de bord</title>
-    <link rel="stylesheet" href="/stalhub/public/css/dashbord-student.css"> <!-- Mets ton propre chemin -->
+    <link rel="stylesheet" href="/stalhub/public/css/dashbord-student.css">
     <style>
 
     </style>
@@ -12,7 +12,7 @@
 <body>
 
 
-<div class="header" style="display: flex; justify-content: center; align-items: center;">
+<div style="display: flex; justify-content: center; align-items: center;">
     <h1>Bienvenue, <?= htmlspecialchars($user['first_name']) . ' ' . htmlspecialchars($user['last_name']) ?></h1>
 </div>
 

@@ -20,7 +20,7 @@
         <div class="step"><span>5</span> Résumé</div>
     </div>
 
-    <form action="/student/request/step3" method="POST" class="request-form">
+    <form action="/stalhub/student/request/step3" method="POST" class="request-form">
         <h2>Informations sur l’entreprise</h2>
 
         <label>Numéro de SIRET</label>
