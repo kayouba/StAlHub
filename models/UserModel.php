@@ -48,6 +48,18 @@ class UserModel //extends Model
         return $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
     }
 
+    public function update(int $id, array $data): bool
+        {
+            $fields = [];
+            foreach ($data as $key => $value) {
+                $fields[] = "$key = :$key";
+            }
 
-    
+            $sql = "UPDATE users SET " . implode(', ', $fields) . " WHERE id = :id";
+            $stmt = $this->pdo->prepare($sql);
+            $data['id'] = $id;
+
+            return $stmt->execute($data);
+        }
+
 }
