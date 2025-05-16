@@ -9,7 +9,7 @@
             <span>🏠</span>
             Tableau de bord
         </a>
-        <a href="/profile">
+        <a href="/stalhub/profile">
             <span>👤</span>
             Profil
         </a>
