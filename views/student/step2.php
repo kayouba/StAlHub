@@ -4,10 +4,10 @@
     <meta charset="UTF-8">
     <title>StalHub - Tableau de bord</title>
     <link rel="stylesheet" href="/stalhub/public/css/step2.css">
-    <style>
-
-    </style>
+    <script src="/stalhub/public/js/request.js" defer></script>
 </head>
+
+
 <?php include __DIR__ . '/../components/sidebar.php'; ?>
 <main class="request-container">
     <h1>Nouvelle Demande</h1>
@@ -23,8 +23,12 @@
     <form action="/stalhub/student/request/step3" method="POST" class="request-form">
         <h2>Informations sur l’entreprise</h2>
 
-        <label>Numéro de SIRET</label>
-        <input type="text" name="siret" required>
+        <!-- <label>Numéro de SIRET</label>
+        <input type="text" name="siret" required> -->
+        <label>SIRET de l'entreprise</label>
+        <input type="text" name="siret" id="siret" required>
+        <div id="siret-result" style="margin-bottom: 1em; color: green;"></div>
+
 
         <label>Nom de l'entreprise</label>
         <input type="text" name="company_name" required>
@@ -44,6 +48,10 @@
 
         <label>Code Postal</label>
         <input type="text" name="postal_code" required>
+
+        
+        <label>Email du référent dans l'entreprise</label>
+        <input type="email" name="referent_email" placeholder="jean.dupont@entreprise.com" required>
 
         <div class="form-actions">
             <button type="button" onclick="history.back()">← Retour</button>

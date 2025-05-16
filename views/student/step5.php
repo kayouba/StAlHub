@@ -16,6 +16,7 @@
         <div class="step completed">✔</div>
         <div class="step active"><span>5</span> Résumé</div>
     </div>
+<form action="/stalhub/student/request/step5" method="POST" enctype="multipart/form-data">
 
     <div class="summary-box">
         <h2>Résumé de votre demande</h2>
@@ -54,5 +55,7 @@
             <button type="button" onclick="history.back()">← Retour</button>
             <button type="submit">Soumettre la demande</button>
         </div>
+        
     </div>
+</form>
 </main>

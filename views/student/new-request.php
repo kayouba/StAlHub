@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="/stalhub/public/css/new-request.css">
 </head>
 <body>
+
     <?php include __DIR__ . '/../components/sidebar.php'; ?>
 
     <main class="request-container">
@@ -25,29 +26,45 @@
             <h2>Informations personnelles</h2>
 
             <label>Nom</label>
-            <input type="text" name="last_name" value="<?= $user['last_name'] ?? '' ?>" required>
+            <input type="text" name="last_name" value="<?= $user['last_name'] ?? '' ?>" required
+                   oninvalid="this.setCustomValidity('Veuillez saisir votre nom')"
+                   oninput="this.setCustomValidity('')">
 
             <label>Prénom</label>
-            <input type="text" name="first_name" value="<?= $user['first_name'] ?? '' ?>" required>
+            <input type="text" name="first_name" value="<?= $user['first_name'] ?? '' ?>" required
+                   oninvalid="this.setCustomValidity('Veuillez saisir votre prénom')"
+                   oninput="this.setCustomValidity('')">
 
             <label>Email</label>
-            <input type="email" name="email" value="<?= $user['email'] ?? '' ?>" required>
+            <input type="email" name="email" value="<?= $user['email'] ?? '' ?>" required
+                   oninvalid="this.setCustomValidity('Veuillez entrer une adresse email valide')"
+                   oninput="this.setCustomValidity('')">
 
             <h2>Étudiant</h2>
 
             <label>Numéro d'étudiant</label>
-            <input type="text" name="student_number" value="<?= $user['student_number'] ?? '' ?>" required>
+            <input type="text" name="student_number" value="<?= $user['student_number'] ?? '' ?>" required
+                   oninvalid="this.setCustomValidity('Veuillez entrer votre numéro d\'étudiant')"
+                   oninput="this.setCustomValidity('')">
+
+            <label>Parcours</label>
+            <input type="text" name="parcours" value="MIAGE" readonly>
 
             <label>Formation</label>
-            <select name="formation" required>
+            <select name="formation" required
+                    oninvalid="this.setCustomValidity('Veuillez sélectionner votre formation')"
+                    oninput="this.setCustomValidity('')">
                 <option value="">-- Sélectionner --</option>
-                <option value="LicenceInformatique">Licence Informatique</option>
-                <option value="MasterInformatique">Master Informatique</option>
+                <option value="Licence1">Licence 3</option>
+                <option value="Master1">Master 1</option>
+                <option value="Master2">Master 2</option>
             </select>
 
             <label>Téléphone</label>
-            <input type="tel" name="phone" pattern="^0[1-9]\d{8}$" placeholder="Ex: 0612345678" required>
-            <p class="error-message">⚠️ Le numéro de téléphone est invalide</p>
+            <input type="tel" name="phone" pattern="^0[1-9]\d{8}$" placeholder="Ex: 0612345678" required
+                   oninvalid="this.setCustomValidity('Veuillez entrer un numéro de téléphone valide (ex: 0612345678)')"
+                   oninput="this.setCustomValidity('')">
+            <p class="error-message">⚠️ Le numéro de téléphone est invalide ou manquant</p>
 
             <div class="form-actions">
                 <button type="button" onclick="history.back()">← Retour</button>

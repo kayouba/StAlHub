@@ -14,7 +14,7 @@ class DashboardController extends BaseController
 
         $this->requireAuth();
 
-        session_start();
+        // session_start();
 
         $userId = $_SESSION['user_id'] ?? null;
         

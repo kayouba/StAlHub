@@ -5,7 +5,7 @@ class BaseController
 {
     protected function requireAuth(): void
     {
-        session_start();
+        // session_start();
         if (empty($_SESSION['authenticated'])) {
             header('Location: /stalhub/login');
             exit;

@@ -37,16 +37,16 @@ class UserModel //extends Model
     /**
      * Recherche un utilisateur par id 
      */
-        public function findById(int $id): ?array
-        {
-            
-            $stmt = $this->pdo->prepare(
-                "SELECT * FROM `{$this->table}` WHERE id = :id LIMIT 1"
-            );
-            $stmt->execute(['id' => $id]);
+    public function findById(int $id): ?array
+    {
+        
+        $stmt = $this->pdo->prepare(
+            "SELECT * FROM `{$this->table}` WHERE id = :id LIMIT 1"
+        );
+        $stmt->execute(['id' => $id]);
 
-            return $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
-        }
+        return $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
+    }
 
 
     

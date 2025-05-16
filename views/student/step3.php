@@ -27,9 +27,7 @@
         <select name="contract_type" required>
             <option value="">-- Sélectionner --</option>
             <option value="Stage">Stage</option>
-            <option value="Alternance">Alternance</option>
-            <option value="CDD">CDD</option>
-            <option value="CDI">CDI</option>
+            <option value="apprenticeship">Alternance</option>
         </select>
 
         <label>Intitulé du poste</label>
