@@ -86,7 +86,7 @@
   </style>
 </head>
 <body>
-
+  <?php include __DIR__ . '/../components/sidebar.php'; ?>
   <div class="container">
     <h2><i class="fas fa-user-graduate"></i> Compléter le Profil Étudiant</h2>
     

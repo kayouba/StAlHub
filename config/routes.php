@@ -14,6 +14,7 @@ return [
     '/student/request/step3' => ['App\Controller\StudentController', 'step3'],
     '/student/request/step4' => ['App\Controller\StudentController', 'step4'],
     '/student/request/step5' => ['App\Controller\StudentController', 'step5'],
+    '/student/request/view' => ['App\Controller\StudentController', 'viewRequest'],
     '/profile'         => ['App\Controller\ProfileController', 'index'],
     '/profile/submit'  => ['App\Controller\ProfileController', 'submit'],
 

@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="fr">
-
 <head>
     <meta charset="UTF-8">
     <title>StalHub - Tableau de bord</title>
@@ -31,46 +30,46 @@
         <div class="step completed">✔</div>
         <div class="step active"><span>5</span> Résumé</div>
     </div>
-<form action="/stalhub/student/request/step5" method="POST" enctype="multipart/form-data">
 
-    <div class="summary-box">
-        <h2>Résumé de votre demande</h2>
+    <form action="/stalhub/student/request/step5" method="POST" enctype="multipart/form-data">
 
-        <section>
-            <h3>Informations personnelles</h3>
-            <p><strong>Nom :</strong> <?= htmlspecialchars($_SESSION['step1']['last_name'] ?? '') ?></p>
-            <p><strong>Prénom :</strong> <?= htmlspecialchars($_SESSION['step1']['first_name'] ?? '') ?></p>
-            <p><strong>Email :</strong> <?= htmlspecialchars($_SESSION['step1']['email'] ?? '') ?></p>
-            <p><strong>Numéro étudiant :</strong> <?= htmlspecialchars($_SESSION['step1']['student_number'] ?? '') ?></p>
-            <p><strong>Formation :</strong> <?= htmlspecialchars($_SESSION['step1']['formation'] ?? '') ?></p>
-        </section>
+        <div class="summary-box">
+            <h2>Résumé de votre demande</h2>
 
-        <section>
-            <h3>Entreprise</h3>
-            <p><strong>SIRET :</strong> <?= htmlspecialchars($_SESSION['step2']['siret'] ?? '') ?></p>
-            <p><strong>Nom :</strong> <?= htmlspecialchars($_SESSION['step2']['company_name'] ?? '') ?></p>
-            <p><strong>SIREN :</strong> <?= htmlspecialchars($_SESSION['step2']['siren'] ?? '') ?></p>
-            <p><strong>Secteur :</strong> <?= htmlspecialchars($_SESSION['step2']['industry'] ?? '') ?></p>
-            <p><strong>Ville :</strong> <?= htmlspecialchars($_SESSION['step2']['city'] ?? '') ?></p>
-            <p><strong>Code postal :</strong> <?= htmlspecialchars($_SESSION['step2']['postal_code'] ?? '') ?></p>
-        </section>
+            <section>
+                <h3>Informations personnelles</h3>
+                <p><strong>Nom :</strong> <?= htmlspecialchars($_SESSION['step1']['last_name'] ?? '') ?></p>
+                <p><strong>Prénom :</strong> <?= htmlspecialchars($_SESSION['step1']['first_name'] ?? '') ?></p>
+                <p><strong>Email :</strong> <?= htmlspecialchars($_SESSION['step1']['email'] ?? '') ?></p>
+                <p><strong>Numéro étudiant :</strong> <?= htmlspecialchars($_SESSION['step1']['student_number'] ?? '') ?></p>
+                <p><strong>Formation :</strong> <?= htmlspecialchars($_SESSION['step1']['formation'] ?? '') ?></p>
+            </section>
 
-        <section>
-            <h3>Poste</h3>
-            <p><strong>Type :</strong> <?= htmlspecialchars($_SESSION['step3']['contract_type'] ?? '') ?></p>
-            <p><strong>Intitulé :</strong> <?= htmlspecialchars($_SESSION['step3']['job_title'] ?? '') ?></p>
-            <p><strong>Date début :</strong> <?= htmlspecialchars($_SESSION['step3']['start_date'] ?? '') ?></p>
-            <p><strong>Date fin :</strong> <?= htmlspecialchars($_SESSION['step3']['end_date'] ?? '') ?></p>
-            <p><strong>Volume horaire :</strong> <?= htmlspecialchars($_SESSION['step3']['weekly_hours'] ?? '') ?> h/semaine</p>
-            <p><strong>Rémunération :</strong> <?= htmlspecialchars($_SESSION['step3']['salary'] ?? '') ?> €/mois</p>
-            <p><strong>Missions :</strong> <?= nl2br(htmlspecialchars($_SESSION['step3']['missions'] ?? '')) ?></p>
-        </section>
+            <section>
+                <h3>Entreprise</h3>
+                <p><strong>SIRET :</strong> <?= htmlspecialchars($_SESSION['step2']['siret'] ?? '') ?></p>
+                <p><strong>Nom :</strong> <?= htmlspecialchars($_SESSION['step2']['company_name'] ?? '') ?></p>
+                <p><strong>SIREN :</strong> <?= htmlspecialchars($_SESSION['step2']['siren'] ?? '') ?></p>
+                <p><strong>Secteur :</strong> <?= htmlspecialchars($_SESSION['step2']['industry'] ?? '') ?></p>
+                <p><strong>Ville :</strong> <?= htmlspecialchars($_SESSION['step2']['city'] ?? '') ?></p>
+                <p><strong>Code postal :</strong> <?= htmlspecialchars($_SESSION['step2']['postal_code'] ?? '') ?></p>
+            </section>
 
-        <div class="form-actions">
-            <button type="button" onclick="history.back()">← Retour</button>
-            <button type="submit">Soumettre la demande</button>
+            <section>
+                <h3>Poste</h3>
+                <p><strong>Type :</strong> <?= htmlspecialchars($_SESSION['step3']['contract_type'] ?? '') ?></p>
+                <p><strong>Intitulé :</strong> <?= htmlspecialchars($_SESSION['step3']['job_title'] ?? '') ?></p>
+                <p><strong>Date début :</strong> <?= htmlspecialchars($_SESSION['step3']['start_date'] ?? '') ?></p>
+                <p><strong>Date fin :</strong> <?= htmlspecialchars($_SESSION['step3']['end_date'] ?? '') ?></p>
+                <p><strong>Volume horaire :</strong> <?= htmlspecialchars($_SESSION['step3']['weekly_hours'] ?? '') ?> h/semaine</p>
+                <p><strong>Rémunération :</strong> <?= htmlspecialchars($_SESSION['step3']['salary'] ?? '') ?> €/mois</p>
+                <p><strong>Missions :</strong> <?= nl2br(htmlspecialchars($_SESSION['step3']['missions'] ?? '')) ?></p>
+            </section>
+
+            <div class="form-actions">
+                <a href="/stalhub/student/request/step4" class="button">← Retour</a>
+                <button type="submit">Soumettre la demande</button>
+            </div>
         </div>
-        
-    </div>
-</form>
+    </form>
 </main>

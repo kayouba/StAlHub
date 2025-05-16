@@ -60,8 +60,12 @@ class StudentController
             exit;
         }
 
+
+        // Surcharge les valeurs de l'utilisateur avec les données déjà saisies dans step1
+        $formData = $_SESSION['step1'] ?? [];
+
         View::render('student/new-request', [
-            'user' => $user
+            'user' => array_merge($user, $formData)
         ]);
     }
 
@@ -72,7 +76,9 @@ class StudentController
         $_SESSION['step1'] = $_POST;
         // var_dump($_SESSION);
 
-        View::render('student/step2');
+        View::render('student/step2', [
+            'step1' => $_SESSION['step1'] ?? []
+        ]);
     }
 
     public function step3(): void
@@ -82,10 +88,10 @@ class StudentController
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $_SESSION['step2'] = $_POST;
         }
-            // var_dump($_SESSION);
 
-
-        View::render('student/step3');
+        View::render('student/step3', [
+            'step2' => $_SESSION['step2'] ?? []
+        ]);
     }
 
     public function step4(): void
@@ -95,19 +101,11 @@ class StudentController
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $_SESSION['step3'] = $_POST;
         }
-    // var_dump($_SESSION);
 
-        View::render('student/step4');
+        View::render('student/step4', [
+            'step3' => $_SESSION['step3'] ?? []
+        ]);
     }
-
-    // public function step5(): void
-    // {
-
-    //     $_SESSION['step4'] = $_FILES; // si fichiers uploadés
-    //     // var_dump($_SESSION);
-
-    //     View::render('student/step5');
-    // }
 
 
 
@@ -158,5 +156,35 @@ class StudentController
 
         exit;
     }
+
+
+    public function viewRequest(): void
+    {
+        $userId = $_SESSION['user_id'] ?? null;
+        $requestId = $_GET['id'] ?? null;
+
+        if (!$userId || !$requestId) {
+            header('Location: /stalhub/dashboard');
+            exit;
+        }
+
+        $requestModel = new RequestModel();
+        $documentModel = new RequestDocumentModel();
+
+        $request = $requestModel->findByIdForUser($requestId, $userId);
+        $documents = $documentModel->getDocumentsForRequest($requestId);
+
+        if (!$request) {
+            $_SESSION['error'] = "Demande introuvable.";
+            header('Location: /stalhub/dashboard');
+            exit;
+        }
+
+        View::render('student/view-request', [
+            'request' => $request,
+            'documents' => $documents
+        ]);
+    }
+
 
 }

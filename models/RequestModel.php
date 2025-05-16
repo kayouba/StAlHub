@@ -71,6 +71,39 @@ class RequestModel
         return $requestId;
     }
 
+    public function findByIdForUser(int $requestId, int $userId): ?array
+    {
+        $sql = "SELECT 
+                    r.*, 
+                    c.name AS company_name, 
+                    c.siret, 
+                    c.city, 
+                    c.postal_code,
+                    u.first_name,
+                    u.last_name,
+                    u.email,
+                    u.student_number,
+                    u.phone_number AS phone,
+                    r.mission,
+                    r.salary_value AS salary,
+                    r.salary_duration
+                FROM requests r
+                JOIN companies c ON r.company_id = c.id
+                JOIN users u ON r.student_id = u.id
+                WHERE r.id = :requestId AND r.student_id = :userId";
+
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute([
+            'requestId' => $requestId,
+            'userId' => $userId
+        ]);
+
+        $result = $stmt->fetch(\PDO::FETCH_ASSOC);
+        return $result ?: null;
+    }
+
+
+
 
 
 }

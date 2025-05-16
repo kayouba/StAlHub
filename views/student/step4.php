@@ -1,3 +1,4 @@
+<?php $step3 = $step3 ?? []; ?>
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -5,6 +6,7 @@
     <title>StalHub - Tableau de bord</title>
     <link rel="stylesheet" href="/stalhub/public/css/step4.css">
 </head>
+
 <?php include __DIR__ . '/../components/sidebar.php'; ?>
 
 <main class="request-container">
@@ -33,7 +35,7 @@
         <input type="file" name="justification" accept=".pdf,.jpg,.jpeg,.png">
 
         <div class="form-actions">
-            <button type="button" onclick="history.back()">← Retour</button>
+            <a href="/stalhub/student/request/step3" class="button">← Retour</a>
             <button type="submit">Continuer</button>
         </div>
     </form>

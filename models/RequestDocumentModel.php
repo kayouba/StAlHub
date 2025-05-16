@@ -29,4 +29,12 @@ class RequestDocumentModel
             'status'     => 'submitted'
         ]);
     }
+    public function getDocumentsForRequest(int $requestId): array
+    {
+        $sql = "SELECT label, file_path FROM request_documents WHERE request_id = :requestId";
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute(['requestId' => $requestId]);
+        return $stmt->fetchAll(\PDO::FETCH_ASSOC);
+    }
+
 }

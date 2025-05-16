@@ -1,5 +1,8 @@
-<!-- views/components/sidebar.php -->
-<aside class="sidebar">
+<!-- Bouton mobile (affiché uniquement sur petits écrans) -->
+<div class="sidebar-toggle" onclick="toggleSidebar()">☰</div>
+
+<!-- Barre latérale -->
+<aside class="sidebar" id="sidebar">
     <div class="logo">
         <h2>StAlHub</h2>
     </div>
@@ -31,6 +34,8 @@
         color: white;
         padding: 20px;
         box-sizing: border-box;
+        transition: transform 0.3s ease;
+        z-index: 998;
     }
 
     .sidebar .logo {
@@ -57,4 +62,40 @@
     .nav-links span {
         margin-right: 8px;
     }
+
+    /* Bouton hamburger pour mobile */
+    .sidebar-toggle {
+        display: none;
+        position: fixed;
+        top: 10px;
+        left: 10px;
+        font-size: 28px;
+        background-color: #074f76;
+        color: white;
+        padding: 5px 10px;
+        border-radius: 5px;
+        cursor: pointer;
+        z-index: 999;
+    }
+
+    @media screen and (max-width: 768px) {
+        .sidebar {
+            transform: translateX(-100%);
+        }
+
+        .sidebar.visible {
+            transform: translateX(0);
+        }
+
+        .sidebar-toggle {
+            display: block;
+        }
+    }
 </style>
+
+<script>
+    function toggleSidebar() {
+        const sidebar = document.getElementById('sidebar');
+        sidebar.classList.toggle('visible');
+    }
+</script>

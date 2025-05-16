@@ -67,17 +67,20 @@
           </tr>
         </thead>
         <tbody>
-          <?php foreach ($requests as $request): ?>
+        <?php foreach ($requests as $request): ?>
             <tr>
-            <td><?= $request['contract_type'] === 'stage' ? 'Stage' : 'Alternance' ?></td>
-              <td><?= htmlspecialchars($request['company_name']) ?></td>
-              <td><?= htmlspecialchars($request['start_date']) ?></td>
-              <td><?= htmlspecialchars($request['end_date']) ?></td>
-              <td><?= ucfirst(strtolower($request['status'])) ?></td>
-              <td><a class="voir-link" href="/stalhub/student/request/view?id=<?= $request['id'] ?>">voir</a></td>
+            <td data-label="Type de demande"><?= $request['contract_type'] === 'stage' ? 'Stage' : 'Alternance' ?></td>
+            <td data-label="Entreprise"><?= htmlspecialchars($request['company_name']) ?></td>
+            <td data-label="Date de début"><?= htmlspecialchars($request['start_date']) ?></td>
+            <td data-label="Date de fin"><?= htmlspecialchars($request['end_date']) ?></td>
+            <td data-label="État"><?= ucfirst(strtolower($request['status'])) ?></td>
+            <td data-label="Action">
+                <a class="voir-link" href="/stalhub/student/request/view?id=<?= $request['id'] ?>">voir</a>
+            </td>
             </tr>
-          <?php endforeach; ?>
+        <?php endforeach; ?>
         </tbody>
+
       </table>
     <?php endif; ?>
   </div>
