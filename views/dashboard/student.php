@@ -69,7 +69,7 @@
         <tbody>
           <?php foreach ($requests as $request): ?>
             <tr>
-              <td><?= htmlspecialchars($request['contract_type']) ?></td>
+              <td><?= $request['contract_type'] === 'stage' ? 'Stage' : 'Alternance' ?></td>
               <td><?= htmlspecialchars($request['company_name']) ?></td>
               <td><?= htmlspecialchars($request['start_date']) ?></td>
               <td><?= htmlspecialchars($request['end_date']) ?></td>
