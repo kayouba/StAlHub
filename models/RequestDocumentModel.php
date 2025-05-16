@@ -19,13 +19,14 @@ class RequestDocumentModel
         $stmt = $this->pdo->prepare("INSERT INTO request_documents (
             request_id, file_path, label, status, uploaded_at
         ) VALUES (
-            :request_id, :file_path, :label, 'valide', NOW()
+            :request_id, :file_path, :label, :status, NOW()
         )");
 
         $stmt->execute([
             'request_id' => $requestId,
             'file_path'  => $filePath,
-            'label'      => $label
+            'label'      => $label,
+            'status'     => 'submitted'
         ]);
     }
 }

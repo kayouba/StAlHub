@@ -152,7 +152,10 @@ class StudentController
             }
         }
 
-        header('Location: /stalhub/student/dashboard');
+        $_SESSION['success_message'] = "Votre demande a bien été soumise.";
+        header('Location: /stalhub/dashboard');
+        exit;
+
         exit;
     }
 

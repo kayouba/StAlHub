@@ -1,10 +1,25 @@
 <!DOCTYPE html>
 <html lang="fr">
+
 <head>
     <meta charset="UTF-8">
     <title>StalHub - Tableau de bord</title>
     <link rel="stylesheet" href="/stalhub/public/css/step5.css">
+    <script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const form = document.querySelector('form');
+        const submitBtn = form.querySelector('button[type="submit"]');
+
+        submitBtn.addEventListener('click', function (e) {
+            const confirmed = confirm("Êtes-vous sûr de vouloir soumettre cette demande ?");
+            if (!confirmed) {
+                e.preventDefault();
+            }
+        });
+    });
+    </script>
 </head>
+
 <?php include __DIR__ . '/../components/sidebar.php'; ?>
 <main class="request-container">
     <h1>Nouvelle Demande</h1>

@@ -1,5 +1,6 @@
 <?php
 namespace App\Model;
+use App\Model\StatusHistoryModel;
 use App\Lib\Database;
 
 
@@ -14,8 +15,27 @@ class RequestModel
     {
         $this->pdo = Database::getConnection();
     }
+
+    /**
+     * Permets de recupérer les demande de l'étudiant
+     */
+    public function findByStudentId(int $studentId): array
+    {
+        $stmt = $this->pdo->prepare("
+            SELECT r.*, c.name AS company_name 
+            FROM requests r
+            JOIN companies c ON c.id = r.company_id
+            WHERE r.student_id = :student_id
+            ORDER BY r.created_on DESC
+        ");
+        $stmt->execute(['student_id' => $studentId]);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+
     public function createRequest(array $step3, int $userId, int $companyId, array $step2): int
     {
+        $status = 'SOUMISE';
         $stmt = $this->pdo->prepare("INSERT INTO requests (
             student_id, company_id, contract_type, referent_email, mission,
             start_date, end_date, supervisor, salary_value, salary_duration,
@@ -42,7 +62,13 @@ class RequestModel
             'status'         => 'SOUMISE',
         ]);
 
-        return (int)$this->pdo->lastInsertId();
+        $requestId = (int)$this->pdo->lastInsertId();
+
+        // Créer une entrée de statut
+        $statusHistoryModel = new StatusHistoryModel();
+        $statusHistoryModel->logStatusChange($requestId, $status);
+
+        return $requestId;
     }
 
 
