@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>Connexion – StalHub</title>
+    <title>Créer un compte – StalHub</title>
     <style>
         body {
             margin: 0;
@@ -15,26 +15,21 @@
             height: 100vh;
         }
 
-        .login-container {
+        .register-container {
             background-color: #fff;
             padding: 40px;
             border-radius: 10px;
             width: 380px;
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-            text-align: center;
         }
 
-        .login-container img {
-            width: 180px;
-            margin-bottom: 20px;
-        }
-
-        .login-container h2 {
+        .register-container h2 {
             color: #004A7C;
+            text-align: center;
             margin-bottom: 25px;
         }
 
-        .login-container input {
+        .register-container input {
             width: 100%;
             padding: 12px;
             margin-bottom: 16px;
@@ -43,7 +38,7 @@
             font-size: 14px;
         }
 
-        .login-container button {
+        .register-container button {
             width: 100%;
             padding: 12px;
             background-color: #004A7C;
@@ -56,46 +51,37 @@
             transition: background-color 0.3s ease;
         }
 
-        .login-container button:hover {
+        .register-container button:hover {
             background-color: #00345a;
         }
 
-        .register-link {
+        .back-link {
             display: block;
+            text-align: center;
             margin-top: 15px;
             font-size: 14px;
             color: #004A7C;
             text-decoration: none;
         }
 
-        .register-link:hover {
+        .back-link:hover {
             text-decoration: underline;
-        }
-
-        .error {
-            color: red;
-            font-size: 14px;
-            margin-bottom: 16px;
         }
     </style>
 </head>
 <body>
 
-    <div class="login-container">
-<img src="/stalhub/assets/img/universite-bordeaux.png" alt="Université de Bordeaux">
-        <h2>Connexion à StalHub</h2>
-
-        <?php if (!empty($error)): ?>
-            <div class="error"><?= htmlspecialchars($error) ?></div>
-        <?php endif; ?>
-
-        <form method="POST" action="/stalhub/login/post">
+    <div class="register-container">
+        <h2>Créer un compte</h2>
+        <form method="POST" action="/stalhub/register/post">
+            <input type="text" name="first_name" placeholder="Prénom" required>
+            <input type="text" name="last_name" placeholder="Nom" required>
             <input type="email" name="email" placeholder="Adresse e-mail" required>
+            <input type="text" name="phone_number" placeholder="Téléphone" required>
             <input type="password" name="password" placeholder="Mot de passe" required>
-            <button type="submit">Se connecter</button>
+            <button type="submit">Créer le compte</button>
         </form>
-
-        <a class="register-link" href="/stalhub/register">Pas encore de compte ? S'inscrire</a>
+        <a class="back-link" href="/stalhub/login">← Déjà inscrit ? Se connecter</a>
     </div>
 
 </body>

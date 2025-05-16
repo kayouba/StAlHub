@@ -4,10 +4,14 @@ namespace App\Controller;
 use App\View;
 use PDO;
 use PHPMailer\PHPMailer\PHPMailer;
-use PHPMailer\PHPMailer\Exception;
 
 class AuthController
 {
+    public function landing(): void
+    {
+        View::render('auth/landing');
+    }
+
     public function showLoginForm(): void
     {
         View::render('auth/login');
@@ -39,32 +43,42 @@ class AuthController
         $stmt = $pdo->prepare("INSERT INTO otp_codes (user_id, code_hash, expires_at) VALUES (?, ?, NOW() + INTERVAL 5 MINUTE)");
         $stmt->execute([$user['id'], $hash]);
 
-        // Envoi du mail OTP via PHPMailer
+        // Envoi OTP par mail via PHPMailer
         $mail = new PHPMailer(true);
-
-        try {
-            $mail->isSMTP();
-            $mail->Host = 'localhost';
-            $mail->Port = 1025;
-            $mail->SMTPAuth = false;
-            $mail->SMTPSecure = false;
-
-            $mail->setFrom('no-reply@stalhub.local', 'StalHub');
-            $mail->addAddress($user['email']);
-
-            $mail->isHTML(false);
-            $mail->Subject = 'Votre code OTP';
-            $mail->Body = "Voici votre code OTP : $otp";
-
-            $mail->send();
-        } catch (Exception $e) {
-            View::render('auth/login', [
-                'error' => "Erreur lors de l’envoi de l’e-mail : {$mail->ErrorInfo}"
-            ]);
-            return;
-        }
+        $mail->isSMTP();
+        $mail->Host = 'localhost';
+        $mail->Port = 1025;
+        $mail->SMTPAuth = false;
+        $mail->SMTPSecure = false;
+        $mail->setFrom('no-reply@stalhub.local', 'StalHub');
+        $mail->addAddress($user['email']);
+        $mail->isHTML(false);
+        $mail->Subject = 'Votre code OTP';
+        $mail->Body = "Voici votre code : $otp";
+        $mail->send();
 
         header('Location: /stalhub/otp');
+        exit;
+    }
+
+    public function showRegisterForm(): void
+    {
+        View::render('auth/register');
+    }
+
+    public function register(): void
+    {
+        $first = $_POST['first_name'];
+        $last = $_POST['last_name'];
+        $email = $_POST['email'];
+        $phone = $_POST['phone_number'];
+        $password = password_hash($_POST['password'], PASSWORD_DEFAULT);
+
+        $pdo = new PDO('mysql:host=localhost;dbname=stalhub_dev', 'root', 'root');
+        $stmt = $pdo->prepare("INSERT INTO users (first_name, last_name, email, phone_number, password, created_at, is_active) VALUES (?, ?, ?, ?, ?, NOW(), 1)");
+        $stmt->execute([$first, $last, $email, $phone, $password]);
+
+        header('Location: /stalhub/login');
         exit;
     }
 }
