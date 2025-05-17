@@ -118,3 +118,8 @@ button[type="button"] {
 button[type="button"]:hover {
     background-color: #ccc;
 }
+
+.note {
+    font-size: 0.9em;
+    color: #555;
+}

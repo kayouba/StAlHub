@@ -36,6 +36,8 @@ class AuthController
         }
 
         $_SESSION['user_id'] = $user['id'];
+        $_SESSION['role'] = $user['role'] ?? 'student';
+
 
         $otp = random_int(100000, 999999);
         $hash = password_hash($otp, PASSWORD_DEFAULT);

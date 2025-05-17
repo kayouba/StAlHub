@@ -1,0 +1,96 @@
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: #f8f9fa;
+        }
+
+        main.admin-dashboard {
+            max-width: 1200px;
+            margin-left: 250px; /* Ajuste si ta sidebar fait 250px */
+            padding: 2rem;
+            background: #fff;
+        }
+
+        .stats {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .card {
+            flex: 1;
+            padding: 1.5rem;
+            border-radius: 8px;
+            color: white;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .card.blue { background-color: #007bff; }
+        .card.green { background-color: #28a745; }
+        .card.red { background-color: #dc3545; }
+
+        .tabs {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .tab {
+            background: none;
+            border: none;
+            border-bottom: 2px solid transparent;
+            font-size: 1rem;
+            padding: 0.5rem;
+            cursor: pointer;
+        }
+
+        .tab.active {
+            border-bottom-color: #007bff;
+            font-weight: bold;
+        }
+
+        .user-list {
+            background: #fff;
+            padding: 1rem;
+            border-radius: 8px;
+        }
+
+        .user-list .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .user-list table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .user-list th, .user-list td {
+            padding: 0.75rem;
+            border-bottom: 1px solid #ddd;
+            text-align: left;
+        }
+
+        .user-list a {
+            color: #007bff;
+            text-decoration: none;
+        }
+
+        .user-list a:hover {
+            text-decoration: underline;
+        }
+
+        .button {
+            background-color: #007bff;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            text-decoration: none;
+        }
+
+        .button:hover {
+            background-color: #0056b3;
+        }

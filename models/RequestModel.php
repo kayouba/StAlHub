@@ -102,6 +102,26 @@ class RequestModel
         return $result ?: null;
     }
 
+    public function getAdminStats(): array
+    {
+        $sql = "
+            SELECT 
+                SUM(status = 'SOUMISE') as pending,
+                SUM(status = 'VALIDEE') as approved,
+                SUM(status = 'REFUSEE') as rejected
+            FROM requests
+        ";
+        $stmt = $this->pdo->query($sql);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+
+    public function countByStatus(string $status): int
+    {
+        $stmt = $this->pdo->prepare("SELECT COUNT(*) FROM requests WHERE status = :status");
+        $stmt->execute(['status' => $status]);
+        return (int) $stmt->fetchColumn();
+    }
 
 
 

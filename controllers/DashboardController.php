@@ -10,41 +10,40 @@ class DashboardController extends BaseController
 {
 
     
-    public function index(): void
-    {
+public function index(): void
+{
+    $this->requireAuth();
 
-        $this->requireAuth();
+    $userId = $_SESSION['user_id'] ?? null;
+    $role = $_SESSION['role'] ?? null;
 
-        // session_start();
-
-        $userId = $_SESSION['user_id'] ?? null;
-        
-        if (!$userId) {
-            header('Location: /stalhub/login');
-            exit;
-        }
-        
-        // Charger l'utilisateur
-        $userModel = new UserModel();
-        // $userModel = new \App\Model\UserModel();
-        $user = $userModel->findById($userId);
-        
-        if (!$user) {
-            session_destroy();
-            header('Location: /stalhub/login');
-            exit;
-        }
-        $requestModel = new RequestModel();
-        // $requestModel = new \App\Model\RequestModel();
-        $requests = $requestModel->findByStudentId($userId);
-
-        // Appel à la vue du tableau de bord
-        View::render('dashboard/student', [
-            'user' => $user,
-            'requests' => $requests,
-        ]);
-        // $user = $userModel->findById($userId);
-
-        // View::render('dashboard/student');
+    if (!$userId) {
+        header('Location: /stalhub/login');
+        exit;
     }
+
+    if ($role === 'admin') {
+        header('Location: /stalhub/admin/dashboard');
+        exit;
+    }
+
+    // === Étudiant ===
+    $userModel = new UserModel();
+    $user = $userModel->findById($userId);
+
+    if (!$user) {
+        session_destroy();
+        header('Location: /stalhub/login');
+        exit;
+    }
+
+    $requestModel = new RequestModel();
+    $requests = $requestModel->findByStudentId($userId);
+
+    View::render('dashboard/student', [
+        'user' => $user,
+        'requests' => $requests,
+    ]);
+}
+
 }

@@ -52,7 +52,7 @@
                placeholder="jean.dupont@entreprise.com" required>
 
         <div class="form-actions">
-            <a href="/stalhub/student/request" class="button">← Retour</a>
+            <a href="/stalhub/student/new-request" class="button">← Retour</a>
             <button type="submit">Continuer</button>
         </div>
     </form>

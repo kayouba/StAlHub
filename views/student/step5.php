@@ -31,7 +31,7 @@
         <div class="step active"><span>5</span> Résumé</div>
     </div>
 
-    <form action="/stalhub/student/request/step5" method="POST" enctype="multipart/form-data">
+    <form action="/stalhub/student/request/submit" method="POST" enctype="multipart/form-data">
 
         <div class="summary-box">
             <h2>Résumé de votre demande</h2>
@@ -65,6 +65,19 @@
                 <p><strong>Rémunération :</strong> <?= htmlspecialchars($_SESSION['step3']['salary'] ?? '') ?> €/mois</p>
                 <p><strong>Missions :</strong> <?= nl2br(htmlspecialchars($_SESSION['step3']['missions'] ?? '')) ?></p>
             </section>
+
+            <section>
+                <h3>Documents</h3>
+                <?php foreach (['cv' => 'CV', 'insurance' => 'Assurance', 'justification' => 'Justificatif'] as $key => $label): ?>
+                    <?php if (!empty($_SESSION['step4'][$key])): ?>
+                        <p>
+                            <strong><?= $label ?> :</strong>
+                            <a href="<?= htmlspecialchars($_SESSION['step4'][$key]) ?>" target="_blank">Voir le document</a>
+                        </p>
+                    <?php endif; ?>
+                <?php endforeach; ?>
+            </section>
+
 
             <div class="form-actions">
                 <a href="/stalhub/student/request/step4" class="button">← Retour</a>
