@@ -50,18 +50,22 @@ class ProfileController extends BaseController
             exit;
         }
 
+        // Vérifier si l'utilisateur est un étudiant
+        $isStudent = ($user['role'] === 'student');
+
         // Validation des données
         $errors = [];
         
-        // Vérification des champs obligatoires
-        $requiredFields = ['prenom', 'nom', 'email', 'num-etudiant', 'formation', 'parcours', 'annee'];
+        // Vérification des champs obligatoires communs à tous les rôles
+        $requiredFields = ['prenom', 'nom', 'email'];
+        
+        // Ajouter les champs obligatoires spécifiques aux étudiants
+        
         foreach ($requiredFields as $field) {
             if (empty($_POST[$field])) {
                 $errors[] = "Le champ $field est obligatoire";
             }
         }
-        
-        // Notez que le CV n'est pas dans la liste des champs obligatoires
         
         // Validation de l'email
         if (!empty($_POST['email']) && !filter_var($_POST['email'], FILTER_VALIDATE_EMAIL)) {
@@ -70,56 +74,70 @@ class ProfileController extends BaseController
         
         // Si erreurs, rediriger vers le formulaire avec les erreurs
         if (!empty($errors)) {
-            // Idéalement, sauvegardez les erreurs en session et redirigez
             $_SESSION['form_errors'] = $errors;
             $_SESSION['form_data'] = $_POST;
             header('Location: /stalhub/profile');
             exit;
         }
 
-        // Correspondance entre le formulaire HTML et les noms de colonnes
+        // Initialiser les données de base pour tous les utilisateurs
         $data = [
-            'first_name'      => $_POST['prenom'] ?? '',
-            'last_name'       => $_POST['nom'] ?? '',
-            'email'           => $_POST['email'] ?? '',
-            'student_number'  => $_POST['num-etudiant'] ?? '',
-            'formation'       => $_POST['formation'] ?? '',
-            'parcours'        => $_POST['parcours'] ?? '',
-            'annee'           => $_POST['annee'] ?? ''
+            'first_name' => $_POST['prenom'] ?? '',
+            'last_name' => $_POST['nom'] ?? '',
+            'email' => $_POST['email'] ?? '',
         ];
-
-        // Gestion du CV (optionnel)
-        if (isset($_FILES['cv']) && $_FILES['cv']['error'] === UPLOAD_ERR_OK) {
-            // Vérifier le type MIME du fichier
-            $allowedTypes = ['application/pdf'];
-            $finfo = new \finfo(FILEINFO_MIME_TYPE);
-            $fileType = $finfo->file($_FILES['cv']['tmp_name']);
-            
-            if (!in_array($fileType, $allowedTypes)) {
-                $_SESSION['form_errors'] = ["Le fichier doit être un PDF"];
-                header('Location: /stalhub/profile');
-                exit;
+        
+        // Ajouter les données spécifiques aux étudiants
+        if ($isStudent) {
+            // Détermination de l'année scolaire en cours
+            $month = (int)date('m');
+            $year = (int)date('Y');
+            if ($month < 8) { // Si nous sommes entre janvier et juillet
+                $startYear = $year - 1;
+            } else { // Si nous sommes entre août et décembre
+                $startYear = $year;
             }
+            $endYear = $startYear + 1;
+            $currentSchoolYear = $startYear . '-' . $endYear;
             
-            $uploadDir = __DIR__ . '/../../public/uploads/cv/';
-            if (!is_dir($uploadDir)) {
-                mkdir($uploadDir, 0777, true);
-            }
+            // Ajouter les champs spécifiques aux étudiants
+            $data['student_number'] = $_POST['num-etudiant'] ?? '';
+            $data['program'] = $_POST['program'] ?? '';
+            $data['track'] = $_POST['track'] ?? '';
+            $data['level'] = $currentSchoolYear;
+            
+            // Gestion du CV (optionnel)
+            if (isset($_FILES['cv']) && $_FILES['cv']['error'] === UPLOAD_ERR_OK) {
+                // Vérifier le type MIME du fichier
+                $allowedTypes = ['application/pdf'];
+                $finfo = new \finfo(FILEINFO_MIME_TYPE);
+                $fileType = $finfo->file($_FILES['cv']['tmp_name']);
+                
+                if (!in_array($fileType, $allowedTypes)) {
+                    $_SESSION['form_errors'] = ["Le fichier doit être un PDF"];
+                    header('Location: /stalhub/profile');
+                    exit;
+                }
+                
+                $uploadDir = __DIR__ . '/../../public/uploads/cv/';
+                if (!is_dir($uploadDir)) {
+                    mkdir($uploadDir, 0777, true);
+                }
 
-            $cvFilename = uniqid() . '_' . basename($_FILES['cv']['name']);
-            $uploadPath = $uploadDir . $cvFilename;
+                $cvFilename = uniqid() . '_' . basename($_FILES['cv']['name']);
+                $uploadPath = $uploadDir . $cvFilename;
 
-            if (move_uploaded_file($_FILES['cv']['tmp_name'], $uploadPath)) {
-                $data['cv_filename'] = $cvFilename;
-            } else {
-                $_SESSION['form_errors'] = ["Erreur lors du téléversement du CV"];
-                header('Location: /stalhub/profile');
-                exit;
+                if (move_uploaded_file($_FILES['cv']['tmp_name'], $uploadPath)) {
+                    $data['cv_filename'] = $cvFilename;
+                } else {
+                    $_SESSION['form_errors'] = ["Erreur lors du téléversement du CV"];
+                    header('Location: /stalhub/profile');
+                    exit;
+                }
             }
         }
 
-        // Mise à jour de l'utilisateur - Ne pas vérifier que l'email soit identique
-        // L'email peut changer si nécessaire
+        // Mise à jour de l'utilisateur
         try {
             if ($userModel->update($userId, $data)) {
                 $_SESSION['success_message'] = "Profil mis à jour avec succès";
