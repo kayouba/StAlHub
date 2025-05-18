@@ -30,8 +30,8 @@
         <label>Nom de l'entreprise</label>
         <input type="text" name="company_name" value="<?= htmlspecialchars($step2['company_name'] ?? '') ?>" required>
 
-        <label>Numéro SIREN</label>
-        <input type="text" name="siren" value="<?= htmlspecialchars($step2['siren'] ?? '') ?>">
+        <!-- <label>Numéro SIREN</label> -->
+        <input type="hidden" name="siren" value="<?= htmlspecialchars($step2['siren'] ?? '') ?>">
 
         <label>Secteur d'activité</label>
         <select name="industry" required>
