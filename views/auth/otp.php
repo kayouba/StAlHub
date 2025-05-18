@@ -8,88 +8,99 @@
             margin: 0;
             padding: 0;
             font-family: "Segoe UI", sans-serif;
-            background-color: #004A7C;
+            background: linear-gradient(135deg, #004A7C, #0e2b47);
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
+            overflow: hidden;
         }
 
         .login-container {
-            background-color: #fff;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(12px);
             padding: 40px;
-            border-radius: 10px;
+            border-radius: 15px;
             width: 380px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 0 30px rgba(0, 74, 124, 0.5);
             text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #fff;
         }
 
         .login-container img {
-            width: 180px;
+            width: 200px;
             margin-bottom: 20px;
+            filter: drop-shadow(0 0 30px white);
         }
 
         .login-container h2 {
-            color: #004A7C;
+            font-size: 24px;
             margin-bottom: 25px;
+            color: #ffffff;
+            text-shadow: 0 0 5px rgba(255, 255, 255, 0.2);
+        }
+
+        .login-container label {
+            display: block;
+            margin-bottom: 10px;
+            font-size: 14px;
+            color: #ffffff;
+            text-align: left;
         }
 
         .login-container input {
             width: 100%;
-            padding: 12px;
-            margin-bottom: 16px;
-            border: 1px solid #ccc;
-            border-radius: 6px;
-            font-size: 14px;
+            padding: 14px;
+            margin-bottom: 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 15px;
+            background: rgba(255, 255, 255, 0.15);
+            color: white;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .login-container input::placeholder {
+            color: #ddd;
+        }
+
+        .login-container input:focus {
+            background: rgba(255, 255, 255, 0.25);
+            box-shadow: 0 0 8px rgba(255, 255, 255, 0.3);
         }
 
         .login-container button {
             width: 100%;
-            padding: 12px;
-            background-color: #004A7C;
+            padding: 14px;
+            background: linear-gradient(145deg, #00b7ff, #004a7c);
             color: #fff;
             border: none;
-            border-radius: 6px;
+            border-radius: 8px;
             font-size: 16px;
             font-weight: bold;
             cursor: pointer;
-            transition: background-color 0.3s ease;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 15px rgba(0, 183, 255, 0.4);
         }
 
         .login-container button:hover {
-            background-color: #00345a;
-        }
-
-        .register-link {
-            display: block;
-            margin-top: 15px;
-            font-size: 14px;
-            color: #004A7C;
-            text-decoration: none;
-        }
-
-        .register-link:hover {
-            text-decoration: underline;
+            background: linear-gradient(145deg, #0083c7, #00385d);
+            box-shadow: 0 0 20px rgba(0, 183, 255, 0.6);
         }
 
         .error {
-            color: red;
+            color: #ff4b4b;
             font-size: 14px;
             margin-bottom: 16px;
-        }
-
-        label {
-            display: block;
-            margin-bottom: 8px;
-            font-size: 14px;
-            color: #004A7C;
         }
     </style>
 </head>
 <body>
 
     <div class="login-container">
-        <img src="/stalhub/assets/img/universite-bordeaux.png" alt="Université de Bordeaux">
+        <img src="/stalhub/assets/img/stalhub-logo.png" alt="Logo Université de Bordeaux">
         <h2>Vérification du code OTP</h2>
 
         <?php if (!empty($error)): ?>
@@ -98,10 +109,9 @@
 
         <form method="POST" action="/stalhub/otp/verify">
             <label for="code">Code OTP</label>
-            <input type="text" id="code" name="code" required>
+            <input type="text" id="code" name="code" placeholder="Entrez le code reçu" required>
             <button type="submit">Valider</button>
         </form>
-
     </div>
 
 </body>
