@@ -9,10 +9,9 @@ final class UpdateUsersTableAddColumns extends AbstractMigration
     {
         // Ajout de colonnes à la table users
         $this->table('users')
-             ->addColumn('formation',     'string', ['limit' => 50, 'null' => true])
-             ->addColumn('parcours',      'string', ['limit' => 50, 'null' => true])
-             ->addColumn('annee',         'string', ['limit' => 50, 'null' => true])
-             ->addColumn('cv_filename',   'string', ['limit' => 50, 'null' => true])
+             ->removeColumn('formation')
+             ->removeColumn('parcours')
+             ->removeColumn('annee')
              ->update();
     }
 }

@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -128,32 +129,32 @@
 
       <div class="row">
         <div>
-          <label for="formation">Formation *</label>
-          <select id="formation" name="formation" required>
+          <label for="program">Formation *</label>
+          <select id="program" name="program" required>
             <option value="">-- Sélectionner --</option>
-            <option value="L3" <?php echo (isset($user['formation']) && $user['formation'] === 'L3') ? 'selected' : ''; ?>>Licence 3</option>
-            <option value="M1" <?php echo (isset($user['formation']) && $user['formation'] === 'M1') ? 'selected' : ''; ?>>Master 1</option>
-            <option value="M2" <?php echo (isset($user['formation']) && $user['formation'] === 'M2') ? 'selected' : ''; ?>>Master 2</option>
+            <option value="L3" <?php echo (isset($user['program']) && $user['program'] === 'L3') ? 'selected' : ''; ?>>Licence 3</option>
+            <option value="M1" <?php echo (isset($user['program']) && $user['program'] === 'M1') ? 'selected' : ''; ?>>Master 1</option>
+            <option value="M2" <?php echo (isset($user['program']) && $user['program'] === 'M2') ? 'selected' : ''; ?>>Master 2</option>
           </select>
         </div>
         <div>
-          <label for="parcours">Parcours *</label>
-          <select id="parcours" name="parcours" required>
+          <label for="track">Parcours *</label>
+          <select id="track" name="track" required>
             <option value="MIAGE" selected>MIAGE</option>
           </select>
         </div>
       </div>
 
-      <label for="annee">Année d'études *</label>
-      <select id="annee" name="annee" required>
+      <label for="level">Année d'études *</label>
+      <select id="level" name="level" required>
         <option value="">-- Sélectionner --</option>
-        <option value="2024-2025" <?php echo (isset($user['annee']) && $user['annee'] === '2024-2025') ? 'selected' : ''; ?>>2024 - 2025</option>
-        <option value="2025-2026" <?php echo (isset($user['annee']) && $user['annee'] === '2025-2026') ? 'selected' : ''; ?>>2025 - 2026</option>
-        <option value="2026-2027" <?php echo (isset($user['annee']) && $user['annee'] === '2026-2027') ? 'selected' : ''; ?>>2026 - 2027</option>
-        <option value="2027-2028" <?php echo (isset($user['annee']) && $user['annee'] === '2027-2028') ? 'selected' : ''; ?>>2027 - 2028</option>
-        <option value="2028-2029" <?php echo (isset($user['annee']) && $user['annee'] === '2028-2029') ? 'selected' : ''; ?>>2028 - 2029</option>
-        <option value="2029-2030" <?php echo (isset($user['annee']) && $user['annee'] === '2029-2030') ? 'selected' : ''; ?>>2029 - 2030</option>
-        <option value="2030-2031" <?php echo (isset($user['annee']) && $user['annee'] === '2030-2031') ? 'selected' : ''; ?>>2030 - 2031</option>
+        <option value="2024-2025" <?php echo (isset($user['level']) && $user['level'] === '2024-2025') ? 'selected' : ''; ?>>2024 - 2025</option>
+        <option value="2025-2026" <?php echo (isset($user['level']) && $user['level'] === '2025-2026') ? 'selected' : ''; ?>>2025 - 2026</option>
+        <option value="2026-2027" <?php echo (isset($user['level']) && $user['level'] === '2026-2027') ? 'selected' : ''; ?>>2026 - 2027</option>
+        <option value="2027-2028" <?php echo (isset($user['level']) && $user['level'] === '2027-2028') ? 'selected' : ''; ?>>2027 - 2028</option>
+        <option value="2028-2029" <?php echo (isset($user['level']) && $user['level'] === '2028-2029') ? 'selected' : ''; ?>>2028 - 2029</option>
+        <option value="2029-2030" <?php echo (isset($user['level']) && $user['level'] === '2029-2030') ? 'selected' : ''; ?>>2029 - 2030</option>
+        <option value="2030-2031" <?php echo (isset($user['level']) && $user['level'] === '2030-2031') ? 'selected' : ''; ?>>2030 - 2031</option>
       </select>
 
       <label for="cv">Téléverser votre CV <span style="font-weight: normal; font-size: 12px;">(PDF uniquement, optionnel)</span></label>

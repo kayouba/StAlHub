@@ -54,7 +54,7 @@ class ProfileController extends BaseController
         $errors = [];
         
         // Vérification des champs obligatoires
-        $requiredFields = ['prenom', 'nom', 'email', 'num-etudiant', 'formation', 'parcours', 'annee'];
+        $requiredFields = ['prenom', 'nom', 'email', 'num-etudiant', 'program', 'track', 'level'];
         foreach ($requiredFields as $field) {
             if (empty($_POST[$field])) {
                 $errors[] = "Le champ $field est obligatoire";
@@ -83,9 +83,9 @@ class ProfileController extends BaseController
             'last_name'       => $_POST['nom'] ?? '',
             'email'           => $_POST['email'] ?? '',
             'student_number'  => $_POST['num-etudiant'] ?? '',
-            'formation'       => $_POST['formation'] ?? '',
-            'parcours'        => $_POST['parcours'] ?? '',
-            'annee'           => $_POST['annee'] ?? ''
+            'program'         => $_POST['program'] ?? '',
+            'track'           => $_POST['track'] ?? '',
+            'level'           => $_POST['level'] ?? ''
         ];
 
         // Gestion du CV (optionnel)
