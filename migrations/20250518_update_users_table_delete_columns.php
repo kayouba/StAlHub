@@ -5,7 +5,7 @@ use Phinx\Migration\AbstractMigration;
 
 final class UpdateUsersTableDeleteColumns extends AbstractMigration
 {
-    public function change(): void
+    public function up(): void
     {
         // Suppression de colonnes à la table users
         $this->table('users')
