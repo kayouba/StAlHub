@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 use Phinx\Migration\AbstractMigration;
 
-final class AddUserFields extends AbstractMigration
+final class UpdateUsersTableAddColumns extends AbstractMigration
 {
     public function change(): void
     {
