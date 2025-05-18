@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -146,16 +145,19 @@
       </div>
 
       <label for="level">Année d'études *</label>
-      <select id="level" name="level" required>
-        <option value="">-- Sélectionner --</option>
-        <option value="2024-2025" <?php echo (isset($user['level']) && $user['level'] === '2024-2025') ? 'selected' : ''; ?>>2024 - 2025</option>
-        <option value="2025-2026" <?php echo (isset($user['level']) && $user['level'] === '2025-2026') ? 'selected' : ''; ?>>2025 - 2026</option>
-        <option value="2026-2027" <?php echo (isset($user['level']) && $user['level'] === '2026-2027') ? 'selected' : ''; ?>>2026 - 2027</option>
-        <option value="2027-2028" <?php echo (isset($user['level']) && $user['level'] === '2027-2028') ? 'selected' : ''; ?>>2027 - 2028</option>
-        <option value="2028-2029" <?php echo (isset($user['level']) && $user['level'] === '2028-2029') ? 'selected' : ''; ?>>2028 - 2029</option>
-        <option value="2029-2030" <?php echo (isset($user['level']) && $user['level'] === '2029-2030') ? 'selected' : ''; ?>>2029 - 2030</option>
-        <option value="2030-2031" <?php echo (isset($user['level']) && $user['level'] === '2030-2031') ? 'selected' : ''; ?>>2030 - 2031</option>
-      </select>
+      <?php
+        // Détermine l'année scolaire en cours (août à juillet)
+        $month = (int)date('m');
+        $year = (int)date('Y');
+        if ($month < 8) { // Si nous sommes entre janvier et juillet, l'année scolaire a commencé l'année précédente
+            $startYear = $year - 1;
+        } else { // Si nous sommes entre août et décembre, l'année scolaire commence cette année
+            $startYear = $year;
+        }
+        $endYear = $startYear + 1;
+        $currentSchoolYear = $startYear . '-' . $endYear;
+      ?>
+      <input type="text" id="level" name="level" value="<?php echo $currentSchoolYear; ?>" readonly required>
 
       <label for="cv">Téléverser votre CV <span style="font-weight: normal; font-size: 12px;">(PDF uniquement, optionnel)</span></label>
       <input type="file" id="cv" name="cv" accept=".pdf">

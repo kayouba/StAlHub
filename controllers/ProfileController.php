@@ -54,7 +54,7 @@ class ProfileController extends BaseController
         $errors = [];
         
         // Vérification des champs obligatoires
-        $requiredFields = ['prenom', 'nom', 'email', 'num-etudiant', 'program', 'track', 'level'];
+        $requiredFields = ['prenom', 'nom', 'email', 'num-etudiant', 'program', 'track'];
         foreach ($requiredFields as $field) {
             if (empty($_POST[$field])) {
                 $errors[] = "Le champ $field est obligatoire";
@@ -77,6 +77,17 @@ class ProfileController extends BaseController
             exit;
         }
 
+        // Détermination de l'année scolaire en cours
+        $month = (int)date('m');
+        $year = (int)date('Y');
+        if ($month < 8) { // Si nous sommes entre janvier et juillet
+            $startYear = $year - 1;
+        } else { // Si nous sommes entre août et décembre
+            $startYear = $year;
+        }
+        $endYear = $startYear + 1;
+        $currentSchoolYear = $startYear . '-' . $endYear;
+        
         // Correspondance entre le formulaire HTML et les noms de colonnes
         $data = [
             'first_name'      => $_POST['prenom'] ?? '',
@@ -85,7 +96,7 @@ class ProfileController extends BaseController
             'student_number'  => $_POST['num-etudiant'] ?? '',
             'program'         => $_POST['program'] ?? '',
             'track'           => $_POST['track'] ?? '',
-            'level'           => $_POST['level'] ?? ''
+            'level'           => $currentSchoolYear // On utilise l'année scolaire calculée plutôt que la valeur du formulaire
         ];
 
         // Gestion du CV (optionnel)
