@@ -55,6 +55,27 @@ class UserModel //extends Model
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
+   public function updateRole($userId, $role)
+        {
+            $query = "UPDATE users SET role = :role WHERE id = :id";
+            $stmt = $this->pdo->prepare($query);
+
+            $success = $stmt->execute([
+                ':role' => $role,
+                ':id' => $userId
+            ]);
+
+            if (!$success) {
+                $error = $stmt->errorInfo();
+                file_put_contents('/tmp/debug.log', "ERREUR SQL : " . print_r($error, true), FILE_APPEND);
+            } else {
+                file_put_contents('/tmp/debug.log', "UPDATE OK pour ID $userId\n", FILE_APPEND);
+            }
+
+            return $success;
+        }
+
+
 
     public function update(int $id, array $data): bool
         {

@@ -26,7 +26,6 @@ return [
     '/admin/tab/users'      => ['App\Controller\AdminController', 'tabUsers'],
     '/admin/tab/requests'   => ['App\Controller\AdminController', 'tabRequests'],
     '/admin/tab/companies'  => ['App\Controller\AdminController', 'tabCompanies'],
-
-
+    '/admin/users/updateRole' => ['App\Controller\AdminController', 'updateUserRole'],
 ];
 

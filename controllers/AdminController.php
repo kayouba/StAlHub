@@ -84,4 +84,27 @@ class AdminController
         ]);
     }
 
+    public function updateUserRole(): void
+{
+    $this->requireAdmin();
+
+    $userId = $_POST['user_id'] ?? null;
+    $role   = $_POST['role'] ?? null;
+
+    if (!$userId || !in_array($role, ['admin', 'student'])) {
+        echo json_encode(['status' => 'error', 'message' => 'Paramètres invalides']);
+        exit;
+    }
+
+    $userModel = new \App\Model\UserModel();
+    $success = $userModel->updateRole((int)$userId, $role);
+
+    if ($success) {
+        echo json_encode(['status' => 'success']);
+    } else {
+        echo json_encode(['status' => 'error', 'message' => 'Échec de la mise à jour.']);
+    }
+    exit;
+}
+
 }

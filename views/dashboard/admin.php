@@ -53,17 +53,18 @@ document.addEventListener('DOMContentLoaded', function () {
     const content = document.getElementById('tab-content');
 
     function loadTab(tabName) {
-        // fetch(`/stalhub/admin/tabs/${tabName}.php`)
-        fetch(`/stalhub/admin/tab/${tabName}`)
+    fetch(`/stalhub/admin/tab/${tabName}`)
+        .then(response => response.ok ? response.text() : Promise.reject("Erreur chargement onglet"))
+        .then(html => {
+            content.innerHTML = html;
 
-            .then(response => response.ok ? response.text() : Promise.reject("Erreur chargement onglet"))
-            .then(html => {
-                content.innerHTML = html;
-            })
-            .catch(error => {
-                content.innerHTML = `<p class="error">Erreur : ${error}</p>`;
-            });
-    }
+            // REBRANCHER le JS sur le formulaire chargé dynamiquement
+            bindRoleForm(); // 👈 on ajoute cette ligne juste ici
+        })
+        .catch(error => {
+            content.innerHTML = `<p class="error">Erreur : ${error}</p>`;
+        });
+}
 
     buttons.forEach(button => {
         button.addEventListener('click', () => {
@@ -77,5 +78,47 @@ document.addEventListener('DOMContentLoaded', function () {
     loadTab('users'); // onglet par défaut
 });
 </script>
+
+<script>
+function openModal(userId, name, email, role) {
+    document.getElementById('userModal').style.display = 'block';
+    document.getElementById('userInfo').innerHTML = `
+        <p><strong>Nom :</strong> ${name}</p>
+        <p><strong>Email :</strong> ${email}</p>
+        <p><strong>Rôle actuel :</strong> ${role === 'admin' ? 'Administrateur' : 'Étudiant'}</p>
+    `;
+    document.getElementById('user_id').value = userId;
+    document.getElementById('role').value = role;
+}
+
+function closeModal() {
+    document.getElementById('userModal').style.display = 'none';
+}
+
+function bindRoleForm() {
+    const form = document.getElementById('roleForm');
+    if (!form) return;
+
+    form.addEventListener('submit', function (e) {
+        e.preventDefault();
+
+        fetch('/stalhub/admin/users/updateRole', {
+            method: 'POST',
+            body: new FormData(this)
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.status === 'success') {
+                alert('Rôle mis à jour avec succès.');
+                closeModal();
+                location.reload();
+            } else {
+                alert('Erreur : ' + (data.message || 'Impossible de modifier le rôle.'));
+            }
+        });
+    });
+}
+</script>
+
 </body>
 </html>
