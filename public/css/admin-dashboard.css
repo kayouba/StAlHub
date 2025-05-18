@@ -1,0 +1,168 @@
+/* === Global === */
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background-color: #f8f9fa;
+    color: #212529;
+}
+
+main.admin-dashboard {
+    max-width: 1200px;
+    margin-left: 250px; /* Ajuste selon la sidebar */
+    padding: 2rem;
+    background: #fff;
+}
+
+/* === Statistiques === */
+.stats {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.card {
+    flex: 1;
+    padding: 1.5rem;
+    border-radius: 8px;
+    color: white;
+    text-align: center;
+    font-weight: bold;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.card.blue { background-color: #78a9dd; }
+.card.green { background-color: #58a66a; }
+.card.red { background-color: #dc3545; }
+
+.card h2 {
+    font-size: 2rem;
+    margin: 0;
+}
+
+.card p {
+    margin: 0.5rem 0 0;
+}
+
+/* === Onglets === */
+.tabs {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.tab {
+    background: none;
+    border: none;
+    border-bottom: 2px solid transparent;
+    font-size: 1rem;
+    padding: 0.5rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.tab:hover {
+    color: #007bff;
+}
+
+.tab.active {
+    border-bottom-color: #007bff;
+    font-weight: bold;
+    color: #007bff;
+}
+
+/* === Contenu des onglets === */
+.tab-container {
+    background-color: #fff;
+    padding: 1rem;
+    border-radius: 6px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+/* === Tableaux === */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem;
+}
+
+th, td {
+    padding: 0.75rem;
+    border-bottom: 1px solid #ddd;
+    text-align: left;
+    vertical-align: middle;
+}
+
+th {
+    background-color: #f1f3f5;
+    font-weight: bold;
+}
+
+/* === Liens d'action === */
+td a {
+    color: #007bff;
+    text-decoration: none;
+    margin-right: 0.5rem;
+    font-weight: normal;
+}
+
+td a:hover {
+    text-decoration: underline;
+}
+
+/* Séparateur " | " entre liens */
+td a:not(:last-child)::after {
+    content: " |";
+    color: #ccc;
+    margin-left: 0.5rem;
+}
+
+/* === Boutons === */
+.button {
+    background-color: #007bff;
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+}
+
+.button:hover {
+    background-color: #0056b3;
+}
+
+/* === Responsive amélioration basique === */
+@media (max-width: 768px) {
+    .stats {
+        flex-direction: column;
+    }
+
+    table, thead, tbody, th, td, tr {
+        display: block;
+    }
+
+    thead {
+        display: none;
+    }
+
+    td {
+        position: relative;
+        padding-left: 50%;
+        text-align: left;
+    }
+
+    td::before {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 45%;
+        padding-left: 0.75rem;
+        font-weight: bold;
+        white-space: nowrap;
+    }
+
+    tr td:nth-child(1)::before { content: "Nom"; }
+    tr td:nth-child(2)::before { content: "SIRET"; }
+    tr td:nth-child(3)::before { content: "Ville"; }
+    tr td:nth-child(4)::before { content: "Actions"; }
+}

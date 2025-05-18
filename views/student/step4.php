@@ -1,4 +1,4 @@
-<?php $step3 = $step3 ?? []; ?>
+<?php $step4 = $step4 ?? []; ?>
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -20,23 +20,44 @@
         <div class="step"><span>5</span> Résumé</div>
     </div>
 
-    <form action="/stalhub/student/request/step5" method="POST" enctype="multipart/form-data" class="request-form">
-        <h2>Téléversement des documents</h2>
+<form action="/stalhub/student/request/step4" method="POST" enctype="multipart/form-data" class="request-form">
 
-        <label>CV <small>(PDF, max 2 Mo)</small></label>
-        <input type="file" name="cv" accept=".pdf" required>
+    <h2>Téléversement des documents</h2>
 
-        <label>Attestation d'assurance <small>(PDF ou image)</small></label>
-        <input type="file" name="insurance" accept=".pdf,.jpg,.jpeg,.png" required>
+    <!-- CV -->
+    <label>CV <small>(PDF, max 2 Mo)</small></label>
+    <?php if (!empty($step4['cv'])): ?>
+        <p>
+            <a href="<?= htmlspecialchars($step4['cv']) ?>" target="_blank">Voir le CV actuel</a><br>
+            <em class="note">Vous pouvez téléverser un nouveau fichier pour le remplacer.</em>
+        </p>
+    <?php endif; ?>
+    <input type="file" name="cv" accept=".pdf">
 
-        <label>Autre justificatif 
-            <small>(carte étudiante, pièce d’identité, etc.)</small>
-        </label>
-        <input type="file" name="justification" accept=".pdf,.jpg,.jpeg,.png">
+    <!-- Assurance -->
+    <label>Attestation d'assurance <small>(PDF ou image)</small></label>
+    <?php if (!empty($step4['insurance'])): ?>
+        <p>
+            <a href="<?= htmlspecialchars($step4['insurance']) ?>" target="_blank">Voir l'assurance actuelle</a><br>
+            <em class="note">Vous pouvez téléverser un nouveau fichier pour le remplacer.</em>
+        </p>
+    <?php endif; ?>
+    <input type="file" name="insurance" accept=".pdf,.jpg,.jpeg,.png">
 
-        <div class="form-actions">
-            <a href="/stalhub/student/request/step3" class="button">← Retour</a>
-            <button type="submit">Continuer</button>
-        </div>
-    </form>
+    <!-- Justificatif -->
+    <label>Pièce d'identité <small>(carte d'identité, titre de séjour, etc.)</small></label>
+    <?php if (!empty($step4['justification'])): ?>
+        <p>
+            <a href="<?= htmlspecialchars($step4['justification']) ?>" target="_blank">Voir la pièce actuelle</a><br>
+            <em class="note">Vous pouvez téléverser un nouveau fichier pour le remplacer.</em>
+        </p>
+    <?php endif; ?>
+    <input type="file" name="justification" accept=".pdf,.jpg,.jpeg,.png">
+
+    <div class="form-actions">
+        <a href="/stalhub/student/request/step3" class="button">← Retour</a>
+        <button type="submit">Continuer</button>
+    </div>
+</form>
+
 </main>

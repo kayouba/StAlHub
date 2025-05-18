@@ -16,6 +16,7 @@ class RequestDocumentModel
 
     public function saveDocument(int $requestId, string $filePath, string $label): void
     {
+        var_dump('save');
         $stmt = $this->pdo->prepare("INSERT INTO request_documents (
             request_id, file_path, label, status, uploaded_at
         ) VALUES (

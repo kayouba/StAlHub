@@ -102,6 +102,45 @@ class RequestModel
         return $result ?: null;
     }
 
+    public function getAdminStats(): array
+    {
+        $sql = "
+            SELECT 
+                SUM(status = 'SOUMISE') as pending,
+                SUM(status = 'VALIDEE') as approved,
+                SUM(status = 'REFUSEE') as rejected
+            FROM requests
+        ";
+        $stmt = $this->pdo->query($sql);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+
+    public function countByStatus(string $status): int
+    {
+        $stmt = $this->pdo->prepare("SELECT COUNT(*) FROM requests WHERE status = :status");
+        $stmt->execute(['status' => $status]);
+        return (int) $stmt->fetchColumn();
+    }
+
+    public function findAll(): array
+    {
+        $stmt = $this->pdo->query("
+            SELECT 
+                r.id,
+                r.status,
+                r.start_date,
+                r.end_date,
+                CONCAT(u.first_name, ' ', u.last_name) AS student_name,
+                c.name AS company_name
+            FROM requests r
+            JOIN users u ON r.student_id = u.id
+            JOIN companies c ON r.company_id = c.id
+            ORDER BY r.created_on DESC
+        ");
+
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
 
 
 

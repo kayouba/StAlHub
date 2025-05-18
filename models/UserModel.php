@@ -48,6 +48,14 @@ class UserModel //extends Model
         return $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
     }
 
+    public function findAllStudents(): array
+    {
+        $stmt = $this->pdo->prepare("SELECT * FROM users WHERE role = 'student'");
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+
     public function update(int $id, array $data): bool
         {
             $fields = [];
