@@ -123,6 +123,25 @@ class RequestModel
         return (int) $stmt->fetchColumn();
     }
 
+    public function findAll(): array
+    {
+        $stmt = $this->pdo->query("
+            SELECT 
+                r.id,
+                r.status,
+                r.start_date,
+                r.end_date,
+                CONCAT(u.first_name, ' ', u.last_name) AS student_name,
+                c.name AS company_name
+            FROM requests r
+            JOIN users u ON r.student_id = u.id
+            JOIN companies c ON r.company_id = c.id
+            ORDER BY r.created_on DESC
+        ");
+
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
 
 
 

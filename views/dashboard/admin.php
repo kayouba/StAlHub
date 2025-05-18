@@ -1,12 +1,7 @@
 <?php
-$users = $users ?? [];
 $pendingCount = $pendingCount ?? 0;
 $validatedCount = $validatedCount ?? 0;
 $rejectedCount = $rejectedCount ?? 0;
-
-function safe($value) {
-    return htmlspecialchars($value ?? '');
-}
 ?>
 <!DOCTYPE html>
 <html lang="fr">
@@ -17,68 +12,70 @@ function safe($value) {
 </head>
 
 <body>
-    <?php include __DIR__ . '/../components/sidebar.php'; ?>
+<?php include __DIR__ . '/../components/sidebar.php'; ?>
 
-    <main class="admin-dashboard">
-        <h1>Tableau de bord administrateur</h1>
+<main class="admin-dashboard">
+    <h1>Tableau de bord administrateur</h1>
 
-        <div class="stats">
-            <div class="card blue">
-                <h2><?= $pendingCount ?></h2>
-                <p>Demandes à valider</p>
-            </div>
-            <div class="card green">
-                <h2><?= $validatedCount ?></h2>
-                <p>Demandes validées</p>
-            </div>
-            <div class="card red">
-                <h2><?= $rejectedCount ?></h2>
-                <p>Demandes refusées</p>
-            </div>
+    <!-- Statistiques -->
+    <div class="stats">
+        <div class="card blue">
+            <h2><?= $pendingCount ?></h2>
+            <p>Demandes à valider</p>
         </div>
-
-        <div class="tabs">
-            <button class="tab active">Utilisateurs</button>
-            <button class="tab" onclick="location.href='/stalhub/admin/requests'">Demandes</button>
-            <button class="tab" onclick="location.href='/stalhub/admin/companies'">Entreprises</button>
+        <div class="card green">
+            <h2><?= $validatedCount ?></h2>
+            <p>Demandes validées</p>
         </div>
+        <div class="card red">
+            <h2><?= $rejectedCount ?></h2>
+            <p>Demandes refusées</p>
+        </div>
+    </div>
 
-        <section class="user-list">
-            <div class="header">
-                <h2>Liste des étudiants</h2>
-                <a href="/stalhub/admin/add-user" class="button" style ="color:white;">+ Ajouter un administrateur</a>
-            </div>
+    <!-- Tabs -->
+    <div class="tabs">
+        <button class="tab active" data-tab="users">Utilisateurs</button>
+        <button class="tab" data-tab="requests">Demandes</button>
+        <button class="tab" data-tab="companies">Entreprises</button>
+    </div>
 
-            <table>
-                <thead>
-                    <tr>
-                        <th>Nom complet</th>
-                        <th>Email</th>
-                        <th>Rôle</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php foreach ($users as $user): ?>
-                        <tr>
-                            <td><?= safe($user['last_name'] . ' ' . $user['first_name']) ?></td>
-                            <td><?= safe($user['email']) ?></td>
-                            <td><?= $user['role'] === 'admin' ? 'Administrateur' : 'Étudiant' ?></td>
-                            <td>
-                                <a href="/stalhub/admin/users/view?id=<?= $user['id'] ?>">Voir</a>
-                                <?php if ($user['role'] === 'student'): ?>
-                                    | <a href="/stalhub/admin/users/suspend?id=<?= $user['id'] ?>">Suspendre</a>
-                                <?php endif; ?>
-                                | <a href="/stalhub/admin/users/delete?id=<?= $user['id'] ?>" onclick="return confirm('Confirmer la suppression ?')">Supprimer</a>
-                            </td>
-                        </tr>
-                    <?php endforeach; ?>
-                    <?php if (empty($users)): ?>
-                        <tr><td colspan="4">Aucun utilisateur trouvé.</td></tr>
-                    <?php endif; ?>
-                </tbody>
-            </table>
-        </section>
-    </main>
+    <!-- Contenu chargé dynamiquement -->
+    <section id="tab-content" class="tab-container">
+        <!-- AJAX: le contenu sera inséré ici -->
+    </section>
+</main>
+
+<!-- Script JS pour chargement dynamique -->
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const buttons = document.querySelectorAll('.tab');
+    const content = document.getElementById('tab-content');
+
+    function loadTab(tabName) {
+        // fetch(`/stalhub/admin/tabs/${tabName}.php`)
+        fetch(`/stalhub/admin/tab/${tabName}`)
+
+            .then(response => response.ok ? response.text() : Promise.reject("Erreur chargement onglet"))
+            .then(html => {
+                content.innerHTML = html;
+            })
+            .catch(error => {
+                content.innerHTML = `<p class="error">Erreur : ${error}</p>`;
+            });
+    }
+
+    buttons.forEach(button => {
+        button.addEventListener('click', () => {
+            buttons.forEach(b => b.classList.remove('active'));
+            button.classList.add('active');
+            const tabName = button.dataset.tab;
+            loadTab(tabName);
+        });
+    });
+
+    loadTab('users'); // onglet par défaut
+});
+</script>
 </body>
 </html>

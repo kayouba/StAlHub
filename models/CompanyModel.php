@@ -41,4 +41,20 @@ class CompanyModel
 
         return (int) $this->pdo->lastInsertId();
     }
+
+    public function findAll(): array
+    {
+        $stmt = $this->pdo->query("
+            SELECT 
+                id,
+                name,
+                siret,
+                city
+            FROM companies
+            ORDER BY name ASC
+        ");
+
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
 }
