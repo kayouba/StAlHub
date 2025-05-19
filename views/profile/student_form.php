@@ -64,20 +64,20 @@
     .btn:hover {
       background-color: #0056b3;
     }
-    
+
     .alert {
       padding: 10px 15px;
       margin-bottom: 20px;
       border-radius: 5px;
       font-size: 14px;
     }
-    
+
     .alert-danger {
       background-color: #f8d7da;
       color: #721c24;
       border: 1px solid #f5c6cb;
     }
-    
+
     .alert-success {
       background-color: #d4edda;
       color: #155724;
@@ -101,7 +101,7 @@
         <i class="fas fa-user"></i> Compléter votre Profil
       <?php endif; ?>
     </h2>
-    
+
     <?php if (isset($_SESSION['form_errors']) && !empty($_SESSION['form_errors'])): ?>
       <div class="alert alert-danger">
         <ul>
@@ -112,7 +112,7 @@
       </div>
       <?php unset($_SESSION['form_errors']); ?>
     <?php endif; ?>
-    
+
     <?php if (isset($_SESSION['success_message'])): ?>
       <div class="alert alert-success">
         <?php echo htmlspecialchars($_SESSION['success_message']); ?>
@@ -135,7 +135,7 @@
       <label for="email">Adresse email *</label>
       <input type="email" id="email" name="email" value="<?php echo isset($user['email']) ? htmlspecialchars($user['email']) : ''; ?>" required>
 
-              <?php if (isset($user['role']) && $user['role'] === 'student'): ?>
+      <?php if (isset($user['role']) && $user['role'] === 'student'): ?>
         <label for="num-etudiant">Numéro étudiant</label>
         <input type="text" id="num-etudiant" name="num-etudiant" value="<?php echo isset($user['student_number']) ? htmlspecialchars($user['student_number']) : ''; ?>">
 
@@ -153,7 +153,7 @@
             <label for="track">Parcours</label>
             <select id="track" name="track">
               <option value="NULL">-- Sélectionner --</option>
-              <option value="MIAGE" selected>MIAGE</option>
+              <option value="MIAGE" <?php echo (isset($user['track']) && $user['track'] === 'MIAGE') ? 'selected' : ''; ?>>MIAGE</option>
             </select>
           </div>
         </div>
@@ -178,13 +178,13 @@
         <?php
           // Vérifier si un CV existe déjà
           $userId = $_SESSION['user_id'] ?? null;
-          $cvPath = "/uploads/users/$userId/cv.pdf";
-          $fullPath = $_SERVER['DOCUMENT_ROOT'] . '/stalhub' . $cvPath;
+          $cvPath = "uploads/users/$userId/cv.pdf";
+          $fullPath = $_SERVER['DOCUMENT_ROOT'] . '/stalhub/public/' . $cvPath;
           
           if (file_exists($fullPath)):
         ?>
           <div class="file-preview">
-            <a href="/stalhub<?php echo $cvPath; ?>" target="_blank">Voir le CV actuel</a>
+            <a href="/stalhub/public/<?php echo $cvPath; ?>" target="_blank">Voir le CV actuel</a>
           </div>
         <?php endif; ?>
 
@@ -192,13 +192,13 @@
         <input type="file" id="assurance" name="assurance" accept=".pdf">
         <?php
           // Vérifier si une assurance existe déjà
-          $assurancePath = "/uploads/users/$userId/assurance.pdf";
-          $fullAssurancePath = $_SERVER['DOCUMENT_ROOT'] . '/stalhub' . $assurancePath;
+          $assurancePath = "uploads/users/$userId/assurance.pdf";
+          $fullAssurancePath = $_SERVER['DOCUMENT_ROOT'] . '/stalhub/public/' . $assurancePath;
           
           if (file_exists($fullAssurancePath)):
         ?>
           <div class="file-preview">
-            <a href="/stalhub<?php echo $assurancePath; ?>" target="_blank">Voir l'assurance actuelle</a>
+            <a href="/stalhub/public/<?php echo $assurancePath; ?>" target="_blank">Voir l'assurance actuelle</a>
           </div>
         <?php endif; ?>
       <?php endif; ?>
