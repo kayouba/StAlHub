@@ -83,6 +83,12 @@
       color: #155724;
       border: 1px solid #c3e6cb;
     }
+
+    .file-preview {
+      margin-top: 5px;
+      font-size: 12px;
+      color: #007bff;
+    }
   </style>
 </head>
 <body>
@@ -129,7 +135,7 @@
       <label for="email">Adresse email *</label>
       <input type="email" id="email" name="email" value="<?php echo isset($user['email']) ? htmlspecialchars($user['email']) : ''; ?>" required>
 
-      <?php if (isset($user['role']) && $user['role'] === 'student'): ?>
+              <?php if (isset($user['role']) && $user['role'] === 'student'): ?>
         <label for="num-etudiant">Numéro étudiant</label>
         <input type="text" id="num-etudiant" name="num-etudiant" value="<?php echo isset($user['student_number']) ? htmlspecialchars($user['student_number']) : ''; ?>">
 
@@ -169,8 +175,31 @@
 
         <label for="cv">Téléverser votre CV <span style="font-weight: normal; font-size: 12px;">(PDF uniquement, optionnel)</span></label>
         <input type="file" id="cv" name="cv" accept=".pdf">
-        <?php if (isset($user['cv_filename']) && !empty($user['cv_filename'])): ?>
-          <p><small>CV actuel: <?php echo htmlspecialchars($user['cv_filename']); ?></small></p>
+        <?php
+          // Vérifier si un CV existe déjà
+          $userId = $_SESSION['user_id'] ?? null;
+          $cvPath = "/uploads/users/$userId/cv.pdf";
+          $fullPath = $_SERVER['DOCUMENT_ROOT'] . '/stalhub' . $cvPath;
+          
+          if (file_exists($fullPath)):
+        ?>
+          <div class="file-preview">
+            <a href="/stalhub<?php echo $cvPath; ?>" target="_blank">Voir le CV actuel</a>
+          </div>
+        <?php endif; ?>
+
+        <label for="assurance">Téléverser votre assurance <span style="font-weight: normal; font-size: 12px;">(PDF uniquement, optionnel)</span></label>
+        <input type="file" id="assurance" name="assurance" accept=".pdf">
+        <?php
+          // Vérifier si une assurance existe déjà
+          $assurancePath = "/uploads/users/$userId/assurance.pdf";
+          $fullAssurancePath = $_SERVER['DOCUMENT_ROOT'] . '/stalhub' . $assurancePath;
+          
+          if (file_exists($fullAssurancePath)):
+        ?>
+          <div class="file-preview">
+            <a href="/stalhub<?php echo $assurancePath; ?>" target="_blank">Voir l'assurance actuelle</a>
+          </div>
         <?php endif; ?>
       <?php endif; ?>
 

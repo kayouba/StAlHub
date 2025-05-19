@@ -106,6 +106,12 @@ class ProfileController extends BaseController
             $data['track'] = $_POST['track'] ?? '';
             $data['level'] = $currentSchoolYear;
             
+            // Créer le répertoire utilisateur s'il n'existe pas
+            $userDir = __DIR__ . '/../../public/uploads/users/' . $userId . '/';
+            if (!is_dir($userDir)) {
+                mkdir($userDir, 0777, true);
+            }
+            
             // Gestion du CV (optionnel)
             if (isset($_FILES['cv']) && $_FILES['cv']['error'] === UPLOAD_ERR_OK) {
                 // Vérifier le type MIME du fichier
@@ -114,23 +120,43 @@ class ProfileController extends BaseController
                 $fileType = $finfo->file($_FILES['cv']['tmp_name']);
                 
                 if (!in_array($fileType, $allowedTypes)) {
-                    $_SESSION['form_errors'] = ["Le fichier doit être un PDF"];
+                    $_SESSION['form_errors'] = ["Le fichier CV doit être un PDF"];
                     header('Location: /stalhub/profile');
                     exit;
                 }
                 
-                $uploadDir = __DIR__ . '/../../public/uploads/cv/';
-                if (!is_dir($uploadDir)) {
-                    mkdir($uploadDir, 0777, true);
-                }
-
-                $cvFilename = uniqid() . '_' . basename($_FILES['cv']['name']);
-                $uploadPath = $uploadDir . $cvFilename;
-
-                if (move_uploaded_file($_FILES['cv']['tmp_name'], $uploadPath)) {
-                    $data['cv_filename'] = $cvFilename;
+                // Déplacer le fichier vers le répertoire de l'utilisateur
+                $cvPath = $userDir . 'cv.pdf';
+                
+                if (move_uploaded_file($_FILES['cv']['tmp_name'], $cvPath)) {
+                    $data['cv_path'] = "/stalhub/uploads/users/$userId/cv.pdf";
                 } else {
                     $_SESSION['form_errors'] = ["Erreur lors du téléversement du CV"];
+                    header('Location: /stalhub/profile');
+                    exit;
+                }
+            }
+            
+            // Gestion de l'assurance (optionnel)
+            if (isset($_FILES['assurance']) && $_FILES['assurance']['error'] === UPLOAD_ERR_OK) {
+                // Vérifier le type MIME du fichier
+                $allowedTypes = ['application/pdf'];
+                $finfo = new \finfo(FILEINFO_MIME_TYPE);
+                $fileType = $finfo->file($_FILES['assurance']['tmp_name']);
+                
+                if (!in_array($fileType, $allowedTypes)) {
+                    $_SESSION['form_errors'] = ["Le fichier d'assurance doit être un PDF"];
+                    header('Location: /stalhub/profile');
+                    exit;
+                }
+                
+                // Déplacer le fichier vers le répertoire de l'utilisateur
+                $assurancePath = $userDir . 'assurance.pdf';
+                
+                if (move_uploaded_file($_FILES['assurance']['tmp_name'], $assurancePath)) {
+                    $data['insurance_path'] = "/stalhub/uploads/users/$userId/assurance.pdf";
+                } else {
+                    $_SESSION['form_errors'] = ["Erreur lors du téléversement de l'assurance"];
                     header('Location: /stalhub/profile');
                     exit;
                 }
