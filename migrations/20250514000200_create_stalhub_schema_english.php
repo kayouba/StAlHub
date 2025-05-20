@@ -8,7 +8,8 @@ final class CreateStalhubSchemaEnglish extends AbstractMigration
     public function change(): void
     {
         // Companies
-        $this->table('companies')
+        $this->table('companies', ['id' => false, 'primary_key' => ['id'], 'engine' => 'InnoDB'])
+            ->addColumn('id', 'integer', ['identity' => true, 'signed' => false])
             ->addColumn('siret', 'string', ['limit' => 20])
             ->addColumn('name', 'string', ['limit' => 255])
             ->addColumn('address', 'string', ['limit' => 255])
@@ -21,9 +22,10 @@ final class CreateStalhubSchemaEnglish extends AbstractMigration
             ->create();
 
         // Requests
-        $this->table('requests')
-            ->addColumn('student_id', 'integer')
-            ->addColumn('company_id', 'integer')
+        $this->table('requests', ['id' => false, 'primary_key' => ['id'], 'engine' => 'InnoDB'])
+            ->addColumn('id', 'integer', ['identity' => true, 'signed' => false])
+            ->addColumn('student_id', 'integer', ['signed' => false])
+            ->addColumn('company_id', 'integer', ['signed' => false])
             ->addColumn('contract_type', 'enum', ['values' => ['stage', 'apprenticeship']])
             ->addColumn('referent_email', 'string', ['limit' => 255])
             ->addColumn('mission', 'text')
@@ -43,8 +45,9 @@ final class CreateStalhubSchemaEnglish extends AbstractMigration
             ->create();
 
         // Request documents
-        $this->table('request_documents')
-            ->addColumn('request_id', 'integer')
+        $this->table('request_documents', ['id' => false, 'primary_key' => ['id'], 'engine' => 'InnoDB'])
+            ->addColumn('id', 'integer', ['identity' => true, 'signed' => false])
+            ->addColumn('request_id', 'integer', ['signed' => false])
             ->addColumn('file_path', 'string', ['limit' => 255])
             ->addColumn('label', 'text')
             ->addColumn('status', 'enum', ['values' => ['submitted', 'validated', 'rejected']])
@@ -53,8 +56,9 @@ final class CreateStalhubSchemaEnglish extends AbstractMigration
             ->create();
 
         // Status history
-        $this->table('status_history')
-            ->addColumn('request_id', 'integer')
+        $this->table('status_history', ['id' => false, 'primary_key' => ['id'], 'engine' => 'InnoDB'])
+            ->addColumn('id', 'integer', ['identity' => true, 'signed' => false])
+            ->addColumn('request_id', 'integer', ['signed' => false])
             ->addColumn('previous_status', 'string', ['limit' => 100])
             ->addColumn('comment', 'text', ['null' => true])
             ->addColumn('changed_at', 'datetime')
@@ -62,12 +66,13 @@ final class CreateStalhubSchemaEnglish extends AbstractMigration
             ->create();
 
         // Final validation
-        $this->table('final_validation')
-            ->addColumn('request_id', 'integer')
+        $this->table('final_validation', ['id' => false, 'primary_key' => ['id'], 'engine' => 'InnoDB'])
+            ->addColumn('id', 'integer', ['identity' => true, 'signed' => false])
+            ->addColumn('request_id', 'integer', ['signed' => false])
             ->addColumn('validated_at', 'datetime')
-            ->addColumn('signatory_id', 'integer')
-            ->addColumn('tutor_id', 'integer')
-            ->addColumn('jury2_id', 'integer')
+            ->addColumn('signatory_id', 'integer', ['signed' => false])
+            ->addColumn('tutor_id', 'integer', ['signed' => false])
+            ->addColumn('jury2_id', 'integer', ['signed' => false])
             ->addColumn('presentation_date', 'datetime', ['null' => true])
             ->addColumn('presentation_room', 'string', ['limit' => 100])
             ->addColumn('created_at', 'datetime')
