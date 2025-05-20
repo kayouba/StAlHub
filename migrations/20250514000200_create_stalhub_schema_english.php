@@ -22,8 +22,8 @@ final class CreateStalhubSchemaEnglish extends AbstractMigration
 
         // Requests
         $this->table('requests')
-            ->addColumn('student_id', 'integer')
-            ->addColumn('company_id', 'integer')
+            ->addColumn('student_id', 'integer', ['signed' => false])
+            ->addColumn('company_id', 'integer', ['signed' => false])
             ->addColumn('contract_type', 'enum', ['values' => ['stage', 'apprenticeship']])
             ->addColumn('referent_email', 'string', ['limit' => 255])
             ->addColumn('mission', 'text')
@@ -44,7 +44,7 @@ final class CreateStalhubSchemaEnglish extends AbstractMigration
 
         // Request documents
         $this->table('request_documents')
-            ->addColumn('request_id', 'integer')
+            ->addColumn('request_id', 'integer', ['signed' => false])
             ->addColumn('file_path', 'string', ['limit' => 255])
             ->addColumn('label', 'text')
             ->addColumn('status', 'enum', ['values' => ['submitted', 'validated', 'rejected']])
@@ -54,7 +54,7 @@ final class CreateStalhubSchemaEnglish extends AbstractMigration
 
         // Status history
         $this->table('status_history')
-            ->addColumn('request_id', 'integer')
+            ->addColumn('request_id', 'integer', ['signed' => false])
             ->addColumn('previous_status', 'string', ['limit' => 100])
             ->addColumn('comment', 'text', ['null' => true])
             ->addColumn('changed_at', 'datetime')
@@ -63,11 +63,11 @@ final class CreateStalhubSchemaEnglish extends AbstractMigration
 
         // Final validation
         $this->table('final_validation')
-            ->addColumn('request_id', 'integer')
+            ->addColumn('request_id', 'integer', ['signed' => false])
             ->addColumn('validated_at', 'datetime')
-            ->addColumn('signatory_id', 'integer')
-            ->addColumn('tutor_id', 'integer')
-            ->addColumn('jury2_id', 'integer')
+            ->addColumn('signatory_id', 'integer', ['signed' => false])
+            ->addColumn('tutor_id', 'integer', ['signed' => false])
+            ->addColumn('jury2_id', 'integer', ['signed' => false])
             ->addColumn('presentation_date', 'datetime', ['null' => true])
             ->addColumn('presentation_room', 'string', ['limit' => 100])
             ->addColumn('created_at', 'datetime')

@@ -16,6 +16,5 @@ final class InitialSchema extends AbstractMigration
              ->addIndex(['email'], ['unique'=>true])
              ->create();
 
-        // … autres tables …
     }
 }
