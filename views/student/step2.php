@@ -33,12 +33,12 @@
         <!-- <label>Numéro SIREN</label> -->
         <input type="hidden" name="siren" value="<?= htmlspecialchars($step2['siren'] ?? '') ?>">
 
-        <label>Secteur d'activité</label>
+        <!-- <label>Secteur d'activité</label>
         <select name="industry" required>
             <option value="">-- Sélectionner --</option>
             <option value="informatique" <?= ($step2['industry'] ?? '') === 'informatique' ? 'selected' : '' ?>>Informatique</option>
             <option value="finance" <?= ($step2['industry'] ?? '') === 'finance' ? 'selected' : '' ?>>Finance</option>
-        </select>
+        </select> -->
 
         <label>Ville</label>
         <input type="text" name="city" value="<?= htmlspecialchars($step2['city'] ?? '') ?>" required>
