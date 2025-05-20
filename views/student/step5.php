@@ -50,7 +50,6 @@
                 <p><strong>SIRET :</strong> <?= htmlspecialchars($_SESSION['step2']['siret'] ?? '') ?></p>
                 <p><strong>Nom :</strong> <?= htmlspecialchars($_SESSION['step2']['company_name'] ?? '') ?></p>
                 <p><strong>SIREN :</strong> <?= htmlspecialchars($_SESSION['step2']['siren'] ?? '') ?></p>
-                <p><strong>Secteur :</strong> <?= htmlspecialchars($_SESSION['step2']['industry'] ?? '') ?></p>
                 <p><strong>Ville :</strong> <?= htmlspecialchars($_SESSION['step2']['city'] ?? '') ?></p>
                 <p><strong>Code postal :</strong> <?= htmlspecialchars($_SESSION['step2']['postal_code'] ?? '') ?></p>
             </section>
