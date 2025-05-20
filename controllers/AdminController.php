@@ -20,7 +20,7 @@ class AdminController
         $userModel = new UserModel();
         $requestModel = new RequestModel();
 
-        $users = $userModel->findAllStudents();
+        $users = $userModel->findAll(); // 🔁 Tous les rôles, pas que étudiants
         $pendingCount = $requestModel->countByStatus('SOUMISE');
         $validatedCount = $requestModel->countByStatus('VALIDEE');
         $rejectedCount = $requestModel->countByStatus('REFUSEE');
@@ -44,21 +44,20 @@ class AdminController
         }
     }
 
-
-    // Chargement AJAX pour l’onglet Utilisateurs
+    // Onglet Utilisateurs
     public function tabUsers(): void
     {
         $this->requireAdmin();
 
         $userModel = new UserModel();
-        $users = $userModel->findAllStudents();
+        $users = $userModel->findAll(); // 🔁 Affiche tous les rôles
 
         View::render('admin/tabs/users', [
             'users' => $users
         ]);
     }
 
-    // Chargement AJAX pour l’onglet Demandes
+    // Onglet Demandes
     public function tabRequests(): void
     {
         $this->requireAdmin();
@@ -71,7 +70,7 @@ class AdminController
         ]);
     }
 
-    // Chargement AJAX pour l’onglet Entreprises
+    // Onglet Entreprises
     public function tabCompanies(): void
     {
         $this->requireAdmin();
@@ -84,27 +83,28 @@ class AdminController
         ]);
     }
 
+    // Mise à jour du rôle utilisateur
     public function updateUserRole(): void
-{
-    $this->requireAdmin();
+    {
+        $this->requireAdmin();
 
-    $userId = $_POST['user_id'] ?? null;
-    $role   = $_POST['role'] ?? null;
+        $userId = $_POST['user_id'] ?? null;
+        $role   = $_POST['role'] ?? null;
 
-    if (!$userId || !in_array($role, ['admin', 'student'])) {
-        echo json_encode(['status' => 'error', 'message' => 'Paramètres invalides']);
+        if (!$userId || !$role) {
+            echo json_encode(['status' => 'error', 'message' => 'Paramètres invalides']);
+            exit;
+        }
+
+        $userModel = new UserModel();
+        $success = $userModel->updateRole((int)$userId, $role);
+
+        if ($success) {
+            echo json_encode(['status' => 'success']);
+        } else {
+            echo json_encode(['status' => 'error', 'message' => 'Échec de la mise à jour.']);
+        }
+
         exit;
     }
-
-    $userModel = new \App\Model\UserModel();
-    $success = $userModel->updateRole((int)$userId, $role);
-
-    if ($success) {
-        echo json_encode(['status' => 'success']);
-    } else {
-        echo json_encode(['status' => 'error', 'message' => 'Échec de la mise à jour.']);
-    }
-    exit;
-}
-
 }

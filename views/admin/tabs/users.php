@@ -1,3 +1,19 @@
+<link rel="stylesheet" href="/stalhub/public/css/modal-users-admin.css">
+<div style="margin-bottom: 20px;">
+    <label for="roleFilter">Filtrer par rôle :</label>
+    <select id="roleFilter" onchange="filterUsers()" style="padding: 8px; border-radius: 6px;">
+        <option value="all">Tous</option>
+        <?php
+        $roles = array_unique(array_column($users, 'role'));
+        foreach ($roles as $role) {
+            $value = strtolower($role);
+            $label = ucfirst($role);
+            echo "<option value=\"$value\">$label</option>";
+        }
+        ?>
+    </select>
+</div>
+
 <table>
     <thead>
         <tr>
@@ -7,19 +23,14 @@
             <th>Actions</th>
         </tr>
     </thead>
-    <tbody>
+    <tbody id="userTable">
         <?php foreach ($users as $user): ?>
-            <tr>
+            <tr data-role="<?= strtolower(htmlspecialchars($user['role'])) ?>">
                 <td><?= htmlspecialchars($user['last_name'] . ' ' . $user['first_name']) ?></td>
                 <td><?= htmlspecialchars($user['email']) ?></td>
-                <td><?= $user['role'] === 'admin' ? 'Administrateur' : 'Étudiant' ?></td>
+                <td><?= htmlspecialchars($user['role']) ?></td>
                 <td>
-                    <a href="javascript:void(0);" onclick="openModal(
-                        <?= $user['id'] ?>,
-                        '<?= htmlspecialchars($user['last_name'] . ' ' . $user['first_name'], ENT_QUOTES) ?>',
-                        '<?= htmlspecialchars($user['email'], ENT_QUOTES) ?>',
-                        '<?= $user['role'] ?>'
-                    )">Voir</a>
+                    <a href="javascript:void(0);" onclick='openModal(<?= json_encode($user, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>)'>Voir</a>
                     <?php if ($user['role'] === 'student'): ?>
                         | <a href="/stalhub/admin/users/suspend?id=<?= $user['id'] ?>">Suspendre</a>
                     <?php endif; ?>
@@ -33,7 +44,7 @@
     </tbody>
 </table>
 
-<!-- MODAL HTML (placé ici pour être accessible par le parent) -->
+<!-- MODAL HTML -->
 <div id="userModal" class="modal" style="display:none;">
     <div class="modal-content" style="background:#fff; padding:20px; border-radius:8px; width:400px; margin:100px auto; position:relative;">
         <span onclick="closeModal()" style="position:absolute; right:15px; top:10px; cursor:pointer; font-size:20px;">&times;</span>
@@ -46,20 +57,56 @@
             <select name="role" id="role" required style="width:100%; padding:8px; margin:10px 0;">
                 <option value="student">Étudiant</option>
                 <option value="admin">Administrateur</option>
+                <option value="secreteriat">Secrétériat</option>
+                <option value="responsable">Responsable pédagogique</option>
+                <option value="direction">Direction</option>
+                <option value="cfa">CFA</option>
             </select>
             <button type="submit" style="padding:10px 20px; background:#004A7C; color:white; border:none; border-radius:4px; cursor:pointer;">Mettre à jour</button>
         </form>
     </div>
 </div>
 
-<style>
-.modal {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0,0,0,0.5);
-    z-index: 999;
+
+<script>
+function openModal(user) {
+    const modal = document.getElementById('userModal');
+    modal.style.display = 'block';
+
+    const activeText = user.is_active == 1 ? '✅ Actif' : '❌ Inactif';
+    const rgpdText = user.consentement_rgpd == 1 ? '✅ Oui' : '❌ Non';
+
+    document.getElementById('userInfo').innerHTML = `
+        <p><strong>Nom :</strong> ${user.last_name} ${user.first_name}</p>
+        <p><strong>Email :</strong> ${user.email}</p>
+        <p><strong>Email secondaire :</strong> ${user.alternate_email || '-'}</p>
+        <p><strong>Téléphone :</strong> ${user.phone_number || '-'}</p>
+        <p><strong>Numéro étudiant :</strong> ${user.student_number || '-'}</p>
+        <p><strong>Programme :</strong> ${user.program || '-'}</p>
+        <p><strong>Parcours :</strong> ${user.track || '-'}</p>
+        <p><strong>Niveau :</strong> ${user.level || '-'}</p>
+        <p><strong>Code affectation :</strong> ${user.assignment_code || '-'}</p>
+        <p><strong>Statut :</strong> ${activeText}</p>
+        <p><strong>Consentement RGPD :</strong> ${rgpdText}</p>
+        <p><strong>Créé le :</strong> ${user.created_at}</p>
+        <p><strong>Dernière connexion :</strong> ${user.last_login_at || '-'}</p>
+    `;
+
+    document.getElementById('user_id').value = user.id;
+    document.getElementById('role').value = user.role;
 }
-</style>
+
+function closeModal() {
+    document.getElementById('userModal').style.display = 'none';
+}
+
+function filterUsers() {
+    const selectedRole = document.getElementById('roleFilter').value.toLowerCase();
+    const rows = document.querySelectorAll('#userTable tr');
+
+    rows.forEach(row => {
+        const userRole = row.getAttribute('data-role').toLowerCase();
+        row.style.display = (selectedRole === 'all' || userRole === selectedRole) ? '' : 'none';
+    });
+}
+</script>

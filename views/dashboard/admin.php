@@ -17,7 +17,6 @@ $rejectedCount = $rejectedCount ?? 0;
 <main class="admin-dashboard">
     <h1>Tableau de bord administrateur</h1>
 
-    <!-- Statistiques -->
     <div class="stats">
         <div class="card blue">
             <h2><?= $pendingCount ?></h2>
@@ -33,63 +32,71 @@ $rejectedCount = $rejectedCount ?? 0;
         </div>
     </div>
 
-    <!-- Tabs -->
     <div class="tabs">
         <button class="tab active" data-tab="users">Utilisateurs</button>
         <button class="tab" data-tab="requests">Demandes</button>
         <button class="tab" data-tab="companies">Entreprises</button>
     </div>
 
-    <!-- Contenu chargé dynamiquement -->
     <section id="tab-content" class="tab-container">
-        <!-- AJAX: le contenu sera inséré ici -->
     </section>
 </main>
 
-<!-- Script JS pour chargement dynamique -->
 <script>
 document.addEventListener('DOMContentLoaded', function () {
     const buttons = document.querySelectorAll('.tab');
     const content = document.getElementById('tab-content');
 
     function loadTab(tabName) {
-    fetch(`/stalhub/admin/tab/${tabName}`)
-        .then(response => response.ok ? response.text() : Promise.reject("Erreur chargement onglet"))
-        .then(html => {
-            content.innerHTML = html;
-
-            // REBRANCHER le JS sur le formulaire chargé dynamiquement
-            bindRoleForm(); // 👈 on ajoute cette ligne juste ici
-        })
-        .catch(error => {
-            content.innerHTML = `<p class="error">Erreur : ${error}</p>`;
-        });
-}
+        fetch(`/stalhub/admin/tab/${tabName}`)
+            .then(response => response.ok ? response.text() : Promise.reject("Erreur chargement onglet"))
+            .then(html => {
+                content.innerHTML = html;
+                bindRoleForm();
+            })
+            .catch(error => {
+                content.innerHTML = `<p class="error">Erreur : ${error}</p>`;
+            });
+    }
 
     buttons.forEach(button => {
         button.addEventListener('click', () => {
             buttons.forEach(b => b.classList.remove('active'));
             button.classList.add('active');
-            const tabName = button.dataset.tab;
-            loadTab(tabName);
+            loadTab(button.dataset.tab);
         });
     });
 
-    loadTab('users'); // onglet par défaut
+    loadTab('users');
 });
-</script>
 
-<script>
-function openModal(userId, name, email, role) {
-    document.getElementById('userModal').style.display = 'block';
+function openModal(user) {
+    const modal = document.getElementById('userModal');
+    modal.style.display = 'block';
+
+    const activeText = user.is_active == 1 ? '✅ Actif' : '❌ Inactif';
+    const rgpdText = user.consentement_rgpd == 1 ? '✅ Oui' : '❌ Non';
+
     document.getElementById('userInfo').innerHTML = `
-        <p><strong>Nom :</strong> ${name}</p>
-        <p><strong>Email :</strong> ${email}</p>
-        <p><strong>Rôle actuel :</strong> ${role === 'admin' ? 'Administrateur' : 'Étudiant'}</p>
+        <p><strong>Nom :</strong> ${user.last_name} ${user.first_name}</p>
+        <p><strong>Email :</strong> ${user.email}</p>
+        <p><strong>Email secondaire :</strong> ${user.alternate_email || '-'}</p>
+        <p><strong>Téléphone :</strong> ${user.phone_number || '-'}</p>
+        <p><strong>Numéro étudiant :</strong> ${user.student_number || '-'}</p>
+        <p><strong>Programme :</strong> ${user.program || '-'}</p>
+        <p><strong>Parcours :</strong> ${user.track || '-'}</p>
+        <p><strong>Niveau :</strong> ${user.level || '-'}</p>
+        <p><strong>Code affectation :</strong> ${user.assignment_code || '-'}</p>
+        <p><strong>Statut :</strong> ${activeText}</p>
+        <p><strong>Consentement RGPD :</strong> ${rgpdText}</p>
+        <p><strong>Créé le :</strong> ${user.created_at}</p>
+        <p><strong>Dernière connexion :</strong> ${user.last_login_at || '-'}</p>
     `;
-    document.getElementById('user_id').value = userId;
-    document.getElementById('role').value = role;
+
+    document.getElementById('user_id').value = user.id;
+    document.getElementById('role').value = user.role;
 }
+
 
 function closeModal() {
     document.getElementById('userModal').style.display = 'none';
@@ -101,7 +108,6 @@ function bindRoleForm() {
 
     form.addEventListener('submit', function (e) {
         e.preventDefault();
-
         fetch('/stalhub/admin/users/updateRole', {
             method: 'POST',
             body: new FormData(this)
@@ -118,6 +124,7 @@ function bindRoleForm() {
         });
     });
 }
+
 </script>
 
 </body>
