@@ -1,24 +1,19 @@
-<?php $step3 = $step3 ?? []; ?>
+<?php $step3 = $step3 ?? [];  $currentStep = $currentStep ?? 1; ?>
+
 <!DOCTYPE html>
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
     <title>StalHub - Tableau de bord</title>
-    <link rel="stylesheet" href="/stalhub/public/css/step3.css">
+    <link rel="stylesheet" href="/stalhub/public/css/request-mission.css">
 </head>
 
 <?php include __DIR__ . '/../components/sidebar.php'; ?>
 
 <main class="request-container">
     <h1>Nouvelle Demande</h1>
+    <?php include __DIR__ . '/steps.php'; ?>
 
-    <div class="steps">
-        <div class="step completed">✔</div>
-        <div class="step active"><span>2</span> Poste</div>
-        <div class="step"><span>3</span> Entreprise</div>
-        <div class="step"><span>4</span> Documents</div>
-        <div class="step"><span>5</span> Résumé</div>
-    </div>
 
     <form action="/stalhub/student/request/step3" method="POST" class="request-form">
         <h2>Informations sur le poste</h2>
@@ -56,7 +51,7 @@
         </div>
 
         <label>Missions</label>
-        <textarea name="missions" rows="5" required><?= htmlspecialchars($step3['missions'] ?? '') ?></textarea>
+        <textarea name="missions" rows="10" required><?= htmlspecialchars($step3['missions'] ?? '') ?></textarea>
 
 
         <label>Le télétravail est-il possible ?</label>
@@ -73,7 +68,7 @@
 
 
         <div class="form-actions">
-            <a href="/stalhub/student/request/step2" class="button">← Retour</a>
+            <a href="/stalhub/student/new-request" class="button">← Retour</a>
             <button type="submit">Continuer</button>
         </div>
     </form>

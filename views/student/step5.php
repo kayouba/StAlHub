@@ -1,9 +1,10 @@
+<?php $currentStep = $currentStep ?? 1; ?>
 <!DOCTYPE html>
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
     <title>StalHub - Tableau de bord</title>
-    <link rel="stylesheet" href="/stalhub/public/css/step5.css">
+    <link rel="stylesheet" href="/stalhub/public/css/request-summary.css">
     <script>
     document.addEventListener('DOMContentLoaded', function () {
         const form = document.querySelector('form');

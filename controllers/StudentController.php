@@ -62,7 +62,8 @@ class StudentController
         $formData = $_SESSION['step1'] ?? [];
 
         View::render('student/new-request', [
-            'user' => array_merge($user, $formData)
+            'user' => array_merge($user, $formData),
+            'currentStep' => 1
         ]);
     }
     public function step2(): void
@@ -73,7 +74,8 @@ class StudentController
 
         View::render('student/step2', [
             'step2' => $_SESSION['step2'] ?? [],
-            'step1' => $_SESSION['step1'] ?? []
+            'step1' => $_SESSION['step1'] ?? [],
+            'currentStep' => 2
         ]);
     }
 
@@ -85,7 +87,8 @@ class StudentController
 
         View::render('student/step3', [
             'step3' => $_SESSION['step3'] ?? [],
-            'step2' => $_SESSION['step2'] ?? []
+            'step2' => $_SESSION['step2'] ?? [],
+            'currentStep' => 3
         ]);
     }
 
@@ -159,7 +162,8 @@ public function step4(): void
     // Affichage
     View::render('student/step4', [
         'step4' => $_SESSION['step4'] ?? [],
-        'step3' => $_SESSION['step3'] ?? []
+        'step3' => $_SESSION['step3'] ?? [],
+        'currentStep' => 4
     ]);
 }
 
@@ -171,7 +175,8 @@ public function step5(): void
         'step1' => $_SESSION['step1'] ?? [],
         'step2' => $_SESSION['step2'] ?? [],
         'step3' => $_SESSION['step3'] ?? [],
-        'step4' => $_SESSION['step4'] ?? []
+        'step4' => $_SESSION['step4'] ?? [],
+        'currentStep' => 5
     ]);
 }
 

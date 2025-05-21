@@ -16,45 +16,6 @@ h1 {
     color: #333;
 }
 
-.steps {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 30px;
-    max-width: 650px;
-}
-
-.step {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    color: #555;
-    font-size: 14px;
-    flex: 1;
-}
-
-.step span,
-.step.active span {
-    display: inline-block;
-    width: 35px;
-    height: 35px;
-    line-height: 35px;
-    border-radius: 50%;
-    background-color: #ddd;
-    color: white;
-    text-align: center;
-    font-weight: bold;
-    margin-bottom: 5px;
-}
-
-.step.active span {
-    background-color: #1a73e8;
-}
-
-.step.completed {
-    color: #28a745;
-    font-size: 24px;
-    font-weight: bold;
-}
 .request-form {
     background: white;
     padding: 30px;

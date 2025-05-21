@@ -14,33 +14,6 @@ body {
     margin-top: 2rem;
 }
 
-.steps {
-    display: flex;
-    gap: 20px;
-    margin-bottom: 20px;
-}
-
-.step {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    color: #074f76;
-}
-
-.step span {
-    background-color: #074f76;
-    color: white;
-    border-radius: 50%;
-    width: 28px;
-    height: 28px;
-    text-align: center;
-    line-height: 28px;
-}
-
-.step.active {
-    font-weight: bold;
-}
-
 .request-form label {
     font-weight: bold;
     margin-top: 1rem;
