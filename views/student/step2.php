@@ -1,58 +1,79 @@
-<?php $step2 = $step2 ?? []; ?>
+<?php $step3 = $step3 ?? []; ?>
 <!DOCTYPE html>
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
     <title>StalHub - Tableau de bord</title>
-    <link rel="stylesheet" href="/stalhub/public/css/step2.css">
-    <script src="/stalhub/public/js/request.js" defer></script>
+    <link rel="stylesheet" href="/stalhub/public/css/step3.css">
 </head>
 
 <?php include __DIR__ . '/../components/sidebar.php'; ?>
+
 <main class="request-container">
     <h1>Nouvelle Demande</h1>
 
     <div class="steps">
         <div class="step completed">✔</div>
-        <div class="step active"><span>2</span> Entreprise</div>
-        <div class="step"><span>3</span> Poste</div>
+        <div class="step active"><span>2</span> Poste</div>
+        <div class="step"><span>3</span> Entreprise</div>
         <div class="step"><span>4</span> Documents</div>
         <div class="step"><span>5</span> Résumé</div>
     </div>
 
     <form action="/stalhub/student/request/step3" method="POST" class="request-form">
-        <h2>Informations sur l’entreprise</h2>
+        <h2>Informations sur le poste</h2>
 
-        <label>SIRET de l'entreprise</label>
-        <input type="text" name="siret" id="siret" value="<?= htmlspecialchars($step2['siret'] ?? '') ?>" required>
-        <div id="siret-result" style="margin-bottom: 1em; color: green;"></div>
-
-        <label>Nom de l'entreprise</label>
-        <input type="text" name="company_name" value="<?= htmlspecialchars($step2['company_name'] ?? '') ?>" required>
-
-        <label>Numéro SIREN</label>
-        <input type="text" name="siren" value="<?= htmlspecialchars($step2['siren'] ?? '') ?>">
-
-        <!-- <label>Secteur d'activité</label>
-        <select name="industry" required>
+        <label>Type de contrat</label>
+        <select name="contract_type" required>
             <option value="">-- Sélectionner --</option>
-            <option value="informatique" <?= ($step2['industry'] ?? '') === 'informatique' ? 'selected' : '' ?>>Informatique</option>
-            <option value="finance" <?= ($step2['industry'] ?? '') === 'finance' ? 'selected' : '' ?>>Finance</option>
-        </select> -->
+            <option value="Stage" <?= ($step3['contract_type'] ?? '') === 'Stage' ? 'selected' : '' ?>>Stage</option>
+            <option value="apprenticeship" <?= ($step3['contract_type'] ?? '') === 'apprenticeship' ? 'selected' : '' ?>>Alternance</option>
+        </select>
 
-        <label>Ville</label>
-        <input type="text" name="city" value="<?= htmlspecialchars($step2['city'] ?? '') ?>" required>
+        <label>Intitulé du poste</label>
+        <input type="text" name="job_title" value="<?= htmlspecialchars($step3['job_title'] ?? '') ?>" required>
 
-        <label>Code Postal</label>
-        <input type="text" name="postal_code" value="<?= htmlspecialchars($step2['postal_code'] ?? '') ?>" required>
+        <div class="grid-2">
+            <div>
+                <label>Date de début</label>
+                <input type="date" name="start_date" value="<?= htmlspecialchars($step3['start_date'] ?? '') ?>" required>
+            </div>
+            <div>
+                <label>Date de fin</label>
+                <input type="date" name="end_date" value="<?= htmlspecialchars($step3['end_date'] ?? '') ?>" required>
+            </div>
+        </div>
 
-        <label>Email du référent dans l'entreprise</label>
-        <input type="email" name="referent_email"
-               value="<?= htmlspecialchars($step2['referent_email'] ?? '') ?>"
-               placeholder="jean.dupont@entreprise.com" required>
+        <div class="grid-2">
+            <div>
+                <label>Volume horaire (heures/semaine)</label>
+                <input type="number" name="weekly_hours" value="<?= htmlspecialchars($step3['weekly_hours'] ?? '') ?>" required>
+            </div>
+            <div>
+                <label>Rémunération (€ / mois)</label>
+                <input type="number" name="salary" step="0.01" value="<?= htmlspecialchars($step3['salary'] ?? '') ?>" required>
+            </div>
+        </div>
+
+        <label>Missions</label>
+        <textarea name="missions" rows="5" required><?= htmlspecialchars($step3['missions'] ?? '') ?></textarea>
+
+
+        <label>Le télétravail est-il possible ?</label>
+        <select name="is_remote" required>
+            <option value="">-- Sélectionner --</option>
+            <option value="1" <?= ($step2['is_remote'] ?? '') === '1' ? 'selected' : '' ?>>Oui</option>
+            <option value="0" <?= ($step2['is_remote'] ?? '') === '0' ? 'selected' : '' ?>>Non</option>
+        </select>
+
+        <label>Si oui, nombre de jours de télétravail par semaine</label>
+        <input type="number" name="remote_days_per_week" min="0" max="5"
+            value="<?= htmlspecialchars($step2['remote_days_per_week'] ?? '') ?>">
+
+
 
         <div class="form-actions">
-            <a href="/stalhub/student/new-request" class="button">← Retour</a>
+            <a href="/stalhub/student/request/step2" class="button">← Retour</a>
             <button type="submit">Continuer</button>
         </div>
     </form>

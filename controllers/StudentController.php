@@ -185,8 +185,9 @@ public function submitRequest(): void
         exit;
     }
 
-    $step2 = $_SESSION['step2'] ?? [];
-    $step3 = $_SESSION['step3'] ?? [];
+    $step3 = $_SESSION['step2'] ?? [];
+    $step2 = $_SESSION['step3'] ?? [];
+
     $step4 = $_SESSION['step4'] ?? [];
 
     $companyModel = new CompanyModel();

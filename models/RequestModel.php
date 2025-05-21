@@ -36,40 +36,58 @@ class RequestModel
     public function createRequest(array $step3, int $userId, int $companyId, array $step2): int
     {
         $status = 'SOUMISE';
+        $now = date('Y-m-d H:i:s');
+
         $stmt = $this->pdo->prepare("INSERT INTO requests (
-            student_id, company_id, contract_type, referent_email, mission,
-            start_date, end_date, supervisor, salary_value, salary_duration,
-            created_on, updated_at,  archived, status
+            student_id, company_id, contract_type, mission,
+            start_date, end_date,
+            salary_value, salary_duration,
+            supervisor_last_name, supervisor_first_name, supervisor_email, supervisor_position,
+            is_remote, remote_days_per_week,
+            created_on, updated_at, archived, status
         ) VALUES (
-            :student_id, :company_id, :contract_type, :referent_email, :mission,
-            :start_date, :end_date, NULL, :salary_value, 'mois',
+            :student_id, :company_id, :contract_type, :mission,
+            :start_date, :end_date,
+            :salary_value, 'mois',
+            :supervisor_last_name, :supervisor_first_name, :supervisor_email, :supervisor_position,
+            :is_remote, :remote_days_per_week,
             :created_on, :updated_at, 0, :status
         )");
 
-        $now = date('Y-m-d H:i:s');
-
         $stmt->execute([
-            'student_id'     => $userId,
-            'company_id'     => $companyId,
-            'contract_type'  => $step3['contract_type'],
-            'referent_email' => $step2['referent_email'],
-            'mission'        => $step3['missions'],
-            'start_date'     => $step3['start_date'],
-            'end_date'       => $step3['end_date'],
-            'salary_value'   => $step3['salary'],
-            'created_on'     => $now,
-            'updated_at'     => $now,
-            'status'         => 'SOUMISE',
+            'student_id'            => $userId,
+            'company_id'            => $companyId,
+            'contract_type'         => $step3['contract_type'],
+            'mission'               => $step3['missions'],
+            'start_date'            => $step3['start_date'],
+            'end_date'              => $step3['end_date'],
+            'salary_value'          => $step3['salary'],
+
+            'supervisor_last_name'  => $step2['supervisor_last_name'] ?? null,
+            'supervisor_first_name' => $step2['supervisor_first_name'] ?? null,
+            'supervisor_email'      => $step2['supervisor_email'] ?? null,
+            'supervisor_position'   => $step2['supervisor_position'] ?? null,
+
+
+            'is_remote' => isset($step3['is_remote']) && $step3['is_remote'] === '1' ? 1 : 0,
+            'remote_days_per_week' => isset($step3['remote_days_per_week']) && $step3['remote_days_per_week'] !== ''
+                ? (int)$step3['remote_days_per_week']
+                : null,
+
+
+            'created_on'            => $now,
+            'updated_at'            => $now,
+            'status'                => $status,
         ]);
 
         $requestId = (int)$this->pdo->lastInsertId();
 
-        // Créer une entrée de statut
         $statusHistoryModel = new StatusHistoryModel();
         $statusHistoryModel->logStatusChange($requestId, $status);
 
         return $requestId;
     }
+
 
     public function findByIdForUser(int $requestId, int $userId): ?array
     {
