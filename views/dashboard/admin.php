@@ -125,6 +125,83 @@ function bindRoleForm() {
     });
 }
 
+function filterUsers() {
+    const selectedRole = document.getElementById('roleFilter').value.toLowerCase();
+    const rows = document.querySelectorAll('#userTable tr');
+
+    rows.forEach(row => {
+        const userRole = row.getAttribute('data-role').toLowerCase();
+        row.style.display = (selectedRole === 'all' || userRole === selectedRole) ? '' : 'none';
+    });
+}
+
+function openRequestModal(req) {
+    const html = `
+        <p><strong>Étudiant :</strong> ${req.student_name}</p>
+        <p><strong>Entreprise :</strong> ${req.company_name}</p>
+        <p><strong>Type de contrat :</strong> ${req.contract_type ? req.contract_type : '-'}</p>
+
+        <p><strong>Email référent :</strong> ${req.referent_email}</p>
+        <p><strong>Mission :</strong> ${req.mission}</p>
+        <p><strong>Heures par semaine :</strong> ${req.weekly_hours ?? '-'}</p>
+        <p><strong>Salaire :</strong> ${req.salary_value} / ${req.salary_duration}</p>
+        <p><strong>Début :</strong> ${req.start_date}</p>
+        <p><strong>Fin :</strong> ${req.end_date}</p>
+        <p><strong>Statut :</strong> ${req.status}</p>
+    `;
+    document.getElementById('requestDetails').innerHTML = html;
+    document.getElementById('requestModal').style.display = 'flex';
+}
+
+function closeRequestModal() {
+    document.getElementById('requestModal').style.display = 'none';
+}
+
+
+function openCompanyModal(company) {
+    const info = `
+        <p><strong>Nom :</strong> ${company.name}</p>
+        <p><strong>SIRET :</strong> ${company.siret}</p>
+        <p><strong>Email :</strong> ${company.email || '-'}</p>
+        <p><strong>Adresse :</strong> ${company.address || '-'}, ${company.postal_code || '-'} ${company.city || '-'}</p>
+        <p><strong>Détails :</strong> ${company.details || '-'}</p>
+    `;
+    document.getElementById('companyInfo').innerHTML = info;
+
+    fetch('/stalhub/admin/companies/requests?company_id=' + company.id)
+    .then(res => res.json())
+    .then(data => {
+        if (data.length > 0) {
+            let html = '<ul>';
+            data.forEach(req => {
+                html += `
+                    <li>
+                        <strong>${req.student_name}</strong> | 
+                        Contrat : ${req.contract_type || '-'}<br>
+                        Référent : ${req.referent_email || '-'}<br>
+                        Mission : ${req.mission || '-'}<br>
+                        Heures / semaine : ${req.weekly_hours || '-'}<br>
+                        Salaire : ${req.salary_value || '-'} / ${req.salary_duration || '-'}<br>
+                        Période : ${req.start_date} → ${req.end_date}<br>
+                        Statut : <strong>${req.status}</strong>
+                    </li><hr>
+                `;
+            });
+            html += '</ul>';
+            document.getElementById('companyRequests').innerHTML = html;
+        } else {
+            document.getElementById('companyRequests').innerHTML = '<em>Aucune demande associée</em>';
+        }
+    });
+
+
+    document.getElementById('companyModal').style.display = 'flex';
+}
+
+function closeCompanyModal() {
+    document.getElementById('companyModal').style.display = 'none';
+}
+
 </script>
 
 </body>

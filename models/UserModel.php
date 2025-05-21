@@ -98,4 +98,16 @@ class UserModel
 
         return $stmt->execute($data);
     }
+    
+    public function deleteById(int $id): bool
+{
+    // Supprimer les demandes liées d'abord
+    $this->pdo->prepare("DELETE FROM requests WHERE student_id = :id")->execute(['id' => $id]);
+
+    // Ensuite supprimer l'utilisateur
+    $stmt = $this->pdo->prepare("DELETE FROM users WHERE id = :id");
+    return $stmt->execute(['id' => $id]);
+}
+
+
 }

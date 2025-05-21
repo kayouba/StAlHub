@@ -107,4 +107,117 @@ class AdminController
 
         exit;
     }
+
+    public function deleteUser(): void
+{
+    $this->requireAdmin();
+
+    $userId = $_GET['id'] ?? null;
+
+    if ($userId) {
+        $userModel = new \App\Model\UserModel();
+        $deleted = $userModel->deleteById((int)$userId);
+
+        if ($deleted) {
+            header('Location: /stalhub/admin/dashboard');
+            exit;
+        } else {
+            echo "Échec de la suppression.";
+        }
+    } else {
+        echo "ID invalide.";
+    }
+}
+
+public function toggleActive(): void
+{
+    $this->requireAdmin();
+
+    $userId = $_GET['id'] ?? null;
+
+    if ($userId) {
+        $userModel = new \App\Model\UserModel();
+        $user = $userModel->findById((int)$userId);
+
+        if ($user) {
+            $newStatus = $user['is_active'] ? 0 : 1;
+            $userModel->update((int)$userId, ['is_active' => $newStatus]);
+
+            header('Location: /stalhub/admin/dashboard');
+            exit;
+        }
+    }
+
+    echo "Utilisateur non trouvé.";
+}
+
+public function deleteCompany(): void
+{
+    $this->requireAdmin();
+
+    $id = $_GET['id'] ?? null;
+
+    if ($id) {
+        $companyModel = new \App\Model\CompanyModel();
+        $deleted = $companyModel->deleteById((int)$id);
+
+        if ($deleted) {
+            header('Location: /stalhub/admin/dashboard');
+            exit;
+        } else {
+            echo "Échec de la suppression. L'entreprise est peut-être liée à une ou plusieurs demandes.";
+        }
+    } else {
+        echo "ID d'entreprise manquant.";
+    }
+}
+public function getCompanyRequests(): void
+{
+    header('Content-Type: application/json');
+
+    $companyId = $_GET['company_id'] ?? null;
+
+    if (!$companyId) {
+        echo json_encode([]);
+        return;
+    }
+
+    $model = new \App\Model\RequestModel();
+    $requests = $model->findByCompanyId((int)$companyId);
+    echo json_encode($requests);
+}
+
+
+
+public function viewRequest(): void
+{
+    $this->requireAdmin();
+
+    $id = $_GET['id'] ?? null;
+    if (!$id) {
+        echo "Demande introuvable.";
+        exit;
+    }
+
+    $requestModel = new \App\Model\RequestModel();
+    $userModel = new \App\Model\UserModel();
+    $companyModel = new \App\Model\CompanyModel();
+
+    $request = $requestModel->findById((int)$id);
+
+    if (!$request) {
+        echo "Demande non trouvée.";
+        exit;
+    }
+
+    $student = $userModel->findById((int)$request['student_id']);
+    $company = $companyModel->findById((int)$request['company_id']);
+
+    \App\View::render('admin/requests/view', [
+        'request' => $request,
+        'student' => $student,
+        'company' => $company
+    ]);
+}
+
 }

@@ -32,9 +32,12 @@
                 <td>
                     <a href="javascript:void(0);" onclick='openModal(<?= json_encode($user, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>)'>Voir</a>
                     <?php if ($user['role'] === 'student'): ?>
-                        | <a href="/stalhub/admin/users/suspend?id=<?= $user['id'] ?>">Suspendre</a>
+                        <a href="/stalhub/admin/users/suspend?id=<?= $user['id'] ?>">
+                            <?= $user['is_active'] ? 'Suspendre' : 'Activer le compte' ?>
+                        </a>
                     <?php endif; ?>
-                    | <a href="/stalhub/admin/users/delete?id=<?= $user['id'] ?>" onclick="return confirm('Confirmer la suppression ?')">Supprimer</a>
+
+                    <a href="/stalhub/admin/users/delete?id=<?= $user['id'] ?>" onclick="return confirm('Confirmer la suppression ?')">Supprimer</a>
                 </td>
             </tr>
         <?php endforeach; ?>
@@ -100,13 +103,4 @@ function closeModal() {
     document.getElementById('userModal').style.display = 'none';
 }
 
-function filterUsers() {
-    const selectedRole = document.getElementById('roleFilter').value.toLowerCase();
-    const rows = document.querySelectorAll('#userTable tr');
-
-    rows.forEach(row => {
-        const userRole = row.getAttribute('data-role').toLowerCase();
-        row.style.display = (selectedRole === 'all' || userRole === selectedRole) ? '' : 'none';
-    });
-}
 </script>
