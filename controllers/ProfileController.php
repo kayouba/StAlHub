@@ -104,24 +104,64 @@ class ProfileController extends BaseController
             $data['track'] = $_POST['track'] ?? '';
             $data['level'] = $currentSchoolYear;
             
-            // Correction du chemin pour les uploads - similaire à StudentController.php
-            $uploadDir = __DIR__ . '/../../public/uploads/users/';
-            if (!is_dir($uploadDir)) {
-                mkdir($uploadDir, 0777, true);
+            // Définir le chemin absolu vers le répertoire uploads/users
+            $uploadBaseDir = $_SERVER['DOCUMENT_ROOT'] . '/stalhub/public/uploads/';
+            $uploadUsersDir = $uploadBaseDir . 'users/';
+            
+            // Déboguer les chemins
+            error_log("DOCUMENT_ROOT: " . $_SERVER['DOCUMENT_ROOT']);
+            error_log("Chemin base uploads: " . $uploadBaseDir);
+            error_log("Chemin users: " . $uploadUsersDir);
+            
+            // Créer le répertoire uploads s'il n'existe pas
+            if (!file_exists($uploadBaseDir)) {
+                if (!mkdir($uploadBaseDir, 0755, true)) {
+                    error_log("ERREUR: Impossible de créer le répertoire " . $uploadBaseDir);
+                    $_SESSION['form_errors'] = ["Erreur lors de la création des répertoires de téléversement"];
+                    header('Location: /stalhub/profile');
+                    exit;
+                }
+                error_log("Création du répertoire uploads: " . $uploadBaseDir);
             }
             
-            $userDir = $uploadDir . $userId . '/';
-            if (!is_dir($userDir)) {
-                mkdir($userDir, 0777, true);
+            // Créer le répertoire uploads/users s'il n'existe pas
+            if (!file_exists($uploadUsersDir)) {
+                if (!mkdir($uploadUsersDir, 0755, true)) {
+                    error_log("ERREUR: Impossible de créer le répertoire " . $uploadUsersDir);
+                    $_SESSION['form_errors'] = ["Erreur lors de la création des répertoires de téléversement"];
+                    header('Location: /stalhub/profile');
+                    exit;
+                }
+                error_log("Création du répertoire users: " . $uploadUsersDir);
+            }
+            
+            // Créer le répertoire utilisateur s'il n'existe pas
+            $userDir = $uploadUsersDir . $userId . '/';
+            if (!file_exists($userDir)) {
+                if (!mkdir($userDir, 0755, true)) {
+                    error_log("ERREUR: Impossible de créer le répertoire " . $userDir);
+                    $_SESSION['form_errors'] = ["Erreur lors de la création des répertoires de téléversement"];
+                    header('Location: /stalhub/profile');
+                    exit;
+                }
+                error_log("Création du répertoire utilisateur: " . $userDir);
             }
             
             // Gestion du CV (optionnel)
             if (isset($_FILES['cv']) && $_FILES['cv']['error'] === UPLOAD_ERR_OK && !empty($_FILES['cv']['tmp_name'])) {
-                // Vérifier le type du fichier
-                $fileType = $_FILES['cv']['type'];
+                // Déboguer les informations du fichier
+                error_log("Fichier CV reçu: " . json_encode($_FILES['cv']));
+                
+                // Vérifier le type du fichier en utilisant une méthode plus fiable
+                $fileInfo = pathinfo($_FILES['cv']['name']);
+                $extension = strtolower($fileInfo['extension'] ?? '');
+                $allowedExtensions = ['pdf'];
                 $allowedTypes = ['application/pdf'];
                 
-                if (!in_array($fileType, $allowedTypes)) {
+                // Vérifier d'abord l'extension du fichier
+                error_log("Extension du fichier CV: " . $extension);
+                
+                if (!in_array($extension, $allowedExtensions)) {
                     $_SESSION['form_errors'] = ["Le fichier CV doit être un PDF"];
                     header('Location: /stalhub/profile');
                     exit;
@@ -131,20 +171,40 @@ class ProfileController extends BaseController
                 $cvPath = $userDir . 'cv.pdf';
                 
                 if (!move_uploaded_file($_FILES['cv']['tmp_name'], $cvPath)) {
-                    error_log("Erreur lors du téléversement du CV: " . error_get_last()['message']);
+                    $uploadError = error_get_last();
+                    error_log("Erreur lors du téléversement du CV: " . ($uploadError ? $uploadError['message'] : 'Inconnu'));
+                    error_log("Tentative de déplacement vers: " . $cvPath);
                     $_SESSION['form_errors'] = ["Erreur lors du téléversement du CV"];
                     header('Location: /stalhub/profile');
                     exit;
+                } else {
+                    // Définir les permissions du fichier de manière plus sécurisée
+                    chmod($cvPath, 0644);
+                    error_log("CV téléversé avec succès vers: " . $cvPath);
+                    
+                    // Ajouter un message de succès spécifique pour le téléversement
+                    if (!isset($_SESSION['success_message'])) {
+                        $_SESSION['success_message'] = '';
+                    }
+                    $_SESSION['success_message'] .= " CV téléversé.";
                 }
             }
             
             // Gestion de l'assurance (optionnel)
             if (isset($_FILES['assurance']) && $_FILES['assurance']['error'] === UPLOAD_ERR_OK && !empty($_FILES['assurance']['tmp_name'])) {
-                // Vérifier le type du fichier
-                $fileType = $_FILES['assurance']['type'];
+                // Déboguer les informations du fichier
+                error_log("Fichier assurance reçu: " . json_encode($_FILES['assurance']));
+                
+                // Vérifier le type du fichier en utilisant une méthode plus fiable
+                $fileInfo = pathinfo($_FILES['assurance']['name']);
+                $extension = strtolower($fileInfo['extension'] ?? '');
+                $allowedExtensions = ['pdf'];
                 $allowedTypes = ['application/pdf'];
                 
-                if (!in_array($fileType, $allowedTypes)) {
+                // Vérifier d'abord l'extension du fichier
+                error_log("Extension du fichier assurance: " . $extension);
+                
+                if (!in_array($extension, $allowedExtensions)) {
                     $_SESSION['form_errors'] = ["Le fichier d'assurance doit être un PDF"];
                     header('Location: /stalhub/profile');
                     exit;
@@ -154,10 +214,22 @@ class ProfileController extends BaseController
                 $assurancePath = $userDir . 'assurance.pdf';
                 
                 if (!move_uploaded_file($_FILES['assurance']['tmp_name'], $assurancePath)) {
-                    error_log("Erreur lors du téléversement de l'assurance: " . error_get_last()['message']);
+                    $uploadError = error_get_last();
+                    error_log("Erreur lors du téléversement de l'assurance: " . ($uploadError ? $uploadError['message'] : 'Inconnu'));
+                    error_log("Tentative de déplacement vers: " . $assurancePath);
                     $_SESSION['form_errors'] = ["Erreur lors du téléversement de l'assurance"];
                     header('Location: /stalhub/profile');
                     exit;
+                } else {
+                    // Définir les permissions du fichier de manière plus sécurisée
+                    chmod($assurancePath, 0644);
+                    error_log("Assurance téléversée avec succès vers: " . $assurancePath);
+                    
+                    // Ajouter un message de succès spécifique pour le téléversement
+                    if (!isset($_SESSION['success_message'])) {
+                        $_SESSION['success_message'] = '';
+                    }
+                    $_SESSION['success_message'] .= " Assurance téléversée.";
                 }
             }
         }
@@ -165,7 +237,11 @@ class ProfileController extends BaseController
         // Mise à jour de l'utilisateur
         try {
             if ($userModel->update($userId, $data)) {
-                $_SESSION['success_message'] = "Profil mis à jour avec succès";
+                if (!isset($_SESSION['success_message']) || empty($_SESSION['success_message'])) {
+                    $_SESSION['success_message'] = "Profil mis à jour avec succès";
+                } else {
+                    $_SESSION['success_message'] = "Profil mis à jour avec succès." . $_SESSION['success_message'];
+                }
                 header('Location: /stalhub/dashboard');
                 exit;
             } else {

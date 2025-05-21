@@ -178,13 +178,14 @@
         <?php
           // Vérifier si un CV existe déjà
           $userId = $_SESSION['user_id'] ?? null;
-          $cvPath = "uploads/users/$userId/cv.pdf";
-          $fullPath = $_SERVER['DOCUMENT_ROOT'] . '/stalhub/public/' . $cvPath;
+          // Définir le chemin relatif correct pour vérifier l'existence du fichier
+          $cvRelativePath = "uploads/users/$userId/cv.pdf";
+          $cvFullPath = $_SERVER['DOCUMENT_ROOT'] . '/stalhub/public/' . $cvRelativePath;
           
-          if (file_exists($fullPath)):
+          if (file_exists($cvFullPath)):
         ?>
           <div class="file-preview">
-            <a href="/stalhub/public/<?php echo $cvPath; ?>" target="_blank">Voir le CV actuel</a>
+            <a href="/stalhub/public/<?php echo $cvRelativePath; ?>" target="_blank">Voir le CV actuel</a>
           </div>
         <?php endif; ?>
 
@@ -192,13 +193,13 @@
         <input type="file" id="assurance" name="assurance" accept=".pdf">
         <?php
           // Vérifier si une assurance existe déjà
-          $assurancePath = "uploads/users/$userId/assurance.pdf";
-          $fullAssurancePath = $_SERVER['DOCUMENT_ROOT'] . '/stalhub/public/' . $assurancePath;
+          $assuranceRelativePath = "uploads/users/$userId/assurance.pdf";
+          $assuranceFullPath = $_SERVER['DOCUMENT_ROOT'] . '/stalhub/public/' . $assuranceRelativePath;
           
-          if (file_exists($fullAssurancePath)):
+          if (file_exists($assuranceFullPath)):
         ?>
           <div class="file-preview">
-            <a href="/stalhub/public/<?php echo $assurancePath; ?>" target="_blank">Voir l'assurance actuelle</a>
+            <a href="/stalhub/public/<?php echo $assuranceRelativePath; ?>" target="_blank">Voir l'assurance actuelle</a>
           </div>
         <?php endif; ?>
       <?php endif; ?>
