@@ -19,6 +19,9 @@ return [
     '/student/request/view' => ['App\Controller\StudentController', 'viewRequest'],
     '/student/request/submit' => ['App\Controller\StudentController', 'submitRequest'],
 
+    '/tutor/dashboard' => ['App\Controller\TutorController', 'index'],
+    '/tutor/update'    => ['App\Controller\TutorController', 'updateCapacity'],
+
     '/profile'         => ['App\Controller\ProfileController', 'index'],
     '/profile/submit'  => ['App\Controller\ProfileController', 'submit'],
 
