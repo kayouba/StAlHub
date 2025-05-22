@@ -29,6 +29,11 @@ public function index(): void
         exit;
     }
 
+        if ($role === 'tutor') {
+        header('Location: /stalhub/tutor/dashboard');
+        exit;
+    }
+
     // === Étudiant ===
     $userModel = new UserModel();
     $user = $userModel->findById($userId);
