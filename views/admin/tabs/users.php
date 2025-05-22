@@ -64,6 +64,7 @@
                 <option value="responsable">Responsable pédagogique</option>
                 <option value="direction">Direction</option>
                 <option value="cfa">CFA</option>
+                <option value="tutor">Tuteur</option>
             </select>
             <button type="submit" style="padding:10px 20px; background:#004A7C; color:white; border:none; border-radius:4px; cursor:pointer;">Mettre à jour</button>
         </form>
