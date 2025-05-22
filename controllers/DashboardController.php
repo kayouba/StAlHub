@@ -27,6 +27,12 @@ public function index(): void
         exit;
     }
 
+    if ($role === 'professional_responsible') {
+        header('Location: /stalhub/responsable/requestList');
+        exit;
+    }
+
+
     // === Étudiant ===
     $userModel = new UserModel();
     $user = $userModel->findById($userId);
