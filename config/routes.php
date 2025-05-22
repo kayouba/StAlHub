@@ -10,6 +10,7 @@ return [
     '/dashboard'      => ['App\Controller\DashboardController', 'index'],
     '/logout'         => ['App\LogoutController', 'logout'],
 
+    //Student
     '/student/new-request' => ['App\Controller\StudentController', 'newRequest'],
     '/student/request/step2' => ['App\Controller\StudentController', 'step2'],
     '/student/request/step3' => ['App\Controller\StudentController', 'step3'],
@@ -27,6 +28,14 @@ return [
     '/admin/tab/requests'   => ['App\Controller\AdminController', 'tabRequests'],
     '/admin/tab/companies'  => ['App\Controller\AdminController', 'tabCompanies'],
 
+    //Secretary
+   '/secretary/dashboard' => ['App\Controller\SecretaryController', 'dashboard'],
+   '/secretary/details' => ['App\Controller\SecretaryController', 'detailsFile'],
+   '/secretary/validate-all-documents' => ['App\Controller\SecretaryController', 'validateAllDocuments'],
 
+
+
+
+   
 ];
 

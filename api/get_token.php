@@ -17,6 +17,10 @@ function getInseeToken(): string
     $response = curl_exec($ch);
 
     if (curl_errno($ch)) {
+        echo json_encode([
+        'success' => false,
+        'message' => 'Erreur cURL : ' . curl_error($ch)
+        ]);
         return '';
     }
 

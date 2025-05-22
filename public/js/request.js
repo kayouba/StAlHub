@@ -2,7 +2,13 @@ document.getElementById('siret').addEventListener('blur', function () {
     const siret = this.value.trim();
     if (siret.length === 14) {
         fetch('/stalhub/public/api/siret-check.php?siret=' + siret)
-            .then(res => res.json())
+            .then(res => {
+        const contentType = res.headers.get('content-type');
+        if (!contentType || !contentType.includes('application/json')) {
+            throw new Error('Réponse non JSON');
+        }
+        return res.json();
+    })
             .then(data => {
                 const resultDiv = document.getElementById('siret-result');
 

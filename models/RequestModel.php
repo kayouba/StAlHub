@@ -142,6 +142,60 @@ class RequestModel
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
+    public function findById(int $requestId): ?array{
+    $sql = "SELECT 
+                r.*, 
+                c.name AS company_name, 
+                c.siret, 
+                c.city, 
+                c.postal_code,
+                u.first_name,
+                u.last_name,
+                u.email,
+                u.student_number,
+                u.phone_number AS phone,
+                r.mission,
+                r.salary_value AS salary,
+                r.salary_duration,
+                u.level
+            FROM requests r
+            JOIN companies c ON r.company_id = c.id
+            JOIN users u ON r.student_id = u.id
+            WHERE r.id = :requestId";
+
+    $stmt = $this->pdo->prepare($sql);
+    $stmt->execute(['requestId' => $requestId]);
+
+    $result = $stmt->fetch(\PDO::FETCH_ASSOC);
+    return $result ?: null;
+    }
+
+    public function findAllRequests(): array
+{
+    $stmt = $this->pdo->prepare("
+        SELECT 
+            r.id,
+            r.status,
+            r.start_date,
+            r.end_date,
+            r.contract_type,
+            u.first_name,
+            u.last_name,
+            u.formation,
+            c.name AS company_name,
+            c.country
+        FROM requests r
+        JOIN users u ON r.student_id = u.id
+        JOIN companies c ON r.company_id = c.id
+        ORDER BY r.created_on DESC
+    ");
+    
+    $stmt->execute();
+
+    return $stmt->fetchAll(\PDO::FETCH_ASSOC);
+}
+
+
 
 
 
