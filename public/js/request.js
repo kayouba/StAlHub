@@ -1,42 +1,80 @@
-document.getElementById('siret').addEventListener('blur', function () {
-    const siret = this.value.trim();
-    if (siret.length === 14) {
-        fetch('/stalhub/public/api/siret-check.php?siret=' + siret)
-            .then(res => res.json())
-            .then(data => {
-                const resultDiv = document.getElementById('siret-result');
+document.addEventListener("DOMContentLoaded", function () {
+    const countrySelect = document.getElementById("country");
+    const siretGroup = document.getElementById("siret-group");
+    const siretInput = document.getElementById("siret");
+    const manualNote = document.getElementById("manual-entry-note");
 
-                if (data.success) {
-                    resultDiv.innerHTML = `✅ Entreprise : ${data.nom}<br>🏢 Adresse : ${data.adresse}`;
-                    resultDiv.style.color = 'green';
+    const autoFields = ['company_name', 'city', 'postal_code'];
 
-                    // Remplissage automatique des champs
-                    document.querySelector('input[name="company_name"]').value = data.nom || '';
-                    document.querySelector('input[name="city"]').value = data.city || '';
-                    document.querySelector('input[name="postal_code"]').value = data.postal_code || '';
+    function toggleSiretField() {
+        const isFrance = countrySelect.value === "France";
 
-                    // Optionnel : rendre les champs readonly pour éviter la modification
-                    document.querySelector('input[name="company_name"]').readOnly = true;
-                    document.querySelector('input[name="city"]').readOnly = true;
-                    document.querySelector('input[name="postal_code"]').readOnly = true;
+        siretGroup.style.display = isFrance ? "block" : "none";
+        siretInput.required = isFrance;
 
-                } else {
-                    resultDiv.innerHTML = `❌ ${data.message}`;
-                    resultDiv.style.color = 'red';
+        if (manualNote) {
+            manualNote.style.display = isFrance ? "none" : "block";
+        }
 
-                    // Reset des champs si invalide
-                    ['company_name', 'city', 'postal_code'].forEach(name => {
-                        const field = document.querySelector(`input[name="${name}"]`);
-                        if (field) {
-                            field.value = '';
-                            field.readOnly = false;
-                        }
-                    });
+        if (!isFrance) {
+            siretInput.value = '';
+            document.getElementById('siret-result').innerText = '';
+
+            autoFields.forEach(name => {
+                const field = document.querySelector(`input[name="${name}"]`);
+                if (field) {
+                    field.readOnly = false;
+                    field.dataset.originalReadonly = "false";
                 }
-            })
-            .catch(err => {
-                console.error('❌ Erreur JS :', err);
-                document.getElementById('siret-result').innerText = 'Erreur de requête.';
             });
+        }
     }
+
+    countrySelect.addEventListener("change", toggleSiretField);
+    toggleSiretField(); // Initialisation au chargement
+
+    siretInput.addEventListener('blur', function () {
+        const siret = this.value.trim();
+        const resultDiv = document.getElementById('siret-result');
+
+        if (siret.length === 14 && countrySelect.value === "France") {
+            fetch('/stalhub/public/api/siret-check.php?siret=' + encodeURIComponent(siret))
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        resultDiv.innerHTML = `✅ Entreprise : ${data.nom}<br>🏢 Adresse : ${data.adresse}`;
+                        resultDiv.style.color = 'green';
+
+                        document.querySelector('input[name="company_name"]').value = data.nom || '';
+                        document.querySelector('input[name="city"]').value = data.city || '';
+                        document.querySelector('input[name="postal_code"]').value = data.postal_code || '';
+
+                        autoFields.forEach(name => {
+                            const field = document.querySelector(`input[name="${name}"]`);
+                            if (field) {
+                                field.readOnly = true;
+                                field.dataset.originalReadonly = "true";
+                            }
+                        });
+                    } else {
+                        resultDiv.innerHTML = ` ${data.message}`;
+                        resultDiv.style.color = 'red';
+
+                        autoFields.forEach(name => {
+                            const field = document.querySelector(`input[name="${name}"]`);
+                            if (field) {
+                                field.value = '';
+                                field.readOnly = false;
+                                field.dataset.originalReadonly = "false";
+                            }
+                        });
+                    }
+                })
+                .catch(err => {
+                    console.error(' Erreur JS :', err);
+                    resultDiv.innerText = 'Erreur de requête.';
+                    resultDiv.style.color = 'red';
+                });
+        }
+    });
 });

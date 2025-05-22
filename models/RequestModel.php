@@ -33,60 +33,92 @@ class RequestModel
     }
 
 
-    public function createRequest(array $step3, int $userId, int $companyId, array $step2): int
-    {
-        $status = 'SOUMISE';
-        $now = date('Y-m-d H:i:s');
+public function createRequest(array $step3, int $userId, int $companyId, array $step2): int
+{
+    $status = 'SOUMISE';
+    $now = date('Y-m-d H:i:s');
 
-        $stmt = $this->pdo->prepare("INSERT INTO requests (
-            student_id, company_id, contract_type, mission,
-            start_date, end_date,
-            salary_value, salary_duration,
-            supervisor_last_name, supervisor_first_name, supervisor_email, supervisor_position,
-            is_remote, remote_days_per_week,
-            created_on, updated_at, archived, status
-        ) VALUES (
-            :student_id, :company_id, :contract_type, :mission,
-            :start_date, :end_date,
-            :salary_value, 'mois',
-            :supervisor_last_name, :supervisor_first_name, :supervisor_email, :supervisor_position,
-            :is_remote, :remote_days_per_week,
-            :created_on, :updated_at, 0, :status
-        )");
+    $stmt = $this->pdo->prepare("INSERT INTO requests (
+        student_id,
+        company_id,
+        contract_type,
+        job_title,
+        mission,
+        start_date,
+        end_date,
+        weekly_hours,
+        salary_value,
+        salary_duration,
+        supervisor_last_name,
+        supervisor_first_name,
+        supervisor_email,
+        supervisor_position,
+        is_remote,
+        remote_days_per_week,
+        is_abroad,
+        country,
+        created_on,
+        updated_at,
+        archived,
+        status
+    ) VALUES (
+        :student_id,
+        :company_id,
+        :contract_type,
+        :job_title,
+        :mission,
+        :start_date,
+        :end_date,
+        :weekly_hours,
+        :salary_value,
+        'mois',
+        :supervisor_last_name,
+        :supervisor_first_name,
+        :supervisor_email,
+        :supervisor_position,
+        :is_remote,
+        :remote_days_per_week,
+        :is_abroad,
+        :country,
+        :created_on,
+        :updated_at,
+        0,
+        :status
+    )");
 
-        $stmt->execute([
-            'student_id'            => $userId,
-            'company_id'            => $companyId,
-            'contract_type'         => $step3['contract_type'],
-            'mission'               => $step3['missions'],
-            'start_date'            => $step3['start_date'],
-            'end_date'              => $step3['end_date'],
-            'salary_value'          => $step3['salary'],
+    $stmt->execute([
+        'student_id'            => $userId,
+        'company_id'            => $companyId,
+        'contract_type'         => $step3['contract_type'],
+        'job_title'             => $step3['job_title'],
+        'mission'               => $step3['missions'],
+        'start_date'            => $step3['start_date'],
+        'end_date'              => $step3['end_date'],
+        'weekly_hours'          => $step3['weekly_hours'],
+        'salary_value'          => $step3['salary'],
+        'supervisor_last_name'  => $step2['supervisor_last_name'] ?? null,
+        'supervisor_first_name' => $step2['supervisor_first_name'] ?? null,
+        'supervisor_email'      => $step2['supervisor_email'] ?? null,
+        'supervisor_position'   => $step2['supervisor_position'] ?? null,
+        'is_remote'             => isset($step3['is_remote']) && $step3['is_remote'] === '1' ? 1 : 0,
+        'remote_days_per_week'  => isset($step3['remote_days_per_week']) && $step3['remote_days_per_week'] !== ''
+                                    ? (int)$step3['remote_days_per_week']
+                                    : null,
+        'is_abroad'             => ($step2['country'] ?? 'France') !== 'France' ? 1 : 0,
+        'country'               => $step2['country'] ?? 'France',
+        'created_on'            => $now,
+        'updated_at'            => $now,
+        'status'                => $status,
+    ]);
 
-            'supervisor_last_name'  => $step2['supervisor_last_name'] ?? null,
-            'supervisor_first_name' => $step2['supervisor_first_name'] ?? null,
-            'supervisor_email'      => $step2['supervisor_email'] ?? null,
-            'supervisor_position'   => $step2['supervisor_position'] ?? null,
+    $requestId = (int)$this->pdo->lastInsertId();
 
+    $statusHistoryModel = new StatusHistoryModel();
+    $statusHistoryModel->logStatusChange($requestId, $status);
 
-            'is_remote' => isset($step3['is_remote']) && $step3['is_remote'] === '1' ? 1 : 0,
-            'remote_days_per_week' => isset($step3['remote_days_per_week']) && $step3['remote_days_per_week'] !== ''
-                ? (int)$step3['remote_days_per_week']
-                : null,
+    return $requestId;
+}
 
-
-            'created_on'            => $now,
-            'updated_at'            => $now,
-            'status'                => $status,
-        ]);
-
-        $requestId = (int)$this->pdo->lastInsertId();
-
-        $statusHistoryModel = new StatusHistoryModel();
-        $statusHistoryModel->logStatusChange($requestId, $status);
-
-        return $requestId;
-    }
 
 
     public function findByIdForUser(int $requestId, int $userId): ?array

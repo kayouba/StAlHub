@@ -76,3 +76,11 @@ textarea {
 .form-actions button:hover {
     opacity: 0.9;
 }
+
+#manual-entry-note {
+    background-color: #f1f1f1;
+    border-left: 4px solid #007bff;
+    padding: 10px 15px;
+    border-radius: 4px;
+    font-size: 0.9rem;
+}

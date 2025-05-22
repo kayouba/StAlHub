@@ -24,13 +24,8 @@
 <main class="request-container">
     <h1>Nouvelle Demande</h1>
 
-    <div class="steps">
-        <div class="step completed">✔</div>
-        <div class="step completed">✔</div>
-        <div class="step completed">✔</div>
-        <div class="step completed">✔</div>
-        <div class="step active"><span>5</span> Résumé</div>
-    </div>
+    <?php include __DIR__ . '/steps.php'; ?>
+
 
     <form action="/stalhub/student/request/submit" method="POST" enctype="multipart/form-data">
 
