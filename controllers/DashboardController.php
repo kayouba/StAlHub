@@ -15,6 +15,8 @@ public function index(): void
     $this->requireAuth();
 
     $userId = $_SESSION['user_id'] ?? null;
+    $userEntity= new UserModel();
+
     $role = $_SESSION['role'] ?? null;
 
     if (!$userId) {
