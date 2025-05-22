@@ -1,0 +1,80 @@
+
+.modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.4);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 999;
+    padding: 20px;
+}
+
+.modal-content {
+    background: #ffffff;
+    width: 100%;
+    max-width: 700px;
+    border-radius: 12px;
+    padding: 30px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+    position: relative;
+    font-family: 'Segoe UI', sans-serif;
+    color: #333;
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+.modal-content h3 {
+    margin-top: 0;
+    font-size: 24px;
+    color: #004A7C;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 10px;
+}
+
+.modal-content h4 {
+    font-size: 18px;
+    color: #0067a3;
+    margin-top: 25px;
+    border-bottom: 1px solid #ddd;
+    padding-bottom: 6px;
+}
+
+.modal-content p {
+    margin: 10px 0;
+    font-size: 15px;
+    line-height: 1.5;
+}
+
+.modal-content ul {
+    list-style: none;
+    padding-left: 0;
+    margin: 0;
+}
+
+.modal-content li {
+    margin: 12px 0;
+    padding: 10px 15px;
+    border: 1px solid #f0f0f0;
+    border-radius: 8px;
+    background: #f9f9f9;
+    font-size: 14px;
+}
+
+.modal-content li strong {
+    color: #004A7C;
+}
+
+.modal-content span {
+    position: absolute;
+    top: 14px;
+    right: 20px;
+    font-size: 26px;
+    font-weight: bold;
+    color: #aaa;
+    cursor: pointer;
+    transition: color 0.3s ease;
+}
+.modal-content span:hover {
+    color: #004A7C;
+}

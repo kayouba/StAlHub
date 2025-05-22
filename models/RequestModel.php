@@ -128,21 +128,54 @@ class RequestModel
         $stmt = $this->pdo->query("
             SELECT 
                 r.id,
-                r.status,
+                CONCAT(u.last_name, ' ', u.first_name) AS student_name,
+                c.name AS company_name,
+                r.contract_type,
+                r.referent_email,
+                r.mission,
+                r.weekly_hours,
+                r.salary_value,
+                r.salary_duration,
                 r.start_date,
                 r.end_date,
-                CONCAT(u.first_name, ' ', u.last_name) AS student_name,
-                c.name AS company_name
+                r.status
             FROM requests r
-            JOIN users u ON r.student_id = u.id
-            JOIN companies c ON r.company_id = c.id
-            ORDER BY r.created_on DESC
+            JOIN users u ON u.id = r.student_id
+            JOIN companies c ON c.id = r.company_id
         ");
 
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
 
+    public function findById(int $id): ?array
+    {
+        $stmt = $this->pdo->prepare("SELECT * FROM requests WHERE id = :id LIMIT 1");
+        $stmt->execute(['id' => $id]);
+        return $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
+    }
 
+    public function findByCompanyId(int $companyId): array
+    {
+        $stmt = $this->pdo->prepare("
+            SELECT 
+                r.id,
+                CONCAT(u.last_name, ' ', u.first_name) AS student_name,
+                r.contract_type,
+                r.referent_email,
+                r.mission,
+                r.weekly_hours,
+                r.salary_value,
+                r.salary_duration,
+                r.start_date,
+                r.end_date,
+                r.status
+            FROM requests r
+            JOIN users u ON u.id = r.student_id
+            WHERE r.company_id = :company_id
+        ");
+        $stmt->execute(['company_id' => $companyId]);
+        return $stmt->fetchAll(\PDO::FETCH_ASSOC);
+    }
 
 }

@@ -27,6 +27,13 @@ return [
     '/admin/tab/users'      => ['App\Controller\AdminController', 'tabUsers'],
     '/admin/tab/requests'   => ['App\Controller\AdminController', 'tabRequests'],
     '/admin/tab/companies'  => ['App\Controller\AdminController', 'tabCompanies'],
+    '/admin/users/updateRole' => ['App\Controller\AdminController', 'updateUserRole'],
+    '/admin/users/delete' => ['App\Controller\AdminController', 'deleteUser'],
+    '/admin/users/suspend' => ['App\Controller\AdminController', 'toggleActive'],
+    '/admin/requests/view' => ['App\Controller\AdminController', 'viewRequest'],
+    '/admin/companies/delete' => ['App\Controller\AdminController', 'deleteCompany'],
+    '/admin/companies/view' => ['App\Controller\AdminController', 'viewCompany'],
+    '/admin/companies/requests' => ['App\Controller\AdminController', 'getCompanyRequests'],
 
 
 ];

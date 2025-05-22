@@ -22,5 +22,3 @@ final class CreateOtpTable extends AbstractMigration
         
     }
 }
-
-

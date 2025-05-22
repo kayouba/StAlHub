@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
-  <title>Compléter le Profil Étudiant</title>
+  <title>Compléter le Profil</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
     body {
@@ -88,7 +88,13 @@
 <body>
   <?php include __DIR__ . '/../components/sidebar.php'; ?>
   <div class="container">
-    <h2><i class="fas fa-user-graduate"></i> Compléter le Profil Étudiant</h2>
+    <h2>
+      <?php if (isset($user['role']) && $user['role'] === 'student'): ?>
+        <i class="fas fa-user-graduate"></i> Compléter le Profil Étudiant
+      <?php else: ?>
+        <i class="fas fa-user"></i> Compléter votre Profil
+      <?php endif; ?>
+    </h2>
     
     <?php if (isset($_SESSION['form_errors']) && !empty($_SESSION['form_errors'])): ?>
       <div class="alert alert-danger">
@@ -123,43 +129,49 @@
       <label for="email">Adresse email *</label>
       <input type="email" id="email" name="email" value="<?php echo isset($user['email']) ? htmlspecialchars($user['email']) : ''; ?>" required>
 
-      <label for="num-etudiant">Numéro étudiant *</label>
-      <input type="text" id="num-etudiant" name="num-etudiant" value="<?php echo isset($user['student_number']) ? htmlspecialchars($user['student_number']) : ''; ?>" required>
+      <?php if (isset($user['role']) && $user['role'] === 'student'): ?>
+        <label for="num-etudiant">Numéro étudiant</label>
+        <input type="text" id="num-etudiant" name="num-etudiant" value="<?php echo isset($user['student_number']) ? htmlspecialchars($user['student_number']) : ''; ?>">
 
-      <div class="row">
-        <div>
-          <label for="formation">Formation *</label>
-          <select id="formation" name="formation" required>
-            <option value="">-- Sélectionner --</option>
-            <option value="L3" <?php echo (isset($user['formation']) && $user['formation'] === 'L3') ? 'selected' : ''; ?>>Licence 3</option>
-            <option value="M1" <?php echo (isset($user['formation']) && $user['formation'] === 'M1') ? 'selected' : ''; ?>>Master 1</option>
-            <option value="M2" <?php echo (isset($user['formation']) && $user['formation'] === 'M2') ? 'selected' : ''; ?>>Master 2</option>
-          </select>
+        <div class="row">
+          <div>
+            <label for="program">Formation</label>
+            <select id="program" name="program">
+              <option value="NULL">-- Sélectionner --</option>
+              <option value="L3" <?php echo (isset($user['program']) && $user['program'] === 'L3') ? 'selected' : ''; ?>>Licence 3</option>
+              <option value="M1" <?php echo (isset($user['program']) && $user['program'] === 'M1') ? 'selected' : ''; ?>>Master 1</option>
+              <option value="M2" <?php echo (isset($user['program']) && $user['program'] === 'M2') ? 'selected' : ''; ?>>Master 2</option>
+            </select>
+          </div>
+          <div>
+            <label for="track">Parcours</label>
+            <select id="track" name="track">
+              <option value="NULL">-- Sélectionner --</option>
+              <option value="MIAGE" selected>MIAGE</option>
+            </select>
+          </div>
         </div>
-        <div>
-          <label for="parcours">Parcours *</label>
-          <select id="parcours" name="parcours" required>
-            <option value="MIAGE" selected>MIAGE</option>
-          </select>
-        </div>
-      </div>
 
-      <label for="annee">Année d'études *</label>
-      <select id="annee" name="annee" required>
-        <option value="">-- Sélectionner --</option>
-        <option value="2024-2025" <?php echo (isset($user['annee']) && $user['annee'] === '2024-2025') ? 'selected' : ''; ?>>2024 - 2025</option>
-        <option value="2025-2026" <?php echo (isset($user['annee']) && $user['annee'] === '2025-2026') ? 'selected' : ''; ?>>2025 - 2026</option>
-        <option value="2026-2027" <?php echo (isset($user['annee']) && $user['annee'] === '2026-2027') ? 'selected' : ''; ?>>2026 - 2027</option>
-        <option value="2027-2028" <?php echo (isset($user['annee']) && $user['annee'] === '2027-2028') ? 'selected' : ''; ?>>2027 - 2028</option>
-        <option value="2028-2029" <?php echo (isset($user['annee']) && $user['annee'] === '2028-2029') ? 'selected' : ''; ?>>2028 - 2029</option>
-        <option value="2029-2030" <?php echo (isset($user['annee']) && $user['annee'] === '2029-2030') ? 'selected' : ''; ?>>2029 - 2030</option>
-        <option value="2030-2031" <?php echo (isset($user['annee']) && $user['annee'] === '2030-2031') ? 'selected' : ''; ?>>2030 - 2031</option>
-      </select>
+        <label for="level">Année d'études</label>
+        <?php
+          // Détermine l'année scolaire en cours (août à juillet)
+          $month = (int)date('m');
+          $year = (int)date('Y');
+          if ($month < 8) { // Si nous sommes entre janvier et juillet, l'année scolaire a commencé l'année précédente
+              $startYear = $year - 1;
+          } else { // Si nous sommes entre août et décembre, l'année scolaire commence cette année
+              $startYear = $year;
+          }
+          $endYear = $startYear + 1;
+          $currentSchoolYear = $startYear . '-' . $endYear;
+        ?>
+        <input type="text" id="level" name="level" value="<?php echo $currentSchoolYear; ?>" readonly>
 
-      <label for="cv">Téléverser votre CV <span style="font-weight: normal; font-size: 12px;">(PDF uniquement, optionnel)</span></label>
-      <input type="file" id="cv" name="cv" accept=".pdf">
-      <?php if (isset($user['cv_filename']) && !empty($user['cv_filename'])): ?>
-        <p><small>CV actuel: <?php echo htmlspecialchars($user['cv_filename']); ?></small></p>
+        <label for="cv">Téléverser votre CV <span style="font-weight: normal; font-size: 12px;">(PDF uniquement, optionnel)</span></label>
+        <input type="file" id="cv" name="cv" accept=".pdf">
+        <?php if (isset($user['cv_filename']) && !empty($user['cv_filename'])): ?>
+          <p><small>CV actuel: <?php echo htmlspecialchars($user['cv_filename']); ?></small></p>
+        <?php endif; ?>
       <?php endif; ?>
 
       <button type="submit" class="btn">Enregistrer</button>
