@@ -10,44 +10,6 @@ body {
     max-width: 900px;
 }
 
-.steps {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 30px;
-    max-width: 700px;
-}
-
-.step {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    font-size: 14px;
-    color: #999;
-}
-
-.step span {
-    background: #eee;
-    color: #074f76;
-    border-radius: 50%;
-    width: 32px;
-    height: 32px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: bold;
-    margin-bottom: 5px;
-}
-
-.step.active span {
-    background: #007bff;
-    color: white;
-}
-
-.step.completed {
-    color: #28a745;
-    font-size: 24px;
-    font-weight: bold;
-}
 
 .request-form {
     background: white;
@@ -113,4 +75,12 @@ textarea {
 
 .form-actions button:hover {
     opacity: 0.9;
+}
+
+#manual-entry-note {
+    background-color: #f1f1f1;
+    border-left: 4px solid #007bff;
+    padding: 10px 15px;
+    border-radius: 4px;
+    font-size: 0.9rem;
 }

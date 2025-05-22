@@ -1,10 +1,10 @@
-<?php $step4 = $step4 ?? []; ?>
+<?php $step4 = $step4 ?? [];  $currentStep = $currentStep ?? 1; ?>
 <!DOCTYPE html>
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
     <title>StalHub - Tableau de bord</title>
-    <link rel="stylesheet" href="/stalhub/public/css/step4.css">
+    <link rel="stylesheet" href="/stalhub/public/css/request-documents.css">
 </head>
 
 <?php include __DIR__ . '/../components/sidebar.php'; ?>
@@ -12,13 +12,7 @@
 <main class="request-container">
     <h1>Nouvelle Demande</h1>
 
-    <div class="steps">
-        <div class="step completed">✔</div>
-        <div class="step completed">✔</div>
-        <div class="step completed">✔</div>
-        <div class="step active"><span>4</span> Documents</div>
-        <div class="step"><span>5</span> Résumé</div>
-    </div>
+    <?php include __DIR__ . '/steps.php'; ?>
 
 <form action="/stalhub/student/request/step4" method="POST" enctype="multipart/form-data" class="request-form">
 
