@@ -22,7 +22,7 @@
     <label>CV <small>(PDF, max 2 Mo)</small></label>
     <?php if (!empty($step4['cv'])): ?>
         <p>
-            <a href="<?= htmlspecialchars($step4['cv']) ?>" target="_blank">Voir le CV actuel</a><br>
+            <a href="/stalhub/document/view?file=<?= urlencode($step4['cv']) ?>" target="_blank">Voir le CV actuel</a><br>
             <em class="note">Vous pouvez téléverser un nouveau fichier pour le remplacer.</em>
         </p>
     <?php endif; ?>
@@ -32,7 +32,7 @@
     <label>Attestation d'assurance <small>(PDF ou image)</small></label>
     <?php if (!empty($step4['insurance'])): ?>
         <p>
-            <a href="<?= htmlspecialchars($step4['insurance']) ?>" target="_blank">Voir l'assurance actuelle</a><br>
+            <a href="/stalhub/document/view?file=<?= urlencode($step4['insurance']) ?>" target="_blank">Voir l'assurance actuelle</a><br>
             <em class="note">Vous pouvez téléverser un nouveau fichier pour le remplacer.</em>
         </p>
     <?php endif; ?>
@@ -42,11 +42,12 @@
     <label>Pièce d'identité <small>(carte d'identité, titre de séjour, etc.)</small></label>
     <?php if (!empty($step4['justification'])): ?>
         <p>
-            <a href="<?= htmlspecialchars($step4['justification']) ?>" target="_blank">Voir la pièce actuelle</a><br>
+            <a href="/stalhub/document/view?file=<?= urlencode($step4['justification']) ?>" target="_blank">Voir la pièce actuelle</a><br>
             <em class="note">Vous pouvez téléverser un nouveau fichier pour le remplacer.</em>
         </p>
     <?php endif; ?>
     <input type="file" name="justification" accept=".pdf,.jpg,.jpeg,.png">
+
 
     <div class="form-actions">
         <a href="/stalhub/student/request/step3" class="button">← Retour</a>

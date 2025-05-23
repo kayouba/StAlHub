@@ -7,6 +7,8 @@ use App\Model\RequestModel;
 use App\Model\RequestDocumentModel;
 use App\Model\CompanyModel;
 use App\Lib\StepGuard;
+use App\Lib\FileCrypto;
+
 
 class StudentController
 {
@@ -150,43 +152,44 @@ class StudentController
             mkdir($userDir, 0777, true);
         }
 
-        // === GESTION UPLOAD ===
+        // === GESTION UPLOAD AVEC CHIFFREMENT ===
         if (!empty($_FILES)) {
             // ➤ CV
             if (!empty($_FILES['cv']['tmp_name'])) {
-                $cvPath = $userDir . 'cv.pdf';
-                if (move_uploaded_file($_FILES['cv']['tmp_name'], $cvPath)) {
-                    $_SESSION['step4']['cv'] = $userPublicPath . '/cv.pdf';
+                $cvPath = $userDir . 'cv.pdf.enc';
+                if (FileCrypto::encrypt($_FILES['cv']['tmp_name'], $cvPath)) {
+                    $_SESSION['step4']['cv'] = $userPublicPath . '/cv.pdf.enc';
                 }
             }
 
             // ➤ Assurance
             if (!empty($_FILES['insurance']['tmp_name'])) {
-                $assurancePath = $userDir . 'assurance.pdf';
-                if (move_uploaded_file($_FILES['insurance']['tmp_name'], $assurancePath)) {
-                    $_SESSION['step4']['insurance'] = $userPublicPath . '/assurance.pdf';
+                $assurancePath = $userDir . 'assurance.pdf.enc';
+                if (FileCrypto::encrypt($_FILES['insurance']['tmp_name'], $assurancePath)) {
+                    $_SESSION['step4']['insurance'] = $userPublicPath . '/assurance.pdf.enc';
                 }
             }
 
-            // ➤ Justificatif d'identité (toujours spécifique à la demande)
+            // ➤ Justificatif (toujours temporaire)
             if (!empty($_FILES['justification']['tmp_name'])) {
                 $tempDir = __DIR__ . "/../public/uploads/temp/$userId/";
                 if (!file_exists($tempDir)) {
                     mkdir($tempDir, 0777, true);
                 }
 
-                $filename = time() . '_' . basename($_FILES['justification']['name']);
+                $filename = time() . '_' . basename($_FILES['justification']['name']) . '.enc';
                 $tempPath = $tempDir . $filename;
 
-                if (move_uploaded_file($_FILES['justification']['tmp_name'], $tempPath)) {
+                if (FileCrypto::encrypt($_FILES['justification']['tmp_name'], $tempPath)) {
                     $_SESSION['step4']['justification'] = "/stalhub/uploads/temp/$userId/$filename";
                 }
             }
 
-            // Rediriger après traitement des fichiers
+            // Redirection
             header('Location: /stalhub/student/request/step5');
             exit;
         }
+
 
         // === Préchargement depuis le profil si pas en session ===
         if (empty($_SESSION['step4']['cv']) && file_exists($userDir . 'cv.pdf')) {
@@ -273,9 +276,7 @@ class StudentController
 
         // 3. Justificatif (temporaire, spécifique à cette demande)
         if (!empty($step4['justification'])) {
-
             $srcPath = realpath(__DIR__ . '/../public' . str_replace('/stalhub', '', $step4['justification']));
-
             if ($srcPath && file_exists($srcPath)) {
                 $filename = basename($srcPath);
                 $destPath = $uploadDir . $filename;
@@ -283,21 +284,23 @@ class StudentController
 
                 $publicPath = "/stalhub/uploads/users/$userId/demandes/$requestFolder/$filename";
                 $documentModel->saveDocument($requestId, $publicPath, 'Justificatif');
-            } 
+            }
         }
 
         // 4. CV (profil)
-        $cvRelative = "/uploads/users/$userId/cv.pdf";
+        $cvRelative = "/uploads/users/$userId/cv.pdf.enc";
         $cvPath = __DIR__ . '/../public' . $cvRelative;
         if (file_exists($cvPath)) {
             $documentModel->saveDocument($requestId, "/stalhub" . $cvRelative, 'CV');
-        } 
+        }
+
         // 5. Assurance (profil)
-        $assuranceRelative = "/uploads/users/$userId/assurance.pdf";
+        $assuranceRelative = "/uploads/users/$userId/assurance.pdf.enc";
         $assurancePath = __DIR__ . '/../public' . $assuranceRelative;
         if (file_exists($assurancePath)) {
             $documentModel->saveDocument($requestId, "/stalhub" . $assuranceRelative, 'Assurance');
         }
+
 
 
         // 6. Nettoyage session

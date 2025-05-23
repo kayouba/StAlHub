@@ -65,7 +65,7 @@ function safe($value): string {
             <?php foreach ($documents as $doc): ?>
                 <li>
                     <strong><?= safe($doc['label']) ?> :</strong>
-                    <a href="<?= safe($doc['file_path']) ?>" target="_blank">Voir le document</a>
+                    <a href="/stalhub/document/view?file=<?= urlencode($doc['file_path']) ?>" target="_blank">Voir le document</a>
                 </li>
             <?php endforeach; ?>
         </ul>

@@ -67,7 +67,7 @@
                     <?php if (!empty($_SESSION['step4'][$key])): ?>
                         <p>
                             <strong><?= $label ?> :</strong>
-                            <a href="<?= htmlspecialchars($_SESSION['step4'][$key]) ?>" target="_blank">Voir le document</a>
+                            <a href="/stalhub/document/view?file=<?= urlencode($_SESSION['step4'][$key]) ?>" target="_blank">Voir le document</a>
                         </p>
                     <?php endif; ?>
                 <?php endforeach; ?>
