@@ -31,7 +31,12 @@ return [
     //Secretary
    '/secretary/dashboard' => ['App\Controller\SecretaryController', 'dashboard'],
    '/secretary/details' => ['App\Controller\SecretaryController', 'detailsFile'],
+   '/secretary/update-document-status' => ['App\Controller\SecretaryController', 'updateDocumentStatus'],
    '/secretary/validate-all-documents' => ['App\Controller\SecretaryController', 'validateAllDocuments'],
+   '/secretary/save-comment' => ['App\Controller\SecretaryController', 'saveComment'], // NOUVELLE ROUTE
+
+
+
 
 
 

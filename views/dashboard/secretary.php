@@ -2,11 +2,19 @@
 function statusToCssClass($status) {
   $status = strtolower($status);
   return match ($status) {
-    'valide', 'validé', 'complete' => 'complete',
+    'valide', 'validé', 'complete', 'valid_secretaire' => 'complete',
     'soumise', 'transmise' => 'transmise',
-    'refusee', 'incomplete' => 'incomplete',
-    'attente' => 'transmise', // exemple, adapte selon ton besoin
+    'refusee', 'incomplete', 'refusee_secretaire' => 'incomplete',
+    'attente' => 'transmise',
     default => 'transmise'
+  };
+}
+
+function formatStatus($status) {
+  return match ($status) {
+    'REFUSEE_SECRETAIRE' => 'refusé',
+    'VALID_SECRETAIRE' => 'validé',
+    default => strtolower($status)
   };
 }
 ?>
@@ -24,7 +32,7 @@ function statusToCssClass($status) {
     }
 
     main {
-      margin-left: 240px; /* Pour la sidebar */
+      margin-left: 240px;
       padding: 20px;
     }
 
@@ -104,19 +112,20 @@ function statusToCssClass($status) {
   <div class="filters">
     <select id="filter-formation">
       <option value="">Toutes les formations</option>
-      <option value="licence 3 miage">Licence 3 Miage</option>
-      <option value="master 1 miage">Master 1 Miage</option>
-      <option value="m2 miage">Master 2 Miage</option>
+      <option value="licence 3">Licence 3</option>
+      <option value="master 1">Master 1</option>
+      <option value="master 2">Master 2</option>
     </select>
+
 
     <select id="filter-etat">
       <option value="">Tous les états</option>
-      <option value="complete">Validée</option>
-      <option value="transmise">Soumise / Attente</option>
-      <option value="incomplete">Refusée</option>
+      <option value="validé">Validée</option>
+      <option value="refusé">Refusée</option>
+      <option value="soumise">Soumise / Attente</option>
     </select>
 
-    <input type="text" id="search" placeholder="Rechercher étudiant, entreprise..." />
+    <input type="text" id="search" placeholder="Rechercher" />
   </div>
 
   <table>
@@ -135,7 +144,8 @@ function statusToCssClass($status) {
     <tbody id="table-body">
       <?php foreach ($demandes as $demande): ?>
         <?php
-          $statusClass = statusToCssClass($demande['etat']);
+          $statusLabel = formatStatus($demande['status'] ?? '');
+          $statusClass = statusToCssClass($demande['status'] ?? '');
         ?>
         <tr>
           <td><?= htmlspecialchars($demande['etudiant']) ?></td>
@@ -144,17 +154,7 @@ function statusToCssClass($status) {
           <td><?= htmlspecialchars($demande['entreprise']) ?></td>
           <td><?= htmlspecialchars($demande['date'] ?? '') ?></td>
           <td><?= htmlspecialchars($demande['type'] ?? '') ?></td>
-          <td class="<?= $statusClass ?>">
-          <?php
-            echo match ($demande['etat']) {
-              'validee' => 'Validé',
-              'refusee' => 'Refusé',
-              'attente' => 'En attente',
-              default => ucfirst($demande['etat']),
-            };
-          ?>
-        </td>
-
+          <td class="<?= $statusClass ?>"><?= htmlspecialchars($statusLabel) ?></td>
           <td><a href="/stalhub/secretary/details?id=<?= $demande['id'] ?>">voir</a></td>
         </tr>
       <?php endforeach; ?>
@@ -178,11 +178,11 @@ function statusToCssClass($status) {
 
     rows.forEach(row => {
       const formation = row.children[1].textContent.toLowerCase();
-      const etat = row.children[5].className.toLowerCase();
+      const etat = row.children[6].textContent.toLowerCase(); // colonne État
       const fullText = row.textContent.toLowerCase();
 
       const matchFormation = !formationVal || formation.includes(formationVal);
-      const matchEtat = !etatVal || etat === etatVal;
+      const matchEtat = !etatVal || etat.includes(etatVal);
       const matchSearch = !searchVal || fullText.includes(searchVal);
 
       row.style.display = (matchFormation && matchEtat && matchSearch) ? "" : "none";
@@ -191,8 +191,6 @@ function statusToCssClass($status) {
 
   Object.values(filters).forEach(el => el.addEventListener("input", filterTable));
 </script>
-
-
 
 </body>
 </html>

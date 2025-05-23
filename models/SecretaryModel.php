@@ -21,14 +21,33 @@ class SecretaryModel  {
                 u.level AS formation,
                 c.name AS entreprise,
                 r.start_date AS date,
-                r.contract_type AS type
-                
+                r.contract_type AS type,
+                r.status AS status
             FROM requests r
             JOIN users u ON r.student_id = u.id
             JOIN companies c ON r.company_id = c.id
             WHERE LOWER(u.role) = 'student'
-            AND r.status IN ('SOUMISE','VALID_PEDAGO', 'REFUSEE_PEDAGO', 'VALIDE')
+            AND r.status IN ('BROUILLON',
+                'SOUMISE',
+                'VALID_PEDAGO',
+                'REFUSEE_PEDAGO',
+                'EN_ATTENTE_SIGNATURE_ENT',
+                'SIGNEE_PAR_ENTREPRISE',
+                'EN_ATTENTE_CFA',
+                'VALID_CFA',
+                'REFUSEE_CFA',
+                'EN_ATTENTE_SECRETAIRE',
+                'VALID_SECRETAIRE', 
+                'REFUSEE_SECRETAIRE',
+                'EN_ATTENTE_DIRECTION',
+                'VALID_DIRECTION',
+                'REFUSEE_DIRECTION',
+                'VALIDE',
+                'SOUTENANCE_PLANIFIEE',
+                'ANNULEE',
+                'EXPIREE')
         ";
+        
 
         $stmt = $this->pdo->query($sql);
         $demandes = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -39,9 +58,11 @@ class SecretaryModel  {
 
             // Met à jour la BDD si nécessaire
             if ($etat === 'validee') {
-                $this->updateRequestStatus($demande['id'], 'VALIDE');
+                $this->updateRequestStatus($demande['id'], 'VALID_SECRETAIRE');
+                $demande['status'] = 'VALID_SECRETAIRE'; // Met à jour la variable locale aussi
             } elseif ($etat === 'refusee') {
                 $this->updateRequestStatus($demande['id'], 'REFUSEE_SECRETAIRE');
+                $demande['status'] = 'REFUSEE_SECRETAIRE'; // Met à jour la variable locale aussi
             }
 
             $demande['etat'] = $etat;
@@ -108,123 +129,179 @@ class SecretaryModel  {
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    // NOUVELLE MÉTHODE : Mettre à jour le statut d'un document
+    // MÉTHODE CORRIGÉE : Mettre à jour le statut d'un document
     public function updateDocumentStatus(int $documentId, string $status, ?string $comment = null): bool {
         try {
+            // Récupérer d'abord l'ID de la demande associée
+            $getRequestIdSql = "SELECT request_id FROM request_documents WHERE id = :id";
+            $stmt = $this->pdo->prepare($getRequestIdSql);
+            $stmt->execute(['id' => $documentId]);
+            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+            
+            if (!$result) {
+                error_log("Document avec ID $documentId non trouvé");
+                return false;
+            }
+            
+            $requestId = $result['request_id'];
+
             // Vérifier d'abord si la colonne comment existe
             $checkColumnSql = "SHOW COLUMNS FROM request_documents LIKE 'comment'";
             $checkStmt = $this->pdo->query($checkColumnSql);
             $hasCommentColumn = $checkStmt->rowCount() > 0;
 
             if ($hasCommentColumn) {
-                $stmt = $this->pdo->prepare("
+                $updateSql = "
                     UPDATE request_documents 
                     SET status = :status, comment = :comment 
                     WHERE id = :id
-                ");
+                ";
                 
-                $result = $stmt->execute([
+                $updateResult = $stmt = $this->pdo->prepare($updateSql);
+                $updateResult = $stmt->execute([
                     'status' => $status,
                     'comment' => $comment,
                     'id' => $documentId
                 ]);
             } else {
                 // Si la colonne comment n'existe pas, mettre à jour seulement le statut
-                $stmt = $this->pdo->prepare("
+                $updateSql = "
                     UPDATE request_documents 
                     SET status = :status 
                     WHERE id = :id
-                ");
+                ";
                 
-                $result = $stmt->execute([
+                $stmt = $this->pdo->prepare($updateSql);
+                $updateResult = $stmt->execute([
                     'status' => $status,
                     'id' => $documentId
                 ]);
             }
 
-            // Après mise à jour du document, vérifier si tous les documents de la demande sont validés
-            if ($result) {
-                $this->checkAndUpdateRequestStatus($documentId);
+            // Après mise à jour du document, vérifier et mettre à jour le statut de la demande
+            if ($updateResult) {
+                $this->checkAndUpdateRequestStatus($requestId);
             }
 
-            return $result;
+            return $updateResult;
         } catch (\PDOException $e) {
             error_log("Erreur lors de la mise à jour du document: " . $e->getMessage());
             return false;
         }
     }
 
-    // NOUVELLE MÉTHODE : Vérifier et mettre à jour le statut de la demande après validation d'un document
-    private function checkAndUpdateRequestStatus(int $documentId): void {
-        // Récupérer l'ID de la demande à partir du document
-        $stmt = $this->pdo->prepare("SELECT request_id FROM request_documents WHERE id = :id");
-        $stmt->execute(['id' => $documentId]);
-        $result = $stmt->fetch(PDO::FETCH_ASSOC);
-        
-        if (!$result) return;
-        
-        $requestId = $result['request_id'];
-        
-        // Récupérer tous les documents de cette demande
-        $documents = $this->getDocumentsByRequestId($requestId);
-        
-        // Calculer le nouvel état
-        $etat = $this->calculateEtatFromDocuments($documents);
-        
-        // Mettre à jour le statut de la demande si nécessaire
-        if ($etat === 'validee') {
-            $this->updateRequestStatus($requestId, 'VALIDE');
-        } elseif ($etat === 'refusee') {
-            $this->updateRequestStatus($requestId, 'REFUSEE_SECRETAIRE');
+    // MÉTHODE CORRIGÉE : Vérifier et mettre à jour le statut de la demande
+    private function checkAndUpdateRequestStatus(int $requestId): void {
+        try {
+            // Récupérer tous les documents de cette demande
+            $documents = $this->getDocumentsByRequestId($requestId);
+            
+            if (empty($documents)) {
+                error_log("Aucun document trouvé pour la demande ID $requestId");
+                return;
+            }
+            
+            // Calculer l'état général basé sur les documents
+            $etat = $this->calculateEtatFromDocuments($documents);
+            
+            // Log pour debug
+            error_log("Demande ID $requestId - État calculé: $etat");
+            
+            // Mettre à jour le statut de la demande selon l'état calculé
+            if ($etat === 'validee') {
+                $this->updateRequestStatus($requestId, 'VALID_SECRETAIRE');
+                error_log("Demande ID $requestId mise à jour vers VALID_SECRETAIRE");
+            } elseif ($etat === 'refusee') {
+                $this->updateRequestStatus($requestId, 'REFUSEE_SECRETAIRE');
+                error_log("Demande ID $requestId mise à jour vers REFUSEE_SECRETAIRE");
+            }
+            // Si l'état est 'attente', on ne change pas le statut
+            
+        } catch (\Exception $e) {
+            error_log("Erreur lors de la vérification du statut de la demande $requestId: " . $e->getMessage());
         }
     }
 
+    private function updateRequestStatus(int $requestId, string $status): void {
+        try {
+            $stmt = $this->pdo->prepare("UPDATE requests SET status = :status, updated_at = NOW() WHERE id = :id");
+            $result = $stmt->execute([
+                'status' => $status,
+                'id' => $requestId
+            ]);
+            
+            if ($result) {
+                error_log("Statut de la demande $requestId mis à jour vers $status avec succès");
+            } else {
+                error_log("Échec de mise à jour du statut de la demande $requestId vers $status");
+            }
+        } catch (\PDOException $e) {
+            error_log("Erreur PDO lors de la mise à jour du statut de la demande $requestId: " . $e->getMessage());
+        }
+    }
+
+    // MÉTHODE CORRIGÉE : Calculer l'état à partir des documents
     private function calculateEtatFromDocuments(array $documents): string {
         if (empty($documents)) {
             return 'attente';
         }
 
         $allValidees = true;
+        $allRefusees = true;
+        $hasValidated = false;
+        $hasRejected = false;
 
         foreach ($documents as $doc) {
-            $status = strtolower($doc['status']);
+            $status = strtolower(trim($doc['status']));
+            
+            // Log pour debug
+            error_log("Document ID {$doc['id']} - Status: '$status'");
 
-            if ($status === 'refusée') {
-                return 'refusee';
-            }
-
-            if ($status !== 'validée') {
+            // Vérifier les différentes variantes de statuts validés
+            if (in_array($status, ['validée', 'validee', 'validated', 'valide', 'valid'])) {
+                $hasValidated = true;
+                $allRefusees = false;
+            } 
+            // Vérifier les différentes variantes de statuts refusés
+            elseif (in_array($status, ['refusée', 'refusee', 'rejected', 'refuse', 'refus'])) {
+                $hasRejected = true;
                 $allValidees = false;
+            } 
+            // Si ce n'est ni validé ni refusé, alors tout n'est pas validé/refusé
+            else {
+                $allValidees = false;
+                $allRefusees = false;
             }
         }
 
-        return $allValidees ? 'validee' : 'attente';
+        // Log pour debug
+        error_log("Résumé - Tous validés: " . ($allValidees ? 'oui' : 'non') . 
+                 ", Tous refusés: " . ($allRefusees ? 'oui' : 'non') . 
+                 ", A des validés: " . ($hasValidated ? 'oui' : 'non') . 
+                 ", A des refusés: " . ($hasRejected ? 'oui' : 'non'));
+
+        if ($allValidees && $hasValidated) return 'validee';
+        if ($allRefusees && $hasRejected) return 'refusee';
+
+        return 'attente';
     }
 
-    
-
-    public function validateAllDocumentsByRequestId($requestId)
-{
-    $sql = "UPDATE request_documents SET status = 'validée' WHERE request_id = :request_id";
-    $stmt = $this->pdo->prepare($sql);
-    $stmt->execute(['request_id' => $requestId]);
+    public function saveDocumentComment(int $documentId, string $comment): bool {
+    try {
+        $stmt = $this->pdo->prepare("
+            UPDATE request_documents 
+            SET comment = :comment 
+            WHERE id = :document_id
+        ");
+        
+        $stmt->bindParam(':comment', $comment, \PDO::PARAM_STR);
+        $stmt->bindParam(':document_id', $documentId, \PDO::PARAM_INT);
+        
+        return $stmt->execute();
+        
+    } catch (\PDOException $e) {
+        error_log("Erreur SQL dans saveDocumentComment: " . $e->getMessage());
+        return false;
+    }
 }
-
-public function updateRequestStatus($requestId, $status)
-{
-    $sql = "UPDATE requests SET status = :status WHERE id = :request_id";
-    $stmt = $this->pdo->prepare($sql);
-    $stmt->execute([
-        'status' => $status,
-        'request_id' => $requestId
-    ]);
-}
-public function validerTousLesDocuments($requestId)
-{
-    $sql = "UPDATE request_documents SET status = 'Validée' WHERE request_id = :request_id";
-    $stmt = $this->pdo->prepare($sql);
-    return $stmt->execute(['request_id' => $requestId]);
-}
-
-
 }

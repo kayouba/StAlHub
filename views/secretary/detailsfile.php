@@ -1,228 +1,6 @@
 <?php include __DIR__ . '/../components/sidebar.php'; ?>
 
-<style>
-  * {
-    box-sizing: border-box;
-  }
-
-  body {
-    margin: 0;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background-color: #f2f4f8;
-    display: flex;
-  }
-
-  .sidebar {
-    width: 250px;
-    min-height: 100vh;
-    background-color: #2c3e50;
-    color: white;
-    padding: 20px;
-    position: fixed;
-    top: 0;
-    left: 0;
-  }
-
-  .main-content {
-    margin-left: 250px;
-    padding: 30px;
-    width: calc(100% - 250px);
-  }
-
-  .section {
-    background-color: #fff;
-    padding: 25px;
-    margin-bottom: 30px;
-    border-radius: 12px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-  }
-
-  h2 {
-    margin-top: 0;
-    color: #2c3e50;
-    margin-bottom: 20px;
-  }
-
-  h3 {
-    color: #34495e;
-    margin-bottom: 15px;
-  }
-
-  .section p {
-    margin: 8px 0;
-  }
-
-  .label {
-    font-weight: bold;
-    display: inline-block;
-    width: 220px;
-    color: #333;
-  }
-
-  .value {
-    color: #555;
-  }
-
-  table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 15px;
-  }
-
-  th, td {
-    padding: 12px;
-    border-bottom: 1px solid #e0e0e0;
-    text-align: left;
-  }
-
-  th {
-    background-color: #f5f5f5;
-    color: #333;
-  }
-
-  .status-valid {
-    color: green;
-    font-weight: bold;
-  }
-
-  .status-refused {
-    color: red;
-    font-weight: bold;
-  }
-
-  .status-pending {
-    color: orange;
-    font-weight: bold;
-  }
-
-  .icon-check {
-    color: green;
-    font-size: 18px;
-  }
-
-  .icon-cross {
-    color: gray;
-    font-size: 18px;
-  }
-
-  .btn-relancer {
-    margin-top: 1rem;
-    display: inline-block;
-    background-color: #0077cc;
-    color: white;
-    padding: 10px 20px;
-    text-decoration: none;
-    border-radius: 6px;
-    font-weight: bold;
-    margin-right: 10px;
-  }
-
-  .btn-relancer:hover {
-    background-color: #005fa3;
-  }
-
-  .btn-validate-all {
-    margin-top: 1rem;
-    display: inline-block;
-    background-color: #28a745;
-    color: white;
-    padding: 10px 20px;
-    text-decoration: none;
-    border-radius: 6px;
-    font-weight: bold;
-    border: none;
-    cursor: pointer;
-  }
-
-  .btn-validate-all:hover {
-    background-color: #218838;
-  }
-
-  .btn-validate-all:disabled {
-    background-color: #6c757d;
-    cursor: not-allowed;
-  }
-
-  .btn-action {
-    color: #0077cc;
-    background-color: #eef6fc;
-    border: 1px solid #0077cc;
-    border-radius: 4px;
-    padding: 5px 10px;
-    margin: 2px;
-    font-size: 13px;
-    cursor: pointer;
-    transition: all 0.2s ease;
-  }
-  
-  .btn-action:hover {
-    background-color: #d0e8ff;
-    text-decoration: none;
-  }
-  
-  .comment-input {
-    width: 100%;
-    padding: 6px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-  }
-
-  .loading {
-    opacity: 0.6;
-    pointer-events: none;
-  }
-
-  .success-message {
-    color: green;
-    font-size: 12px;
-    margin-top: 5px;
-  }
-
-  .error-message {
-    color: red;
-    font-size: 12px;
-    margin-top: 5px;
-  }
-
-  .actions-section {
-    display: flex;
-    gap: 10px;
-    align-items: center;
-    margin-top: 20px;
-    padding-top: 20px;
-    border-top: 1px solid #e0e0e0;
-  }
-
-  .global-message {
-    margin-top: 10px;
-    padding: 10px;
-    border-radius: 4px;
-    display: none;
-  }
-
-  .global-message.success {
-    background-color: #d4edda;
-    color: #155724;
-    border: 1px solid #c3e6cb;
-  }
-
-  .global-message.error {
-    background-color: #f8d7da;
-    color: #721c24;
-    border: 1px solid #f5c6cb;
-  }
-
-  .debug-info {
-    background-color: #f8f9fa;
-    border: 1px solid #dee2e6;
-    padding: 10px;
-    margin: 10px 0;
-    border-radius: 4px;
-    font-family: monospace;
-    font-size: 12px;
-  }
-</style>
-
+<link rel="stylesheet" href="/stalhub/public/css/secretary-detailsfile.css">
 <div class="main-content">
   <?php if (!$requestDetails): ?>
     <p>Demande introuvable.</p>
@@ -282,7 +60,8 @@
                 <div class="message-container"></div>
               </td>
               <td>
-                <input class="comment-input" type="text" value="<?= htmlspecialchars($doc['comment'] ?? '') ?>" placeholder="Ajouter un commentaire..." />
+                <input class="comment-input" type="text" value="<?= htmlspecialchars($doc['comment'] ?? '') ?>" placeholder="Ajouter un commentaire..." data-id="<?= htmlspecialchars($doc['id'] ?? '') ?>" />
+                <span class="save-indicator" style="color: green; font-size: 12px; display: none;">💾 Sauvegardé</span>
               </td>
               <td>
                 <?php if (!empty($doc['file_path'])): ?>
@@ -303,10 +82,6 @@
         >
           📧 Relancer l'étudiant par mail
         </a>
-        
-        <button class="btn-validate-all" id="validateAllBtn">
-          ✅ Valider tous les documents
-        </button>
       </div>
 
       <div class="global-message" id="globalMessage"></div>
@@ -319,49 +94,167 @@
   document.addEventListener('DOMContentLoaded', function () {
     const validateButtons = document.querySelectorAll('.validate-btn');
     const refuseButtons = document.querySelectorAll('.refuse-btn');
+    const validateAllBtn = document.getElementById('validateAllBtn');
+    const commentInputs = document.querySelectorAll('.comment-input');
 
+    // 💾 Sauvegarde automatique des commentaires
+    commentInputs.forEach(input => {
+      let saveTimeout;
+      
+      input.addEventListener('input', function () {
+        const documentId = this.dataset.id;
+        const comment = this.value;
+        const saveIndicator = this.nextElementSibling;
+        
+        // Débouncing : attendre 1 seconde après la dernière frappe
+        clearTimeout(saveTimeout);
+        saveTimeout = setTimeout(() => {
+          saveComment(documentId, comment, saveIndicator);
+        }, 1000);
+      });
+
+      // Sauvegarde immédiate quand l'utilisateur quitte le champ
+      input.addEventListener('blur', function () {
+        const documentId = this.dataset.id;
+        const comment = this.value;
+        const saveIndicator = this.nextElementSibling;
+        
+        clearTimeout(saveTimeout);
+        saveComment(documentId, comment, saveIndicator);
+      });
+    });
+
+    // Fonction pour sauvegarder le commentaire
+    function saveComment(documentId, comment, saveIndicator) {
+      fetch('/stalhub/secretary/save-comment', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          document_id: documentId,
+          comment: comment
+        })
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          // Afficher l'indicateur de sauvegarde
+          saveIndicator.style.display = 'inline';
+          setTimeout(() => {
+            saveIndicator.style.display = 'none';
+          }, 2000);
+        } else {
+          console.error('Erreur lors de la sauvegarde du commentaire');
+        }
+      })
+      .catch(error => {
+        console.error('Erreur réseau:', error);
+      });
+    }
+
+    // ✅ Validation d'un seul document
     validateButtons.forEach(button => {
       button.addEventListener('click', function () {
         const row = this.closest('tr');
-        const statusCell = row.querySelector('.doc-status');
-        const statusText = statusCell.querySelector('.status-text');
+        const documentId = this.dataset.id;
+        const commentInput = row.querySelector('.comment-input');
+        const comment = commentInput ? commentInput.value : '';
 
-        // Mise à jour visuelle
-        statusCell.dataset.status = 'validée';
-        statusText.textContent = 'Validée';
-        statusText.style.color = 'green';
+        fetch('/stalhub/secretary/update-document-status', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            document_id: documentId,
+            status: 'validated',
+            comment: comment
+          })
+        })
+        .then(res => res.json())
+        .then(data => {
+          if (data.success) {
+            const statusCell = row.querySelector('.doc-status');
+            const statusText = statusCell.querySelector('.status-text');
+            statusCell.dataset.status = 'validée';
+            statusText.textContent = 'Validée';
+            statusText.style.color = 'green';
+          } else {
+            alert("Erreur lors de la validation du document.");
+          }
+        });
       });
     });
 
+    // ❌ Refus d'un seul document
     refuseButtons.forEach(button => {
       button.addEventListener('click', function () {
         const row = this.closest('tr');
-        const statusCell = row.querySelector('.doc-status');
-        const statusText = statusCell.querySelector('.status-text');
+        const documentId = this.dataset.id;
+        const commentInput = row.querySelector('.comment-input');
+        const comment = commentInput ? commentInput.value : '';
 
-        // Mise à jour visuelle
-        statusCell.dataset.status = 'refusée';
-        statusText.textContent = 'Refusée';
-        statusText.style.color = 'red';
+        fetch('/stalhub/secretary/update-document-status', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            document_id: documentId,
+            status: 'rejected',
+            comment: comment
+          })
+        })
+        .then(res => res.json())
+        .then(data => {
+          if (data.success) {
+            const statusCell = row.querySelector('.doc-status');
+            const statusText = statusCell.querySelector('.status-text');
+            statusCell.dataset.status = 'refusée';
+            statusText.textContent = 'Refusée';
+            statusText.style.color = 'red';
+          } else {
+            alert("Erreur lors du refus du document.");
+          }
+        });
       });
     });
-  });
 
-  document.addEventListener('DOMContentLoaded', function () {
-    const validateAllBtn = document.getElementById('validateAllBtn');
+    // ✅ Valider tous les documents (mise à jour UI + base de données)
+    if (validateAllBtn) {
+      validateAllBtn.addEventListener('click', function () {
+        const allRows = document.querySelectorAll('tbody tr');
+        const allDocumentIds = [];
 
-    validateAllBtn.addEventListener('click', function () {
-      const allRows = document.querySelectorAll('tbody tr');
+        allRows.forEach(row => {
+          const statusCell = row.querySelector('.doc-status');
+          const statusText = statusCell.querySelector('.status-text');
+          statusCell.dataset.status = 'validée';
+          statusText.textContent = 'Validée';
+          statusText.style.color = 'green';
 
-      allRows.forEach(row => {
-        const statusCell = row.querySelector('.doc-status');
-        const statusText = statusCell.querySelector('.status-text');
+          const documentId = row.dataset.id;
+          allDocumentIds.push(documentId);
+        });
 
-        statusCell.dataset.status = 'validée';
-        statusText.textContent = 'Validée';
-        statusText.style.color = 'green';
+        // ⚠️ Mise à jour de la base de données pour tous les documents
+        fetch('/stalhub/secretary/validate-all-documents', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            document_ids: allDocumentIds
+          })
+        })
+        .then(res => res.json())
+        .then(data => {
+          if (!data.success) {
+            alert("Une erreur est survenue lors de la validation en masse.");
+          }
+        });
       });
-    });
+    }
   });
-  
 </script>

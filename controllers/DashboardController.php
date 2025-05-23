@@ -27,7 +27,7 @@ public function index(): void
         exit;
     }
 
-    if ($role === 'secretaire') {
+    if ($role === 'academic_secretary') {
         header('Location: /stalhub/secretary/dashboard');
         exit;
     }
