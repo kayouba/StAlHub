@@ -1,0 +1,1213 @@
+/**
+ * FICHIER CSS PRINCIPAL - STALHUB
+ * ===============================
+ * 
+ * Ce fichier contient tous les styles pour l'application StaHub
+ * Structure :
+ * 1. Styles de base
+ * 2. Layout et navigation
+ * 3. Composants (cartes, boutons, formulaires)
+ * 4. États et statuts
+ * 5. Interface responsive
+ * 6. Animations et interactions
+ * 
+ * @author Votre équipe
+ * @version 1.0
+ */
+
+/* ============================================================================
+   1. STYLES DE BASE ET TYPOGRAPHIE
+   ============================================================================ */
+
+/**
+ * Styles de base du body
+ */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f6f9;
+    margin: 0;
+    padding: 0;
+}
+
+/**
+ * En-tête principal
+ */
+header {
+    background-color: #003366;
+    color: white;
+    padding: 1rem;
+    text-align: center;
+}
+
+/**
+ * Conteneur principal
+ */
+.container {
+    padding: 2rem;
+}
+
+/* ============================================================================
+   2. LAYOUT ET NAVIGATION
+   ============================================================================ */
+
+/**
+ * Layout principal avec flexbox
+ */
+.layout {
+    display: flex;
+    min-height: 100vh;
+}
+
+/**
+ * Barre de navigation principale
+ */
+nav {
+    padding: 0.5rem;
+    color: white;
+    display: flex;
+    gap: 1rem;
+}
+
+nav a {
+    color: white;
+    text-decoration: none;
+}
+
+/**
+ * Configuration de la navigation verticale
+ */
+nav {
+    display: flex;
+    flex-direction: column;
+    gap: 10px; /* Espacement entre les éléments */
+}
+
+.nav-item a {
+    text-decoration: none;
+    color: inherit; /* Utilise la couleur par défaut */
+    font-size: 16px;
+}
+
+.nav-item a i {
+    margin-right: 8px; /* Espacement entre l'icône et le texte */
+}
+
+/**
+ * Sidebar (barre latérale)
+ */
+.sidebar {
+    background-color: #003366;
+    color: white;
+    width: 220px;
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    align-items: start;
+}
+
+.sidebar header {
+    margin-bottom: 2rem;
+}
+
+.sidebar nav a {
+    color: white;
+    text-decoration: none;
+    margin-bottom: 1rem;
+    display: block;
+}
+
+.sidebar nav a:hover {
+    text-decoration: underline;
+}
+
+/**
+ * Contenu principal avec sidebar
+ */
+.main-content {
+    flex: 1;
+    background-color: #f4f6f9;
+    padding: 2rem;
+}
+
+.main-content-with-sidebar {
+    margin-left: 220px; /* Même largeur que votre sidebar */
+    min-height: 100vh;
+    background-color: #f4f6f9;
+}
+
+.main-content-with-sidebar .container {
+    padding: 2rem;
+    max-width: none;
+}
+
+/**
+ * Barre supérieure (topbar)
+ */
+.topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #003366;
+    color: white;
+    padding: 1rem 2rem;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.topbar-left {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+.topbar-left .app-name {
+    font-size: 1.4rem;
+    font-weight: bold;
+}
+
+.topbar-left .dashboard-title {
+    font-size: 1.1rem;
+    opacity: 0.9;
+}
+
+.topbar-right {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+/**
+ * Avatar utilisateur
+ */
+.user-initials {
+    background-color: #ffffff33;
+    color: white;
+    font-weight: bold;
+    padding: 0.5rem 0.75rem;
+    border-radius: 50%;
+    font-size: 0.95rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/**
+ * Lien de déconnexion
+ */
+.logout-link {
+    color: white;
+    text-decoration: none;
+    font-size: 0.9rem;
+    padding: 0.3rem 0.75rem;
+    background-color: #003366;
+    border-radius: 4px;
+    transition: background 0.2s ease;
+}
+
+.logout-link:hover {
+    background-color: #65888b;
+}
+
+/* ============================================================================
+   3. COMPOSANTS - CARTES ET CONTENEURS
+   ============================================================================ */
+
+/**
+ * Carte de base
+ */
+.card {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    margin-bottom: 2rem;
+}
+
+/**
+ * En-tête de page avec style
+ */
+.page-header {
+    background-color: #003366;
+    color: white;
+    text-align: center;
+    padding: 1.5rem;
+}
+
+.page-header h1 {
+    margin: 0;
+    font-size: 24px;
+}
+
+/**
+ * Section titre centrée - seulement pour h1
+ */
+.title-section {
+    text-align: center;
+    margin-bottom: 2rem;
+    background: white;
+    padding: 1.5rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.title-section h1 {
+    color: #003366;
+    font-size: 1.8rem;
+    margin: 0;
+    font-weight: bold;
+}
+
+.title-section h1 i {
+    margin-right: 0.5rem;
+    color: #003366;
+}
+
+/**
+ * Espacement entre le titre h2 et les filtres
+ */
+.container > h2 {
+    color: #333;
+    font-size: 1.5rem;
+    margin-bottom: 2rem; /* Augmenté de 1.5rem à 2rem pour plus d'espace */
+    font-weight: normal;
+}
+
+/* ============================================================================
+   4. CARTES PLIABLES (COLLAPSIBLE CARDS)
+   ============================================================================ */
+
+/**
+ * Carte pliable de base
+ */
+.collapsible-card {
+    margin-bottom: 1rem;
+    transition: all 0.3s ease;
+}
+
+.collapsible-card.collapsed {
+    box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+}
+
+/**
+ * En-tête cliquable des cartes
+ */
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    padding: 1rem;
+    background-color: #f8f9fa;
+    border-radius: 8px 8px 0 0;
+    transition: background-color 0.3s ease;
+    user-select: none;
+    position: relative;
+}
+
+.card-header:hover {
+    background-color: #e9ecef;
+}
+
+.card-header h2 {
+    margin: 0;
+    font-size: 1.1rem;
+    color: #003366;
+}
+
+.card-header h2 i {
+    margin-right: 0.5rem;
+    color: #007bff;
+}
+
+/**
+ * Icône de toggle (plus/moins)
+ */
+.toggle-icon {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #003366;
+    transition: transform 0.3s ease, color 0.3s ease;
+}
+
+.toggle-icon i {
+    transition: transform 0.3s ease, color 0.3s ease;
+}
+
+.collapsed .toggle-icon {
+    transform: rotate(180deg);
+}
+
+.collapsed .toggle-icon i {
+    transform: rotate(180deg);
+}
+
+.card-header:hover .toggle-icon {
+    color: #007bff;
+}
+
+.card-header:hover .toggle-icon i {
+    color: #007bff;
+}
+
+.toggle-icon:hover i {
+    transform: scale(1.2);
+}
+
+/**
+ * Contenu des cartes
+ */
+.card-content {
+    padding: 1.5rem;
+    background-color: white;
+    border-radius: 0 0 8px 8px;
+    overflow: hidden;
+    transition: max-height 0.3s ease, opacity 0.3s ease;
+}
+
+.card-content p strong i {
+    margin-right: 0.5rem;
+    color: #6c757d;
+    width: 16px;
+    text-align: center;
+}
+
+/**
+ * Section toujours ouverte (Action pédagogique)
+ */
+.always-open .card-header {
+    cursor: default;
+    background-color: #003366;
+    color: white;
+}
+
+.always-open .card-header h2 {
+    color: white;
+}
+
+.always-open .card-header h2 i {
+    color: #ffc107;
+}
+
+.always-open .card-header:hover {
+    background-color: #003366;
+}
+
+/**
+ * États visuels pour les cards fermées
+ */
+.collapsed .card-header {
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.collapsed .card-content {
+    display: none;
+}
+
+/**
+ * Effet au survol pour indiquer que c'est cliquable
+ */
+.collapsible-card:not(.always-open) .card-header::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 4px;
+    height: 100%;
+    background-color: #007bff;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.collapsible-card:not(.always-open) .card-header:hover::before {
+    opacity: 1;
+}
+
+/**
+ * Badge important
+ */
+.badge-important {
+    background-color: #ffc107;
+    color: #212529;
+    padding: 0.25rem 0.5rem;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: bold;
+}
+
+.badge-important i {
+    margin-right: 0.25rem;
+}
+
+/**
+ * Contrôles globaux des cartes
+ */
+.card-controls {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+    justify-content: center;
+}
+
+.card-controls .btn i {
+    margin-right: 0.25rem;
+}
+
+/* ============================================================================
+   5. BOUTONS ET FORMULAIRES
+   ============================================================================ */
+
+/**
+ * Bouton de base
+ */
+.btn {
+    padding: 0.5rem 1rem;
+    border: none;
+    background-color: #003366;
+    color: white;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-right: 1rem;
+}
+
+.btn i {
+    margin-right: 0.5rem;
+}
+
+.btn:hover i,
+.card-header:hover i {
+    transform: scale(1.1);
+    transition: transform 0.2s ease;
+}
+
+.btn:focus {
+    outline: 2px solid #007bff;
+    outline-offset: 2px;
+}
+
+.btn:focus i {
+    color: #007bff;
+}
+
+/**
+ * Variantes de boutons
+ */
+.btn.secondary {
+    background-color: #999;
+}
+
+.btn.warning {
+    background-color: #ff9800;
+    color: white;
+    border: 1px solid #ff9800;
+}
+
+.btn.warning:hover {
+    background-color: #e68a00;
+    border-color: #e68a00;
+}
+
+.btn-sm {
+    padding: 0.375rem 0.75rem;
+    font-size: 0.875rem;
+}
+
+.btn-sm i {
+    margin-right: 0.25rem;
+}
+
+/**
+ * Boutons spécifiques
+ */
+.btn-validate {
+    background-color: #28a745;
+    border-color: #28a745;
+    opacity: 0.6;
+    transition: opacity 0.3s ease;
+}
+
+.btn-validate.btn-enabled {
+    opacity: 1;
+}
+
+.btn-validate:hover:not(:disabled) {
+    background-color: #218838;
+    border-color: #1e7e34;
+}
+
+.btn-modify {
+    background-color: #17a2b8;
+    border-color: #17a2b8;
+}
+
+.btn-modify:hover {
+    background-color: #138496;
+    border-color: #117a8b;
+}
+
+.btn-reject {
+    background-color: #dc3545;
+    border-color: #dc3545;
+}
+
+.btn-reject:hover {
+    background-color: #c82333;
+    border-color: #bd2130;
+}
+
+.btn-auto {
+    background-color: #17a2b8;
+    color: white;
+    border: 1px solid #17a2b8;
+}
+
+.btn-auto:hover {
+    background-color: #138496;
+    border-color: #117a8b;
+}
+
+.btn-suggestion {
+    background-color: #ffc107;
+    color: #212529;
+    border: 1px solid #ffc107;
+    font-size: 0.9rem;
+}
+
+.btn-suggestion:hover {
+    background-color: #e0a800;
+    border-color: #d39e00;
+}
+
+.btn-change {
+    background-color: #6c757d;
+    color: white;
+    border: none;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.8rem;
+    margin-left: auto;
+}
+
+.btn-change:hover {
+    background-color: #5a6268;
+}
+
+.btn-change i {
+    margin-right: 0.25rem;
+    font-size: 0.8rem;
+}
+
+/**
+ * Bouton de retour
+ */
+#back-btn {
+    padding: 10px 20px;
+    background-color: #003366;
+    color: white;
+    text-decoration: none;
+    border-radius: 4px;
+    font-weight: bold;
+    transition: background-color 0.3s;
+    width: auto; /* Largeur auto pour ne pas prendre toute la page */
+}
+
+#back-btn:hover {
+    background-color: #00579a;
+}
+
+.btn-retour {
+    text-decoration: none !important;
+    padding: 0.5rem 1rem;
+    border: none;
+    background-color: #003366;
+    color: white;
+    border-radius: 4px;
+    cursor: pointer;
+    display: inline-block;
+}
+
+.btn-retour:hover {
+    text-decoration: none !important;
+    background-color: #00579a;
+}
+
+.btn-retour i {
+    margin-right: 0.5rem;
+}
+
+/**
+ * Éléments de formulaire
+ */
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-control {
+    width: 100%;
+    padding: 0.5rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 1rem;
+}
+
+select.form-control {
+    height: 40px;
+}
+
+textarea {
+    width: 100%;
+    height: 100px;
+    margin-top: 1rem;
+}
+
+/**
+ * Labels avec icônes
+ */
+label i {
+    margin-right: 0.5rem;
+    color: #6c757d;
+}
+
+/* ============================================================================
+   6. TABLEAUX ET FILTRES
+   ============================================================================ */
+
+/**
+ * Tableau principal
+ */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+}
+
+th, td {
+    border: 1px solid #ddd;
+    padding: 0.75rem;
+    text-align: left;
+}
+
+th {
+    background-color: #003366;
+    color: white;
+}
+
+/**
+ * Section des filtres
+ */
+.filters {
+    margin-bottom: 1rem;
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    align-items: end;
+}
+
+.filters label {
+    display: flex;
+    flex-direction: column;
+}
+
+#resetFilters {
+    align-self: flex-end;
+    height: fit-content;
+}
+
+/* ============================================================================
+   7. ÉTATS ET STATUTS
+   ============================================================================ */
+
+/**
+ * Badge d'état
+ */
+.etat {
+    padding: 0.3rem 0.6rem;
+    border-radius: 12px;
+    font-size: 0.85rem;
+    font-weight: bold;
+    text-align: center;
+    display: inline-block;
+}
+
+.etat i {
+    margin-right: 0.25rem;
+}
+
+.etat.attente {
+    background-color: #fff3cd;
+    color: #856404;
+    border: 1px solid #ffeeba;
+}
+
+.etat.validee {
+    background-color: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
+.etat.refusee {
+    background-color: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+
+/* ============================================================================
+   8. GESTION DES QUOTAS TUTEURS
+   ============================================================================ */
+
+/**
+ * Options du select avec quotas
+ */
+option.quota-complet {
+    color: #dc3545;
+    background-color: #f8d7da;
+}
+
+option.quota-disponible {
+    color: #155724;
+}
+
+/**
+ * Section d'informations sur les quotas
+ */
+.quota-info {
+    margin-top: 1.5rem;
+    padding: 1rem;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    border: 1px solid #e9ecef;
+}
+
+.quota-info h4 {
+    margin: 0 0 1rem 0;
+    color: #003366;
+    font-size: 1.1rem;
+}
+
+.quota-info h4 i {
+    color: #007bff;
+    margin-right: 0.5rem;
+}
+
+/**
+ * Grille des quotas
+ */
+.quota-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 0.75rem;
+}
+
+.quota-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem;
+    border-radius: 6px;
+    font-size: 0.9rem;
+}
+
+.quota-item.quota-ok {
+    background-color: #d4edda;
+    border-left: 4px solid #28a745;
+}
+
+.quota-item.quota-complet {
+    background-color: #f8d7da;
+    border-left: 4px solid #dc3545;
+}
+
+.tuteur-nom {
+    font-weight: 500;
+    flex: 1;
+}
+
+.tuteur-nom i {
+    margin-right: 0.25rem;
+    color: #28a745;
+}
+
+.quota-complet .tuteur-nom i {
+    color: #dc3545;
+}
+
+.quota-badge {
+    background-color: white;
+    padding: 0.2rem 0.5rem;
+    border-radius: 12px;
+    font-weight: bold;
+    font-size: 0.8rem;
+}
+
+.quota-barre {
+    width: 60px;
+    height: 8px;
+    background-color: #e9ecef;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.quota-progression {
+    height: 100%;
+    background-color: #28a745;
+    transition: width 0.3s ease;
+}
+
+.quota-complet .quota-progression {
+    background-color: #dc3545;
+}
+
+/* ============================================================================
+   9. INTERFACE D'AFFECTATION DES TUTEURS
+   ============================================================================ */
+
+/**
+ * Section d'affectation
+ */
+.affectation-section {
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    border-left: 4px solid #007bff;
+}
+
+.affectation-section h4 {
+    margin: 0 0 1rem 0;
+    color: #003366;
+}
+
+.affectation-section h4 i {
+    margin-right: 0.5rem;
+    color: #007bff;
+}
+
+/**
+ * Checkbox personnalisée
+ */
+.checkbox-container {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    margin-bottom: 1rem;
+}
+
+.checkbox-container input[type="checkbox"] {
+    margin-right: 0.5rem;
+    transform: scale(1.2);
+}
+
+/**
+ * Option d'affectation automatique
+ */
+.auto-affectation-option {
+    background-color: #e3f2fd;
+    padding: 1rem;
+    border-radius: 6px;
+    margin-bottom: 1rem;
+    border: 1px solid #bbdefb;
+}
+
+/**
+ * Sélection manuelle
+ */
+.selection-manuelle {
+    transition: all 0.3s ease;
+}
+
+/**
+ * Tuteur sélectionné
+ */
+.tuteur-selectionne {
+    background-color: #d4edda;
+    padding: 1rem;
+    border-radius: 6px;
+    margin-top: 1rem;
+    border: 1px solid #c3e6cb;
+}
+
+.selected-tutor-info {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.selected-icon {
+    font-size: 1.2rem;
+}
+
+.selected-icon i {
+    color: #28a745;
+    font-size: 1.2rem;
+}
+
+/* ============================================================================
+   10. SECTIONS D'ACTIONS
+   ============================================================================ */
+
+/**
+ * Section des actions
+ */
+.actions-section {
+    background-color: #fff3cd;
+    border-radius: 8px;
+    padding: 1.5rem;
+    border-left: 4px solid #ffc107;
+}
+
+.actions-section h4 {
+    margin: 0 0 1rem 0;
+    color: #856404;
+}
+
+.actions-section h4 i {
+    margin-right: 0.5rem;
+    color: #007bff;
+}
+
+.actions-buttons {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin-bottom: 1rem;
+}
+
+/**
+ * Note de validation
+ */
+.validation-note {
+    color: #856404;
+    font-style: italic;
+    display: block;
+    margin-top: 0.5rem;
+}
+
+.validation-note i {
+    color: #ffc107;
+    margin-right: 0.25rem;
+}
+
+/* ============================================================================
+   11. ALERTES ET MESSAGES
+   ============================================================================ */
+
+/**
+ * Messages flash
+ */
+.flash-message {
+    padding: 1rem;
+    margin: 1rem auto;
+    width: 80%;
+    border-radius: 8px;
+    text-align: center;
+    font-weight: bold;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+
+.flash-message.success {
+    background-color: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
+.flash-message.error {
+    background-color: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+
+/**
+ * Alertes
+ */
+.alert {
+    padding: 1rem;
+    border-radius: 4px;
+    margin-bottom: 1rem;
+}
+
+.alert.info {
+    background-color: #e3f2fd;
+    border-left: 4px solid #2196F3;
+    color: #0d47a1;
+}
+
+.alert i {
+    margin-right: 0.5rem;
+    vertical-align: middle;
+}
+
+.alert.info i {
+    color: #0d47a1;
+}
+
+/* ============================================================================
+   12. FOOTER
+   ============================================================================ */
+
+/**
+ * Pied de page
+ */
+.footer {
+    background-color: #003366;
+    color: white;
+    padding: 1.5rem;
+    text-align: center;
+    margin-top: 2rem;
+    margin-left: 220px;
+}
+
+.footer-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+}
+
+.footer .btn {
+    background-color: #003366;
+    color: white;
+    border: 2px solid white;
+    border-radius: 4px;
+    padding: 0.5rem 1.2rem;
+    font-weight: bold;
+    text-decoration: none;
+    transition: background-color 0.3s ease;
+}
+
+.footer .btn:hover {
+    background-color: #00579a;
+}
+
+/* ============================================================================
+   13. ANIMATIONS
+   ============================================================================ */
+
+/**
+ * Animations personnalisées pour l'ouverture/fermeture
+ */
+@keyframes slideDown {
+    from {
+        max-height: 0;
+        opacity: 0;
+    }
+    to {
+        max-height: 500px;
+        opacity: 1;
+    }
+}
+
+@keyframes slideUp {
+    from {
+        max-height: 500px;
+        opacity: 1;
+    }
+    to {
+        max-height: 0;
+        opacity: 0;
+    }
+}
+
+/**
+ * Optimisation des transitions pour les icônes
+ */
+i {
+    transition: color 0.2s ease, transform 0.2s ease;
+}
+
+/**
+ * Pré-chargement des transformations
+ */
+.card-header i,
+.btn i {
+    will-change: transform;
+}
+
+/**
+ * États focus pour l'accessibilité
+ */
+.card-header:focus {
+    outline: 2px solid #007bff;
+    outline-offset: 2px;
+}
+
+.card-header:focus i {
+    color: #007bff;
+}
+
+/* ============================================================================
+   14. RESPONSIVE DESIGN
+   ============================================================================ */
+
+/**
+ * Media query pour responsive sur mobile
+ */
+@media screen and (max-width: 768px) {
+    .main-content-with-sidebar {
+        margin-left: 0;
+    }
+    
+    .footer {
+        margin-left: 0;
+    }
+    
+    /**
+     * Ajustements pour mobile - boutons
+     */
+    .actions-buttons {
+        flex-direction: column;
+    }
+    
+    /**
+     * Ajustements pour mobile - quotas
+     */
+    .quota-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    /**
+     * Ajustements pour mobile - tuteur sélectionné
+     */
+    .selected-tutor-info {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .btn-change {
+        margin-left: 0;
+        margin-top: 0.5rem;
+    }
+    
+    /**
+     * Ajustements pour mobile - cartes
+     */
+    .card-header h2 {
+        font-size: 1rem;
+    }
+    
+    .card-controls {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .toggle-icon {
+        font-size: 1.3rem;
+    }
+    
+    /**
+     * Réduction de la taille des icônes sur mobile
+     */
+    .card-header h2 i {
+        font-size: 0.9rem;
+    }
+    
+    .title-section h1 i {
+        font-size: 1.2rem;
+    }
+    
+    /**
+     * Espacement réduit sur mobile
+     */
+    .btn i {
+        margin-right: 0.25rem;
+    }
+}

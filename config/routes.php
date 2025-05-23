@@ -36,5 +36,16 @@ return [
     '/admin/companies/requests' => ['App\Controller\AdminController', 'getCompanyRequests'],
 
 
+    '/responsable/requestList'  => ['App\Controller\ResponsablePedaController', 'listeDemandes'],
+    '/responsable/detailRequest'  => ['App\Controller\ResponsablePedaController', 'detailDemande'],
+
+    '/responsable/traiter' => ['App\Controller\ResponsablePedaController', 'traiter'],
+
+
+   /*  '/responsable/valider' => ['App\Controller\ResponsablePedaController', 'valider'],
+    '/responsable/refuser' => ['App\Controller\ResponsablePedaController', 'refuser'], */
+   
+
+
 ];
 
