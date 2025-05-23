@@ -24,6 +24,7 @@ return [
 
     //  Ajout du dashboard admin
     '/admin/dashboard' => ['App\Controller\AdminController', 'dashboard'],
+    '/admin/stats' => ['App\Controller\AdminController', 'stats'],
     '/admin/tab/users'      => ['App\Controller\AdminController', 'tabUsers'],
     '/admin/tab/requests'   => ['App\Controller\AdminController', 'tabRequests'],
     '/admin/tab/companies'  => ['App\Controller\AdminController', 'tabCompanies'],

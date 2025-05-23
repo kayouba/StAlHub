@@ -17,50 +17,6 @@ $rejectedCount = $rejectedCount ?? 0;
 <main class="admin-dashboard">
     <h1>Tableau de bord administrateur</h1>
 
-    <div class="stats">
-        <div class="card blue">
-            <h2><?= $pendingCount ?></h2>
-            <p>Demandes à valider</p>
-        </div>
-        <div class="card green">
-            <h2><?= $validatedCount ?></h2>
-            <p>Demandes validées</p>
-        </div>
-        <div class="card red">
-            <h2><?= $rejectedCount ?></h2>
-            <p>Demandes refusées</p>
-        </div>
-    </div>
-    <div class="stats">
-        <div class="card yellow">
-            <h2><?= 0 ?></h2>
-            <p>Demandes à valider</p>
-        </div>
-        <div class="card orange">
-            <h2><?= 2 ?></h2>
-            <p>Demandes validées</p>
-        </div>
-        <div class="card pink">
-            <h2><?= 4 ?></h2>
-            <p>Demandes refusées</p>
-        </div>
-        
-    </div>
-     <div class="stats">
-        <div class="card blue">
-            <h2><?= 0 ?></h2>
-            <p>Demandes à valider</p>
-        </div>
-        <div class="card pink">
-            <h2><?= 2 ?></h2>
-            <p>Demandes validées</p>
-        </div>
-        <div class="card yellow">
-            <h2><?= 4 ?></h2>
-            <p>Demandes refusées</p>
-        </div>
-        
-    </div>
 
     <div class="tabs">
         <button class="tab active" data-tab="users">Utilisateurs</button>

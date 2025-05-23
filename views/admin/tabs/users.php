@@ -4,10 +4,21 @@
     <select id="roleFilter" onchange="filterUsers()" style="padding: 8px; border-radius: 6px;">
         <option value="all">Tous</option>
         <?php
+        $roleLabels = [
+            'student' => 'Étudiant',
+            'cfa' => 'CFA',
+            'director' => 'Direction',
+            'company' => 'Entreprise',
+            'reviewer' => 'Relecteur',
+            'professional_responsible' => 'Responsable pédagogique',
+            'academic_secretary' => 'Secrétariat',
+            'tutor' => 'Tuteur'
+        ];
+
         $roles = array_unique(array_column($users, 'role'));
         foreach ($roles as $role) {
             $value = strtolower($role);
-            $label = ucfirst($role);
+            $label = $roleLabels[$value] ?? ucfirst($value);
             echo "<option value=\"$value\">$label</option>";
         }
         ?>
@@ -28,7 +39,22 @@
             <tr data-role="<?= strtolower(htmlspecialchars($user['role'])) ?>">
                 <td><?= htmlspecialchars($user['last_name'] . ' ' . $user['first_name']) ?></td>
                 <td><?= htmlspecialchars($user['email']) ?></td>
-                <td><?= htmlspecialchars($user['role']) ?></td>
+                <?php
+                $roleLabels = [
+                    'student' => 'Étudiant',
+                    'cfa' => 'CFA',
+                    'director' => 'Direction',
+                    'company' => 'Entreprise',
+                    'reviewer' => 'Relecteur',
+                    'professional_responsible' => 'Responsable pédagogique',
+                    'academic_secretary' => 'Secrétariat',
+                    'tutor' => 'Tuteur'
+                ];
+                $role = $user['role'] ?? 'unknown';
+                $label = $roleLabels[$role] ?? ucfirst($role);
+                ?>
+                <td><?= htmlspecialchars($label) ?></td>
+
                 <td>
                     <a href="javascript:void(0);" onclick='openModal(<?= json_encode($user, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>)'>Voir</a>
                     <?php if ($user['role'] === 'student'): ?>
@@ -58,12 +84,13 @@
             <input type="hidden" name="user_id" id="user_id">
             <label for="role">Changer le rôle</label>
             <select name="role" id="role" required style="width:100%; padding:8px; margin:10px 0;">
-                <option value="student">Étudiant</option>
-                <option value="admin">Administrateur</option>
-                <option value="company">Entreprise</option>
-                <option value="responsable">Responsable pédagogique</option>
-                <option value="direction">Direction</option>
                 <option value="cfa">CFA</option>
+                <option value="director">Direction</option>
+                <option value="company">Entreprise</option>
+                <option value="student">Étudiant</option>
+                <option value="reviewer">Relecteur</option>
+                <option value="professional_responsible">Responsable pédagogique</option>
+                <option value="academic_secretary">Secrétariat</option>
                 <option value="tutor">Tuteur</option>
             </select>
             <button type="submit" style="padding:10px 20px; background:#004A7C; color:white; border:none; border-radius:4px; cursor:pointer;">Mettre à jour</button>

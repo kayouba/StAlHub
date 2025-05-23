@@ -25,6 +25,10 @@
             <span>⚙️</span>
             Administration
         </a>
+        <a class="nav-link text-warning fw-bold" href="/stalhub/admin/stats">
+            <span>📊</span>
+            Statistiques
+        </a>
 <?php endif; ?>
 
 
