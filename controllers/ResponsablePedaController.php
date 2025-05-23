@@ -115,6 +115,13 @@ class ResponsablePedaController
                 exit;
             }
            
+            // Vérifie si la demande était déjà validée avec un tuteur
+            $demandeActuelle = $model->getById($id);
+            if ($demandeActuelle['status'] === 'VALID_PEDAGO' && !empty($demandeActuelle['tutor_id'])) {
+                // Décremente le quota du tuteur qui était assigné
+                $model->decrementerQuotaTuteur($demandeActuelle['tutor_id']);
+            }
+           
             // Traitement du refus dans la base de données
             $model->traiterDemande($id, $action, $commentaire, null);
            
@@ -155,8 +162,20 @@ class ResponsablePedaController
                 exit;
             }
            
+            // Vérifie si la demande avait déjà un tuteur assigné
+            $demandeActuelle = $model->getById($id);
+            if ($demandeActuelle['status'] === 'VALID_PEDAGO' && !empty($demandeActuelle['tutor_id'])) {
+                // Si on change de tuteur, décrémenter l'ancien
+                if ($demandeActuelle['tutor_id'] != $tuteur_id) {
+                    $model->decrementerQuotaTuteur($demandeActuelle['tutor_id']);
+                }
+            }
+           
             // Traitement de la validation avec tuteur assigné
             $model->traiterDemande($id, $action, $commentaire, $tuteur_id);
+            
+            // Incrémente le quota du tuteur
+            $model->incrementerQuotaTuteur($tuteur_id);
             
             // Récupération du nom du tuteur pour le message de confirmation
             $tuteurNom = $model->getNomTuteur($tuteur_id);
@@ -190,8 +209,20 @@ class ResponsablePedaController
                     exit;
                 }
                 
+                // Vérifi si la demande avait déjà un tuteur assigné
+                $demandeActuelle = $model->getById($id);
+                if ($demandeActuelle['status'] === 'VALID_PEDAGO' && !empty($demandeActuelle['tutor_id'])) {
+                    // Si on change de tuteur, décrémenter l'ancien
+                    if ($demandeActuelle['tutor_id'] != $tuteur_id) {
+                        $model->decrementerQuotaTuteur($demandeActuelle['tutor_id']);
+                    }
+                }
+                
                 // Traitement de la validation avec le tuteur automatiquement assigné
                 $model->traiterDemande($id, 'valider', $commentaire, $tuteur_id);
+                
+                // Incrémente le quota du tuteur
+                $model->incrementerQuotaTuteur($tuteur_id);
                 
                 // Récupération du nom du tuteur pour le message de confirmation
                 $tuteurNom = $model->getNomTuteur($tuteur_id);
