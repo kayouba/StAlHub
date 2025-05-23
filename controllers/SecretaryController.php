@@ -19,7 +19,7 @@ class SecretaryController {
 
         // Charger l'utilisateur depuis la base via UserModel
         $userModel = new UserModel();
-        $user = $userModel->findById($userId);
+        $user = $userModel->findRequestInfoById($userId);
 
         if (!$user) {
             session_destroy();
@@ -51,7 +51,7 @@ class SecretaryController {
         $documents = [];
 
         if ($requestId) {
-            $requestDetails = $requestModel->findById((int)$requestId);
+            $requestDetails = $requestModel->findRequestInfoById((int)$requestId);
             $documents = $secretaryModel->getDocumentsByRequestId((int)$requestId);
         }
 

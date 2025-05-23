@@ -197,7 +197,7 @@ public function createRequest(array $step3, int $userId, int $companyId, array $
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    public function findById(int $requestId): ?array{
+    public function findRequestInfoById(int $requestId): ?array{
     $sql = "SELECT 
                 r.*, 
                 c.name AS company_name, 
