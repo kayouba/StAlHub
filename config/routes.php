@@ -22,6 +22,9 @@ return [
 
     '/tutor/dashboard' => ['App\Controller\TutorController', 'index'],
     '/tutor/update'    => ['App\Controller\TutorController', 'updateCapacity'],
+    '/tutor/students' => ['App\Controller\TutorController', 'assignedStudents'],
+    '/tutor/student'  => ['App\Controller\TutorController', 'viewStudent'],
+
 
     '/profile'         => ['App\Controller\ProfileController', 'index'],
     '/profile/submit'  => ['App\Controller\ProfileController', 'submit'],
