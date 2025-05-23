@@ -60,7 +60,7 @@
             <select name="role" id="role" required style="width:100%; padding:8px; margin:10px 0;">
                 <option value="student">Étudiant</option>
                 <option value="admin">Administrateur</option>
-                <option value="secreteriat">Secrétériat</option>
+                <option value="company">Entreprise</option>
                 <option value="responsable">Responsable pédagogique</option>
                 <option value="direction">Direction</option>
                 <option value="cfa">CFA</option>

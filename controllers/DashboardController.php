@@ -24,11 +24,6 @@ public function index(): void
         exit;
     }
 
-    if ($role === 'admin') {
-        header('Location: /stalhub/admin/dashboard');
-        exit;
-    }
-
     // === Étudiant ===
     $userModel = new UserModel();
     $user = $userModel->findById($userId);

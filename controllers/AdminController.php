@@ -10,17 +10,12 @@ class AdminController
 {
     public function dashboard(): void
     {
-        $userId = $_SESSION['user_id'] ?? null;
-
-        if (!$userId || ($_SESSION['role'] ?? '') !== 'admin') {
-            header('Location: /stalhub/login');
-            exit;
-        }
+        $this->requireAdmin(); // ← centralise la logique
 
         $userModel = new UserModel();
         $requestModel = new RequestModel();
 
-        $users = $userModel->findAll(); // 🔁 Tous les rôles, pas que étudiants
+        $users = $userModel->findAll();
         $pendingCount = $requestModel->countByStatus('SOUMISE');
         $validatedCount = $requestModel->countByStatus('VALIDEE');
         $rejectedCount = $requestModel->countByStatus('REFUSEE');
@@ -35,14 +30,13 @@ class AdminController
 
     private function requireAdmin(): void
     {
-        $userId = $_SESSION['user_id'] ?? null;
-        $role = $_SESSION['role'] ?? null;
-
-        if (!$userId || $role !== 'admin') {
+        if (!isset($_SESSION['user']) || empty($_SESSION['user']['is_admin'])) {
             header('Location: /stalhub/login');
             exit;
         }
     }
+
+
 
     // Onglet Utilisateurs
     public function tabUsers(): void

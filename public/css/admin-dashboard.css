@@ -18,6 +18,7 @@ main.admin-dashboard {
     display: flex;
     gap: 1rem;
     margin-bottom: 2rem;
+    
 }
 
 .card {
@@ -33,6 +34,9 @@ main.admin-dashboard {
 .card.blue { background-color: #78a9dd; }
 .card.green { background-color: #58a66a; }
 .card.red { background-color: #dc3545; }
+.card.pink { background-color: #dc35c9; }
+.card.orange { background-color: #dc8935; }
+.card.yellow { background-color: #efe33e; }
 
 .card h2 {
     font-size: 2rem;
