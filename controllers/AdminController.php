@@ -10,17 +10,12 @@ class AdminController
 {
     public function dashboard(): void
     {
-        $userId = $_SESSION['user_id'] ?? null;
-
-        if (!$userId || ($_SESSION['role'] ?? '') !== 'admin') {
-            header('Location: /stalhub/login');
-            exit;
-        }
+        $this->requireAdmin(); // ← centralise la logique
 
         $userModel = new UserModel();
         $requestModel = new RequestModel();
 
-        $users = $userModel->findAll(); // 🔁 Tous les rôles, pas que étudiants
+        $users = $userModel->findAll();
         $pendingCount = $requestModel->countByStatus('SOUMISE');
         $validatedCount = $requestModel->countByStatus('VALIDEE');
         $rejectedCount = $requestModel->countByStatus('REFUSEE');
@@ -35,14 +30,13 @@ class AdminController
 
     private function requireAdmin(): void
     {
-        $userId = $_SESSION['user_id'] ?? null;
-        $role = $_SESSION['role'] ?? null;
-
-        if (!$userId || $role !== 'admin') {
+        if (!isset($_SESSION['user']) || empty($_SESSION['user']['is_admin'])) {
             header('Location: /stalhub/login');
             exit;
         }
     }
+
+
 
     // Onglet Utilisateurs
     public function tabUsers(): void
@@ -217,6 +211,38 @@ public function viewRequest(): void
         'request' => $request,
         'student' => $student,
         'company' => $company
+    ]);
+}
+public function stats(): void
+{
+    $this->requireAdmin();
+
+    $requestModel = new \App\Model\RequestModel();
+
+    $soumise    = $requestModel->countByStatus('SOUMISE');
+    $validPeda  = $requestModel->countByStatus('VALID_PEDAGO');  // adapte ici selon tes noms
+    $refusPeda   = $requestModel->countByStatus('REFUSEE_PEDAGO');
+    $attendSecret  = $requestModel->countByStatus('EN_ATTENTE_SECRETAIRE');  // adapte ici selon tes noms
+    $validSecret  = $requestModel->countByStatus('VALID_SECRETAIRE');  // adapte ici selon tes noms
+    $refusSecret   = $requestModel->countByStatus('REFUSEE_SECRETAIRE');
+    $attendCFA  = $requestModel->countByStatus('EN_ATTENTE_CFA');  // adapte ici selon tes noms
+    $validCFA  = $requestModel->countByStatus('VALID_CFA');  // adapte ici selon tes noms
+    $refusCFA   = $requestModel->countByStatus('REFUSEE_CFA');
+    $validFinal  = $requestModel->countByStatus('VALIDE'); 
+    
+    // Tu peux ajouter ici d'autres appels à countByStatus pour le secrétariat et CFA si tu veux les vrais chiffres.
+
+    \App\View::render('admin/stats', [
+        'soumise' => $soumise,
+        'validPeda' => $validPeda,
+        'refusPeda' => $refusPeda,
+        'attendSecret' => $attendSecret,
+        'validSecret' => $validSecret,
+        'refusSecret' => $refusSecret,
+        'attendCFA' => $attendCFA,
+        'validCFA' => $validCFA,
+        'refusCFA' => $refusCFA,
+        'validFinal' => $validFinal,
     ]);
 }
 
