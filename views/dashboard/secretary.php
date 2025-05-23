@@ -24,81 +24,9 @@ function formatStatus($status) {
 <head>
   <meta charset="UTF-8" />
   <title>Dashboard Secrétaire</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 0;
-      background-color: #f9f9f9;
-    }
-
-    main {
-      margin-left: 240px;
-      padding: 20px;
-    }
-
-    h1 {
-      color: #004b80;
-      margin-bottom: 20px;
-    }
-
-    .bienvenue {
-      margin-top: -15px;
-      margin-bottom: 30px;
-      font-size: 1.1em;
-      color: #333;
-    }
-
-    .filters {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      margin-bottom: 20px;
-    }
-
-    select, input[type="text"] {
-      padding: 8px;
-      border: 1px solid #ccc;
-      border-radius: 5px;
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      background: white;
-    }
-
-    th, td {
-      padding: 12px;
-      border-bottom: 1px solid #ccc;
-      text-align: left;
-    }
-
-    th {
-      background-color: #f0f0f0;
-    }
-
-    .complete {
-      color: green;
-      font-weight: bold;
-    }
-
-    .transmise {
-      color: orange;
-      font-weight: bold;
-    }
-
-    .incomplete {
-      color: red;
-      font-weight: bold;
-    }
-
-    a {
-      color: #004b80;
-      text-decoration: none;
-    }
-  </style>
+  <link rel="stylesheet" href="/stalhub/public/css/secretary-dashboard.css">
+  <script src="/stalhub/public/js/secretary-dashboard.js" defer></script>
 </head>
-
 <body>
 
 <?php include __DIR__ . '/../components/sidebar.php'; ?>
@@ -162,35 +90,7 @@ function formatStatus($status) {
   </table>
 </main>
 
-<script>
-  const filters = {
-    formation: document.getElementById("filter-formation"),
-    etat: document.getElementById("filter-etat"),
-    search: document.getElementById("search")
-  };
 
-  const rows = document.querySelectorAll("#table-body tr");
-
-  function filterTable() {
-    const formationVal = filters.formation.value.toLowerCase();
-    const etatVal = filters.etat.value.toLowerCase();
-    const searchVal = filters.search.value.toLowerCase();
-
-    rows.forEach(row => {
-      const formation = row.children[1].textContent.toLowerCase();
-      const etat = row.children[6].textContent.toLowerCase(); // colonne État
-      const fullText = row.textContent.toLowerCase();
-
-      const matchFormation = !formationVal || formation.includes(formationVal);
-      const matchEtat = !etatVal || etat.includes(etatVal);
-      const matchSearch = !searchVal || fullText.includes(searchVal);
-
-      row.style.display = (matchFormation && matchEtat && matchSearch) ? "" : "none";
-    });
-  }
-
-  Object.values(filters).forEach(el => el.addEventListener("input", filterTable));
-</script>
 
 </body>
 </html>

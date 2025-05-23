@@ -1,6 +1,7 @@
 <?php include __DIR__ . '/../components/sidebar.php'; ?>
 
 <link rel="stylesheet" href="/stalhub/public/css/secretary-detailsfile.css">
+<script src="/stalhub/public/js/secretary-detailsfile.js" defer></script>
 <div class="main-content">
   <?php if (!$requestDetails): ?>
     <p>Demande introuvable.</p>
@@ -32,7 +33,7 @@
         <thead>
           <tr>
             <th>Nom de la pièce</th>
-            <th>Fournie ?</th>
+            <th>Fournie</th>
             <th>Statut</th>
             <th>Actions</th>
             <th>Commentaire</th>
@@ -60,7 +61,13 @@
                 <div class="message-container"></div>
               </td>
               <td>
-                <input class="comment-input" type="text" value="<?= htmlspecialchars($doc['comment'] ?? '') ?>" placeholder="Ajouter un commentaire..." data-id="<?= htmlspecialchars($doc['id'] ?? '') ?>" />
+                <input 
+                  class="comment-input" 
+                  type="text" 
+                  value="<?= htmlspecialchars($doc['comment'] ?? '') ?>" 
+                  placeholder="Ajouter un commentaire..." 
+                  data-id="<?= htmlspecialchars($doc['id'] ?? '') ?>" 
+                />
                 <span class="save-indicator" style="color: green; font-size: 12px; display: none;">💾 Sauvegardé</span>
               </td>
               <td>
@@ -89,172 +96,3 @@
 
   <?php endif; ?>
 </div>
-
-<script>
-  document.addEventListener('DOMContentLoaded', function () {
-    const validateButtons = document.querySelectorAll('.validate-btn');
-    const refuseButtons = document.querySelectorAll('.refuse-btn');
-    const validateAllBtn = document.getElementById('validateAllBtn');
-    const commentInputs = document.querySelectorAll('.comment-input');
-
-    // 💾 Sauvegarde automatique des commentaires
-    commentInputs.forEach(input => {
-      let saveTimeout;
-      
-      input.addEventListener('input', function () {
-        const documentId = this.dataset.id;
-        const comment = this.value;
-        const saveIndicator = this.nextElementSibling;
-        
-        // Débouncing : attendre 1 seconde après la dernière frappe
-        clearTimeout(saveTimeout);
-        saveTimeout = setTimeout(() => {
-          saveComment(documentId, comment, saveIndicator);
-        }, 1000);
-      });
-
-      // Sauvegarde immédiate quand l'utilisateur quitte le champ
-      input.addEventListener('blur', function () {
-        const documentId = this.dataset.id;
-        const comment = this.value;
-        const saveIndicator = this.nextElementSibling;
-        
-        clearTimeout(saveTimeout);
-        saveComment(documentId, comment, saveIndicator);
-      });
-    });
-
-    // Fonction pour sauvegarder le commentaire
-    function saveComment(documentId, comment, saveIndicator) {
-      fetch('/stalhub/secretary/save-comment', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          document_id: documentId,
-          comment: comment
-        })
-      })
-      .then(res => res.json())
-      .then(data => {
-        if (data.success) {
-          // Afficher l'indicateur de sauvegarde
-          saveIndicator.style.display = 'inline';
-          setTimeout(() => {
-            saveIndicator.style.display = 'none';
-          }, 2000);
-        } else {
-          console.error('Erreur lors de la sauvegarde du commentaire');
-        }
-      })
-      .catch(error => {
-        console.error('Erreur réseau:', error);
-      });
-    }
-
-    // ✅ Validation d'un seul document
-    validateButtons.forEach(button => {
-      button.addEventListener('click', function () {
-        const row = this.closest('tr');
-        const documentId = this.dataset.id;
-        const commentInput = row.querySelector('.comment-input');
-        const comment = commentInput ? commentInput.value : '';
-
-        fetch('/stalhub/secretary/update-document-status', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            document_id: documentId,
-            status: 'validated',
-            comment: comment
-          })
-        })
-        .then(res => res.json())
-        .then(data => {
-          if (data.success) {
-            const statusCell = row.querySelector('.doc-status');
-            const statusText = statusCell.querySelector('.status-text');
-            statusCell.dataset.status = 'validée';
-            statusText.textContent = 'Validée';
-            statusText.style.color = 'green';
-          } else {
-            alert("Erreur lors de la validation du document.");
-          }
-        });
-      });
-    });
-
-    // ❌ Refus d'un seul document
-    refuseButtons.forEach(button => {
-      button.addEventListener('click', function () {
-        const row = this.closest('tr');
-        const documentId = this.dataset.id;
-        const commentInput = row.querySelector('.comment-input');
-        const comment = commentInput ? commentInput.value : '';
-
-        fetch('/stalhub/secretary/update-document-status', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            document_id: documentId,
-            status: 'rejected',
-            comment: comment
-          })
-        })
-        .then(res => res.json())
-        .then(data => {
-          if (data.success) {
-            const statusCell = row.querySelector('.doc-status');
-            const statusText = statusCell.querySelector('.status-text');
-            statusCell.dataset.status = 'refusée';
-            statusText.textContent = 'Refusée';
-            statusText.style.color = 'red';
-          } else {
-            alert("Erreur lors du refus du document.");
-          }
-        });
-      });
-    });
-
-    // ✅ Valider tous les documents (mise à jour UI + base de données)
-    if (validateAllBtn) {
-      validateAllBtn.addEventListener('click', function () {
-        const allRows = document.querySelectorAll('tbody tr');
-        const allDocumentIds = [];
-
-        allRows.forEach(row => {
-          const statusCell = row.querySelector('.doc-status');
-          const statusText = statusCell.querySelector('.status-text');
-          statusCell.dataset.status = 'validée';
-          statusText.textContent = 'Validée';
-          statusText.style.color = 'green';
-
-          const documentId = row.dataset.id;
-          allDocumentIds.push(documentId);
-        });
-
-        // ⚠️ Mise à jour de la base de données pour tous les documents
-        fetch('/stalhub/secretary/validate-all-documents', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            document_ids: allDocumentIds
-          })
-        })
-        .then(res => res.json())
-        .then(data => {
-          if (!data.success) {
-            alert("Une erreur est survenue lors de la validation en masse.");
-          }
-        });
-      });
-    }
-  });
-</script>

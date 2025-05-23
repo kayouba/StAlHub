@@ -113,21 +113,30 @@ class SecretaryModel  {
     }
 
     public function getDocumentsByRequestId(int $requestId): array {
-        $sql = "
-            SELECT 
-                id,
-                label, 
-                file_path, 
-                status, 
-                uploaded_at
-            FROM request_documents 
-            WHERE request_id = :request_id
-        ";
+    $sql = "
+        SELECT 
+            id,
+            label, 
+            file_path, 
+            status, 
+            comment,
+            uploaded_at
+        FROM request_documents 
+        WHERE request_id = :request_id
+        ORDER BY id ASC
+    ";
 
-        $stmt = $this->pdo->prepare($sql);
-        $stmt->execute(['request_id' => $requestId]);
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    $stmt = $this->pdo->prepare($sql);
+    $stmt->execute(['request_id' => $requestId]);
+    $documents = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    
+    // Log pour debug
+    foreach ($documents as $doc) {
+        error_log("Document ID {$doc['id']}: Comment = '{$doc['comment']}'");
     }
+    
+    return $documents;
+}
 
     // MÉTHODE CORRIGÉE : Mettre à jour le statut d'un document
     public function updateDocumentStatus(int $documentId, string $status, ?string $comment = null): bool {
@@ -288,16 +297,32 @@ class SecretaryModel  {
 
     public function saveDocumentComment(int $documentId, string $comment): bool {
     try {
-        $stmt = $this->pdo->prepare("
-            UPDATE request_documents 
-            SET comment = :comment 
-            WHERE id = :document_id
-        ");
+        // Vérifier d'abord si le document existe
+        $checkSql = "SELECT id FROM request_documents WHERE id = :document_id";
+        $checkStmt = $this->pdo->prepare($checkSql);
+        $checkStmt->execute(['document_id' => $documentId]);
         
-        $stmt->bindParam(':comment', $comment, \PDO::PARAM_STR);
-        $stmt->bindParam(':document_id', $documentId, \PDO::PARAM_INT);
+        if ($checkStmt->rowCount() === 0) {
+            error_log("Document avec ID $documentId non trouvé");
+            return false;
+        }
+
+        // Mettre à jour le commentaire
+        $updateSql = "UPDATE request_documents SET comment = :comment WHERE id = :document_id";
+        $stmt = $this->pdo->prepare($updateSql);
         
-        return $stmt->execute();
+        $result = $stmt->execute([
+            'comment' => $comment,
+            'document_id' => $documentId
+        ]);
+        
+        if ($result) {
+            error_log("Commentaire sauvegardé avec succès pour le document ID: $documentId");
+        } else {
+            error_log("Échec de sauvegarde du commentaire pour le document ID: $documentId");
+        }
+        
+        return $result;
         
     } catch (\PDOException $e) {
         error_log("Erreur SQL dans saveDocumentComment: " . $e->getMessage());
