@@ -29,6 +29,11 @@ public function index(): void
         exit;
     }
 
+    if ($role === 'academic_secretary') {
+        header('Location: /stalhub/secretary/dashboard');
+        exit;
+    }
+
     if ($role === 'professional_responsible') {
         header('Location: /stalhub/responsable/requestList');
         exit;
