@@ -113,6 +113,8 @@ http://localhost:8888/login
 ```
 
 ---
+Générer clé de chiffrement : php -r "echo base64_encode(random_bytes(32));"
+
 
 ## 🔐 Routes principales
 
