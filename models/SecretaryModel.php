@@ -250,50 +250,48 @@ class SecretaryModel  {
     }
 
     // MÉTHODE CORRIGÉE : Calculer l'état à partir des documents
-    private function calculateEtatFromDocuments(array $documents): string {
-        if (empty($documents)) {
-            return 'attente';
-        }
-
-        $allValidees = true;
-        $allRefusees = true;
-        $hasValidated = false;
-        $hasRejected = false;
-
-        foreach ($documents as $doc) {
-            $status = strtolower(trim($doc['status']));
-            
-            // Log pour debug
-            error_log("Document ID {$doc['id']} - Status: '$status'");
-
-            // Vérifier les différentes variantes de statuts validés
-            if (in_array($status, ['validée', 'validee', 'validated', 'valide', 'valid'])) {
-                $hasValidated = true;
-                $allRefusees = false;
-            } 
-            // Vérifier les différentes variantes de statuts refusés
-            elseif (in_array($status, ['refusée', 'refusee', 'rejected', 'refuse', 'refus'])) {
-                $hasRejected = true;
-                $allValidees = false;
-            } 
-            // Si ce n'est ni validé ni refusé, alors tout n'est pas validé/refusé
-            else {
-                $allValidees = false;
-                $allRefusees = false;
-            }
-        }
-
-        // Log pour debug
-        error_log("Résumé - Tous validés: " . ($allValidees ? 'oui' : 'non') . 
-                 ", Tous refusés: " . ($allRefusees ? 'oui' : 'non') . 
-                 ", A des validés: " . ($hasValidated ? 'oui' : 'non') . 
-                 ", A des refusés: " . ($hasRejected ? 'oui' : 'non'));
-
-        if ($allValidees && $hasValidated) return 'validee';
-        if ($allRefusees && $hasRejected) return 'refusee';
-
+   private function calculateEtatFromDocuments(array $documents): string {
+    if (empty($documents)) {
         return 'attente';
     }
+
+    $validatedCount = 0;
+    $rejectedCount = 0;
+    $totalCount = count($documents);
+
+    foreach ($documents as $doc) {
+        $status = strtolower(trim($doc['status']));
+        
+        // Log pour debug
+        error_log("Document ID {$doc['id']} - Status: '$status'");
+
+        // Vérifier les différentes variantes de statuts validés
+        if (in_array($status, ['validée', 'validee', 'validated', 'valide', 'valid'])) {
+            $validatedCount++;
+        } 
+        // Vérifier les différentes variantes de statuts refusés
+        elseif (in_array($status, ['refusée', 'refusee', 'rejected', 'refuse', 'refus'])) {
+            $rejectedCount++;
+        }
+    }
+
+    // Log pour debug
+    error_log("Résumé - Total: $totalCount, Validés: $validatedCount, Refusés: $rejectedCount");
+
+    // NOUVELLE LOGIQUE :
+    // Si au moins UN document est refusé -> état "refusé"
+    if ($rejectedCount > 0) {
+        return 'refusee';
+    }
+    
+    // Si TOUS les documents sont validés -> état "validé"
+    if ($validatedCount === $totalCount) {
+        return 'validee';
+    }
+
+    // Sinon -> état "attente"
+    return 'attente';
+}
 
     public function saveDocumentComment(int $documentId, string $comment): bool {
     try {

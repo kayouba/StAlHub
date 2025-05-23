@@ -1,10 +1,10 @@
-<?php
+<?php 
 function statusToCssClass($status) {
   $status = strtolower($status);
   return match ($status) {
     'valide', 'validé', 'complete', 'valid_secretaire' => 'complete',
-    'soumise', 'transmise' => 'transmise',
-    'refusee', 'incomplete', 'refusee_secretaire' => 'incomplete',
+    'soumise', 'transmise', 'en_attente_secretaire' => 'transmise',
+    'refusee', 'refusé', 'incomplete', 'refusee_secretaire' => 'incomplete',
     'attente' => 'transmise',
     default => 'transmise'
   };
@@ -14,8 +14,40 @@ function formatStatus($status) {
   return match ($status) {
     'REFUSEE_SECRETAIRE' => 'refusé',
     'VALID_SECRETAIRE' => 'validé',
+    'EN_ATTENTE_SECRETAIRE' => 'en attente',
+    'SOUMISE' => 'soumise',
     default => strtolower($status)
   };
+}
+
+function getDisplayStatus($demande) {
+  // Si on a un état calculé depuis les documents, on l'utilise
+  if (isset($demande['etat'])) {
+    return match ($demande['etat']) {
+      'validee' => 'validé',
+      'refusee' => 'refusé',
+      'attente' => 'en attente',
+      default => 'en attente'
+    };
+  }
+  
+  // Sinon on utilise le statut de la demande
+  return formatStatus($demande['status'] ?? '');
+}
+
+function getDisplayStatusClass($demande) {
+  // Si on a un état calculé depuis les documents, on l'utilise
+  if (isset($demande['etat'])) {
+    return match ($demande['etat']) {
+      'validee' => 'complete',
+      'refusee' => 'incomplete',
+      'attente' => 'transmise',
+      default => 'transmise'
+    };
+  }
+  
+  // Sinon on utilise le statut de la demande
+  return statusToCssClass($demande['status'] ?? '');
 }
 ?>
 
@@ -34,9 +66,9 @@ function formatStatus($status) {
 <main>
   <h1>Bienvenue, <?= htmlspecialchars($user['first_name']) . ' ' . htmlspecialchars($user['last_name']) ?></h1>
   <p class="bienvenue">Vous êtes connecté en tant que secrétaire.</p>
-
+  
   <h1>Demandes de Stage</h1>
-
+  
   <div class="filters">
     <select id="filter-formation">
       <option value="">Toutes les formations</option>
@@ -44,18 +76,18 @@ function formatStatus($status) {
       <option value="master 1">Master 1</option>
       <option value="master 2">Master 2</option>
     </select>
-
-
+    
     <select id="filter-etat">
       <option value="">Tous les états</option>
       <option value="validé">Validée</option>
       <option value="refusé">Refusée</option>
-      <option value="soumise">Soumise / Attente</option>
+      <option value="en attente">En attente</option>
+      <option value="soumise">Soumise</option>
     </select>
-
+    
     <input type="text" id="search" placeholder="Rechercher" />
   </div>
-
+  
   <table>
     <thead>
       <tr>
@@ -72,8 +104,8 @@ function formatStatus($status) {
     <tbody id="table-body">
       <?php foreach ($demandes as $demande): ?>
         <?php
-          $statusLabel = formatStatus($demande['status'] ?? '');
-          $statusClass = statusToCssClass($demande['status'] ?? '');
+          $statusLabel = getDisplayStatus($demande);
+          $statusClass = getDisplayStatusClass($demande);
         ?>
         <tr>
           <td><?= htmlspecialchars($demande['etudiant']) ?></td>
@@ -89,8 +121,6 @@ function formatStatus($status) {
     </tbody>
   </table>
 </main>
-
-
 
 </body>
 </html>
