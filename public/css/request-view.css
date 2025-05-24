@@ -1,61 +1,40 @@
 body {
-    font-family: Arial, sans-serif;
-    background-color: #f6f8fa;
+    font-family: 'Inter', sans-serif;
+    background-color: #f0f2f5;
     margin: 0;
     padding: 0;
 }
 
 .request-container {
     max-width: 900px;
-    margin: 30px auto;
-    padding: 30px;
-    background-color: white;
+    margin: 50px auto;
+    padding: 40px;
+    background: #fff;
     border-radius: 12px;
-    box-shadow: 0 0 10px rgba(0,0,0,0.05);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
 }
 
 h1 {
-    font-size: 28px;
-    margin-bottom: 20px;
-    color: #003366;
+    font-size: 32px;
+    margin-bottom: 30px;
+    color: #1a1a1a;
+    text-align: center;
 }
 
 h2 {
-    margin-top: 30px;
-    font-size: 20px;
-    color: #2c3e50;
-    border-bottom: 1px solid #ddd;
-    padding-bottom: 5px;
+    margin-top: 40px;
+    margin-bottom: 20px;
+    font-size: 22px;
+    color: #2d3748;
+    border-left: 4px solid #3498db;
+    padding-left: 10px;
 }
 
-p {
-    margin: 6px 0;
-    color: #333;
-}
-
-.steps {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 25px;
-}
-
-.step {
-    width: 30px;
-    height: 30px;
-    border-radius: 50%;
-    background-color: #ccc;
-    color: white;
-    text-align: center;
-    line-height: 30px;
-    font-weight: bold;
-}
-
-.step.active {
-    background-color: #3498db;
-}
-
-.step.completed {
-    background-color: #2ecc71;
+p, li {
+    font-size: 16px;
+    color: #444;
+    line-height: 1.6;
+    margin: 8px 0;
 }
 
 ul {
@@ -64,22 +43,133 @@ ul {
 }
 
 ul li {
-    margin-bottom: 10px;
+    margin-bottom: 12px;
 }
 
 .form-actions {
-    margin-top: 30px;
+    margin-top: 40px;
+    text-align: center;
 }
 
 .button {
-    background-color: #3498db;
+    background: linear-gradient(to right, #3498db, #2980b9);
     color: white;
     text-decoration: none;
-    padding: 10px 20px;
-    border-radius: 6px;
-    transition: background-color 0.2s ease;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-weight: 600;
+    transition: background 0.3s ease;
+}
+.button:hover {
+    background: linear-gradient(to right, #2c3e50, #3498db);
 }
 
-.button:hover {
-    background-color: #2980b9;
+/* Badge statut */
+.badge {
+    display: inline-block;
+    padding: 6px 14px;
+    border-radius: 50px;
+    font-size: 14px;
+    font-weight: 600;
+    text-transform: uppercase;
+    color: white;
+}
+.badge-blue { background-color: #3498db; }
+.badge-green { background-color: #27ae60; }
+.badge-red { background-color: #e74c3c; }
+.badge-grey { background-color: #7f8c8d; }
+
+/* Timeline moderne */
+.timeline {
+    position: relative;
+    margin: 30px 0;
+    padding-left: 30px;
+    border-left: 2px solid #dce1e7;
+}
+
+.timeline li {
+    position: relative;
+    margin-bottom: 25px;
+    padding-left: 20px;
+}
+
+.timeline li::before {
+    content: "";
+    position: absolute;
+    top: 6px;
+    left: -10px;
+    width: 14px;
+    height: 14px;
+    background-color: #3498db;
+    border-radius: 50%;
+    border: 3px solid white;
+    box-shadow: 0 0 0 2px #3498db;
+}
+
+.timeline li strong {
+    font-weight: 600;
+    color: #2d3748;
+}
+
+.timeline li em {
+    color: #6c757d;
+    font-style: italic;
+    font-size: 14px;
+}
+
+@media screen and (max-width: 768px) {
+    .request-container {
+        padding: 20px;
+        margin: 20px;
+    }
+
+    h1 {
+        font-size: 24px;
+        text-align: left;
+    }
+
+    h2 {
+        font-size: 18px;
+        padding-left: 8px;
+    }
+
+    p, li {
+        font-size: 15px;
+    }
+
+    .button {
+        display: block;
+        width: 100%;
+        text-align: center;
+        padding: 12px;
+        margin-top: 15px;
+        font-size: 16px;
+    }
+
+    .timeline {
+        padding-left: 20px;
+        margin-left: 0;
+        border-left: 2px solid #dce1e7;
+    }
+
+    .timeline li::before {
+        left: -11px;
+    }
+
+    .badge {
+        font-size: 12px;
+        padding: 4px 10px;
+    }
+
+    section {
+        margin-bottom: 30px;
+    }
+
+    ul {
+        padding-left: 0;
+    }
+
+    .form-actions {
+        margin-top: 20px;
+    }
 }

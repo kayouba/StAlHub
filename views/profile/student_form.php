@@ -2,181 +2,195 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
-  <title>Compléter le Profil</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <title>Mon Profil</title>
   <style>
     body {
       margin: 0;
-      font-family: Arial, sans-serif;
-      background-color: #f4f4f4;
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #f2f4f8;
     }
 
     .container {
       max-width: 800px;
-      margin: 40px auto;
-      background: white;
-      padding: 30px 40px;
-      border-radius: 10px;
-      box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+      margin: 50px auto;
+      background: #fff;
+      padding: 35px 40px;
+      border-radius: 12px;
+      box-shadow: 0 0 20px rgba(0,0,0,0.05);
     }
 
     h2 {
       text-align: center;
+      font-size: 26px;
       margin-bottom: 30px;
-      color: #003366;
+      color: #2c3e50;
     }
 
-    label {
+    .alert {
+      padding: 15px;
+      margin-bottom: 25px;
+      border-radius: 6px;
+      font-size: 15px;
+    }
+
+    .alert-danger {
+      background: #fbe4e6;
+      color: #a00;
+    }
+
+    .alert-success {
+      background: #e5f7ea;
+      color: #2b7a41;
+    }
+
+    form label {
       display: block;
-      margin-top: 15px;
-      font-weight: bold;
+      margin: 20px 0 5px;
+      font-weight: 600;
     }
 
     input, select {
       width: 100%;
       padding: 10px;
-      margin-top: 5px;
       border: 1px solid #ccc;
-      border-radius: 4px;
+      border-radius: 6px;
+      font-size: 15px;
     }
 
-    .row {
-      display: flex;
-      gap: 20px;
+    .section {
+      margin-bottom: 35px;
     }
 
-    .row > div {
-      flex: 1;
+    .section-title {
+      font-size: 18px;
+      font-weight: bold;
+      color: #005093;
+      border-left: 4px solid #005093;
+      padding-left: 10px;
+      margin-bottom: 15px;
+    }
+
+    .section-note {
+      font-size: 14px;
+      color: #666;
+      margin-top: 10px;
+    }
+
+    small {
+      font-weight: normal;
+      font-size: 13px;
+      color: #777;
     }
 
     .btn {
-      display: inline-block;
-      margin-top: 30px;
-      padding: 10px 20px;
+      width: 100%;
+      padding: 13px;
       background-color: #007bff;
       color: white;
       border: none;
-      border-radius: 5px;
-      text-align: center;
+      font-size: 16px;
+      border-radius: 6px;
       cursor: pointer;
+      margin-top: 20px;
     }
 
     .btn:hover {
-      background-color: #0056b3;
-    }
-    
-    .alert {
-      padding: 10px 15px;
-      margin-bottom: 20px;
-      border-radius: 5px;
-      font-size: 14px;
-    }
-    
-    .alert-danger {
-      background-color: #f8d7da;
-      color: #721c24;
-      border: 1px solid #f5c6cb;
-    }
-    
-    .alert-success {
-      background-color: #d4edda;
-      color: #155724;
-      border: 1px solid #c3e6cb;
+      background-color: #005dc3;
     }
   </style>
 </head>
 <body>
-  <?php include __DIR__ . '/../components/sidebar.php'; ?>
-  <div class="container">
-    <h2>
-      <?php if (isset($user['role']) && $user['role'] === 'student'): ?>
-        <i class="fas fa-user-graduate"></i> Compléter le Profil Étudiant
-      <?php else: ?>
-        <i class="fas fa-user"></i> Compléter votre Profil
-      <?php endif; ?>
-    </h2>
-    
-    <?php if (isset($_SESSION['form_errors']) && !empty($_SESSION['form_errors'])): ?>
-      <div class="alert alert-danger">
-        <ul>
-          <?php foreach ($_SESSION['form_errors'] as $error): ?>
-            <li><?php echo htmlspecialchars($error); ?></li>
-          <?php endforeach; ?>
-        </ul>
-      </div>
-      <?php unset($_SESSION['form_errors']); ?>
-    <?php endif; ?>
-    
-    <?php if (isset($_SESSION['success_message'])): ?>
-      <div class="alert alert-success">
-        <?php echo htmlspecialchars($_SESSION['success_message']); ?>
-      </div>
-      <?php unset($_SESSION['success_message']); ?>
-    <?php endif; ?>
 
-    <form action="/stalhub/profile/submit" method="POST" enctype="multipart/form-data">
-      <div class="row">
-        <div>
-          <label for="nom">Nom *</label>
-          <input type="text" id="nom" name="nom" value="<?php echo isset($user['last_name']) ? htmlspecialchars($user['last_name']) : ''; ?>" required>
-        </div>
-        <div>
-          <label for="prenom">Prénom *</label>
-          <input type="text" id="prenom" name="prenom" value="<?php echo isset($user['first_name']) ? htmlspecialchars($user['first_name']) : ''; ?>" required>
-        </div>
-      </div>
+<?php include __DIR__ . '/../components/sidebar.php'; ?>
+
+<div class="container">
+  <h2><i class="fas fa-user"></i> Mon Profil</h2>
+
+  <?php if (!empty($_SESSION['form_errors'])): ?>
+    <div class="alert alert-danger">
+      <ul>
+        <?php foreach ($_SESSION['form_errors'] as $error): ?>
+          <li><?= htmlspecialchars($error) ?></li>
+        <?php endforeach; ?>
+      </ul>
+    </div>
+    <?php unset($_SESSION['form_errors']); ?>
+  <?php endif; ?>
+
+  <?php if (!empty($_SESSION['success_message'])): ?>
+    <div class="alert alert-success">
+      <?= htmlspecialchars($_SESSION['success_message']) ?>
+    </div>
+    <?php unset($_SESSION['success_message']); ?>
+  <?php endif; ?>
+
+  <form action="/stalhub/profile/submit" method="POST" enctype="multipart/form-data">
+    <!-- Infos Perso -->
+    <div class="section">
+      <div class="section-title">Informations personnelles</div>
+
+      <label for="nom">Nom *</label>
+      <input type="text" name="nom" id="nom" value="<?= htmlspecialchars($user['last_name'] ?? '') ?>" required>
+
+      <label for="prenom">Prénom *</label>
+      <input type="text" name="prenom" id="prenom" value="<?= htmlspecialchars($user['first_name'] ?? '') ?>" required>
 
       <label for="email">Adresse email *</label>
-      <input type="email" id="email" name="email" value="<?php echo isset($user['email']) ? htmlspecialchars($user['email']) : ''; ?>" required>
+      <input type="email" name="email" id="email" value="<?= htmlspecialchars($user['email'] ?? '') ?>" required>
 
-      <?php if (isset($user['role']) && $user['role'] === 'student'): ?>
+      <?php if ($user['role'] === 'student'): ?>
         <label for="num-etudiant">Numéro étudiant</label>
-        <input type="text" id="num-etudiant" name="num-etudiant" value="<?php echo isset($user['student_number']) ? htmlspecialchars($user['student_number']) : ''; ?>">
+        <input type="text" name="num-etudiant" id="num-etudiant" value="<?= htmlspecialchars($user['student_number'] ?? '') ?>">
 
-        <div class="row">
-          <div>
-            <label for="program">Formation</label>
-            <select id="program" name="program">
-              <option value="NULL">-- Sélectionner --</option>
-              <option value="L3" <?php echo (isset($user['program']) && $user['program'] === 'L3') ? 'selected' : ''; ?>>Licence 3</option>
-              <option value="M1" <?php echo (isset($user['program']) && $user['program'] === 'M1') ? 'selected' : ''; ?>>Master 1</option>
-              <option value="M2" <?php echo (isset($user['program']) && $user['program'] === 'M2') ? 'selected' : ''; ?>>Master 2</option>
-            </select>
-          </div>
-          <div>
-            <label for="track">Parcours</label>
-            <select id="track" name="track">
-              <option value="NULL">-- Sélectionner --</option>
-              <option value="MIAGE" selected>MIAGE</option>
-            </select>
-          </div>
-        </div>
+        <label for="program">Formation</label>
+        <select name="program" id="program">
+          <option value="">-- Sélectionner --</option>
+          <option value="L3" <?= ($user['program'] ?? '') === 'L3' ? 'selected' : '' ?>>Licence 3</option>
+          <option value="M1" <?= ($user['program'] ?? '') === 'M1' ? 'selected' : '' ?>>Master 1</option>
+          <option value="M2" <?= ($user['program'] ?? '') === 'M2' ? 'selected' : '' ?>>Master 2</option>
+        </select>
 
-        <label for="level">Année d'études</label>
-        <?php
-          // Détermine l'année scolaire en cours (août à juillet)
-          $month = (int)date('m');
-          $year = (int)date('Y');
-          if ($month < 8) { // Si nous sommes entre janvier et juillet, l'année scolaire a commencé l'année précédente
-              $startYear = $year - 1;
-          } else { // Si nous sommes entre août et décembre, l'année scolaire commence cette année
-              $startYear = $year;
-          }
-          $endYear = $startYear + 1;
-          $currentSchoolYear = $startYear . '-' . $endYear;
-        ?>
-        <input type="text" id="level" name="level" value="<?php echo $currentSchoolYear; ?>" readonly>
+        <label for="track">Parcours</label>
+        <select name="track" id="track">
+          <option value="">-- Sélectionner --</option>
+          <option value="MIAGE" <?= ($user['track'] ?? '') === 'MIAGE' ? 'selected' : '' ?>>MIAGE</option>
+        </select>
 
-        <label for="cv">Téléverser votre CV <span style="font-weight: normal; font-size: 12px;">(PDF uniquement, optionnel)</span></label>
-        <input type="file" id="cv" name="cv" accept=".pdf">
-        <?php if (isset($user['cv_filename']) && !empty($user['cv_filename'])): ?>
-          <p><small>CV actuel: <?php echo htmlspecialchars($user['cv_filename']); ?></small></p>
-        <?php endif; ?>
+        <label>Année d'études</label>
+        <input type="text" name="level" value="<?= date('Y') . '-' . (date('Y') + 1) ?>" readonly>
+      <?php endif; ?>
+    </div>
+
+    <!-- Documents -->
+    <div class="section">
+      <div class="section-title">Documents (facultatifs)</div>
+
+      <label for="cv">CV <small>Format PDF</small></label>
+      <input type="file" name="cv" id="cv" accept=".pdf">
+      <?php if (!empty($user['cv_filename'])): ?>
+        <small>CV actuel : <?= htmlspecialchars($user['cv_filename']) ?></small><br>
+        <a href="/stalhub/document/view?file=<?= urlencode('/uploads/users/' . $user['id'] . '/' . $user['cv_filename']) ?>" target="_blank">
+              📄 Voir le CV
+        </a>
+
       <?php endif; ?>
 
-      <button type="submit" class="btn">Enregistrer</button>
-    </form>
-  </div>
+      <label for="assurance" style="margin-top: 15px;">Attestation d'assurance <small>Format PDF</small></label>
+      <input type="file" name="assurance" id="assurance" accept=".pdf">
+      <?php if (!empty($user['insurance_filename'])): ?>
+        <small>Assurance actuelle : <?= htmlspecialchars($user['insurance_filename']) ?></small><br>
+        <a href="/stalhub/document/view?file=<?= urlencode('/uploads/users/' . $user['id'] . '/' . $user['insurance_filename']) ?>" target="_blank">
+          📄 Voir l'assurance
+        </a>
+      <?php endif; ?>
+
+      <p class="section-note">Ces documents peuvent être ajoutés ou modifiés à tout moment.</p>
+    </div>
+
+
+    <button type="submit" class="btn">Enregistrer les modifications</button>
+  </form>
+</div>
 
 </body>
 </html>

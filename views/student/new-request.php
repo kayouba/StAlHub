@@ -54,13 +54,29 @@
             <option value="Master2" <?= ($user['formation'] ?? '') === 'Master2' ? 'selected' : '' ?>>Master 2</option>
         </select>
 
-        <label>Téléphone</label>
-        <input type="tel" name="phone"
-               value="<?= htmlspecialchars($user['phone_number'] ?? '') ?>"
-               pattern="^0[1-9]\d{8}$"
-               placeholder="Ex: 0612345678" required
-               oninvalid="this.setCustomValidity('Veuillez entrer un numéro de téléphone valide (ex: 0612345678)')"
-               oninput="this.setCustomValidity('')">
+        <div style="display: flex; gap: 10px; align-items: flex-start; flex-wrap: wrap;">
+            <div style="flex: 0 0 100px; min-width: 100px; margin-right:12px;">
+                <label for="country_code">Code pays</label>
+                <input type="text" name="country_code" id="country_code"
+                    value="<?= htmlspecialchars($user['country_code'] ?? '+33') ?>"
+                    placeholder="+33"
+                    required
+                    oninvalid="this.setCustomValidity('Veuillez entrer un indicatif pays (ex: +33)')"
+                    oninput="this.setCustomValidity('')">
+            </div>
+
+            <div style="flex: 1;">
+                <label for="phone">Téléphone</label>
+                <input type="tel" name="phone" id="phone"
+                    value="<?= htmlspecialchars($user['phone'] ?? '') ?>"
+                    placeholder="Ex: 612345678"
+                    pattern="^[1-9]\d{7,13}$"
+                    required
+                    oninvalid="this.setCustomValidity('Veuillez entrer un numéro sans indicatif (ex: 612345678)')"
+                    oninput="this.setCustomValidity('')">
+            </div>
+        </div>
+
 
         <div class="form-actions">
             <button type="button" onclick="history.back()">← Retour</button>

@@ -5,6 +5,8 @@ use App\View;
 use App\BaseController;
 use App\Model\UserModel;
 use App\Model\RequestModel;
+use App\Lib\StatusTranslator;
+
 
 class DashboardController extends BaseController
 {
@@ -57,6 +59,12 @@ public function index(): void
 
     $requestModel = new RequestModel();
     $requests = $requestModel->findByStudentId($userId);
+
+    // Ajout de la traduction des statuts
+    foreach ($requests as &$r) {
+        $r['translated_status'] = StatusTranslator::translate($r['status'] ?? '');
+    }
+    unset($r);
 
     View::render('dashboard/student', [
         'user' => $user,

@@ -332,11 +332,13 @@ class StudentController
             exit;
         }
 
-        $requestModel = new RequestModel();
-        $documentModel = new RequestDocumentModel();
+        $requestModel = new \App\Model\RequestModel();
+        $documentModel = new \App\Model\RequestDocumentModel();
+        $statusModel = new \App\Model\StatusHistoryModel();
 
         $request = $requestModel->findByIdForUser($requestId, $userId);
         $documents = $documentModel->getDocumentsForRequest($requestId);
+        $statusHistory = $statusModel->getHistoryForRequest($requestId);
 
         if (!$request) {
             $_SESSION['error'] = "Demande introuvable.";
@@ -344,10 +346,12 @@ class StudentController
             exit;
         }
 
-        View::render('student/view-request', [
+        \App\View::render('student/view-request', [
             'request' => $request,
-            'documents' => $documents
+            'documents' => $documents,
+            'statusHistory' => $statusHistory
         ]);
     }
+
 
 }
