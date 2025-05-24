@@ -84,6 +84,8 @@ class AdminController
 
         $userId = $_POST['user_id'] ?? null;
         $role   = $_POST['role'] ?? null;
+        $is_admin = isset($_POST['is_admin']) && $_POST['is_admin'] === 'on' ? 1 : 0;
+
 
         if (!$userId || !$role) {
             echo json_encode(['status' => 'error', 'message' => 'Paramètres invalides']);
@@ -91,7 +93,7 @@ class AdminController
         }
 
         $userModel = new UserModel();
-        $success = $userModel->updateRole((int)$userId, $role);
+        $success = $userModel->updateRole((int)$userId, $role, $is_admin);
 
         if ($success) {
             echo json_encode(['status' => 'success']);

@@ -81,8 +81,8 @@ function openModal(user) {
 
     document.getElementById('user_id').value = user.id;
     document.getElementById('role').value = user.role;
+    document.getElementById('is_admin').value = user.is_admin;
 }
-
 
 function closeModal() {
     document.getElementById('userModal').style.display = 'none';
@@ -143,7 +143,6 @@ function closeRequestModal() {
     document.getElementById('requestModal').style.display = 'none';
 }
 
-
 function openCompanyModal(company) {
     const info = `
         <p><strong>Nom :</strong> ${company.name}</p>
@@ -186,6 +185,57 @@ function openCompanyModal(company) {
 
 function closeCompanyModal() {
     document.getElementById('companyModal').style.display = 'none';
+}
+
+function searchUsers() {
+    const input = document.getElementById("searchInput").value.toLowerCase();
+    const rows = document.querySelectorAll("#userTable tr");
+
+    rows.forEach(row => {
+        const name = row.cells[0].textContent.toLowerCase();
+        const email = row.cells[1].textContent.toLowerCase();
+
+        if (name.includes(input) || email.includes(input)) {
+            row.style.display = "";
+        } else {
+            row.style.display = "none";
+        }
+    });
+}
+
+function filterRequests() {
+    const status = document.getElementById('statusFilter').value.toLowerCase();
+    const tutor = document.getElementById('tutorFilter').value;
+    const type = document.getElementById('typeFilter').value.toLowerCase();
+    const search = document.getElementById('searchInput').value.toLowerCase();
+
+    const rows = document.querySelectorAll('#requestsTable tr');
+    let anyVisible = false;
+
+    rows.forEach(row => {
+        const rowStatus = row.getAttribute('data-status')?.toLowerCase() || '';
+        const rowTutor = row.getAttribute('data-tutor') || '';
+        const rowType = row.getAttribute('data-type')?.toLowerCase() || '';
+        const student = row.querySelector('[data-label="Étudiant"]')?.textContent.toLowerCase() || '';
+        const company = row.querySelector('[data-label="Entreprise"]')?.textContent.toLowerCase() || '';
+
+        const matchStatus = status === 'all' || rowStatus === status;
+        const matchTutor = tutor === 'all' || rowTutor === tutor;
+        const matchType = type === 'all' || rowType === type;
+        const matchSearch = student.includes(search) || company.includes(search);
+
+        if (matchStatus && matchTutor && matchType && matchSearch) {
+            row.style.display = '';
+            anyVisible = true;
+        } else {
+            row.style.display = 'none';
+        }
+    });
+
+    const emptyRow = document.querySelector('#requestsTable .empty-message');
+    if (emptyRow) {
+        emptyRow.style.display = anyVisible ? 'none' : '';
+    }
 }
 
 </script>

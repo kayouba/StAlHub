@@ -1,4 +1,41 @@
-<!-- Table des demandes -->
+<link rel="stylesheet" href="/stalhub/public/css/modal-request-admin.css">
+<div class="filter-bar">
+    <div class="filter-group">
+        <label for="statusFilter">📌 Statut</label>
+        <select id="statusFilter" onchange="filterRequests()">
+            <option value="all">Tous</option>
+            <option value="SOUMISE">Soumise</option>
+            <option value="VALIDEE">Validée</option>
+            <option value="REFUSEE">Refusée</option>
+            <!-- ajoute d'autres statuts si besoin -->
+        </select>
+    </div>
+
+    <div class="filter-group">
+        <label for="tutorFilter">👤 Tuteur</label>
+        <select id="tutorFilter" onchange="filterRequests()">
+            <option value="all">Tous</option>
+            <?php foreach ($tutors as $tutor): ?>
+                <option value="<?= htmlspecialchars($tutor['id']) ?>"><?= htmlspecialchars($tutor['name']) ?></option>
+            <?php endforeach; ?>
+        </select>
+    </div>
+
+    <div class="filter-group">
+        <label for="typeFilter">📂 Contrat</label>
+        <select id="typeFilter" onchange="filterRequests()">
+            <option value="all">Tous</option>
+            <option value="apprentissage">Apprentissage</option>
+            <option value="stage">Stage</option>
+        </select>
+    </div>
+
+    <div class="filter-group">
+        <label for="searchInput">🔍 Recherche</label>
+        <input type="text" id="searchInput" onkeyup="filterRequests()" placeholder="Nom étudiant ou entreprise...">
+    </div>
+</div>
+
 <table>
     <thead>
         <tr>
@@ -38,49 +75,6 @@
 
 <!-- Style simple et propre -->
 <style>
-.modal {
-    position: fixed;
-    inset: 0;
-    background: rgba(0, 0, 0, 0.4);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 999;
-}
-.modal-content {
-    background: #fff;
-    color: #333;
-    padding: 24px;
-    width: 500px;
-    border-radius: 10px;
-    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2);
-    position: relative;
-    animation: fadeIn 0.2s ease-out;
-}
-.modal-content span {
-    position: absolute;
-    top: 12px;
-    right: 16px;
-    font-size: 22px;
-    color: #888;
-    cursor: pointer;
-}
-.modal-content span:hover {
-    color: #000;
-}
-.modal-content h3 {
-    margin-top: 0;
-    margin-bottom: 16px;
-    color: #004A7C;
-}
-.modal-content p {
-    margin: 6px 0;
-    font-size: 14px;
-}
-@keyframes fadeIn {
-    from {opacity: 0; transform: scale(0.95);}
-    to {opacity: 1; transform: scale(1);}
-}
 </style>
 
 <!-- Script JS -->

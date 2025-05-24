@@ -62,13 +62,15 @@ class UserModel
     /**
      * Met à jour le rôle d'un utilisateur.
      */
-    public function updateRole(int $userId, string $role): bool
+    public function updateRole(int $userId, string $role, int $is_admin): bool
     {
-        $query = "UPDATE users SET role = :role WHERE id = :id";
+        $query = "UPDATE users SET role = :role, is_admin = :is_admin WHERE id = :id";
+
         $stmt = $this->pdo->prepare($query);
 
         $success = $stmt->execute([
             ':role' => $role,
+            ':is_admin' => $is_admin,
             ':id' => $userId
         ]);
 
