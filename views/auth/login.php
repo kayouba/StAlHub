@@ -84,7 +84,7 @@
 
         .register-link {
             display: block;
-            margin-top: 20px;
+            margin-top: 12px;
             font-size: 14px;
             color: #ffffff;
             text-decoration: none;
@@ -100,6 +100,18 @@
             color: #ff4b4b;
             font-size: 14px;
             margin-bottom: 16px;
+        }
+
+        .forgot-link {
+            display: block;
+            margin-top: 8px;
+            font-size: 13px;
+            color: #add8ff;
+            text-decoration: none;
+        }
+
+        .forgot-link:hover {
+            color: #ffffff;
         }
     </style>
 </head>
@@ -119,6 +131,7 @@
             <button type="submit">Se connecter</button>
         </form>
 
+        <a class="forgot-link" href="/stalhub/forgot-password">Mot de passe oublié ?</a>
         <a class="register-link" href="/stalhub/register">Pas encore de compte ? S'inscrire</a>
     </div>
 
