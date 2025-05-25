@@ -156,3 +156,40 @@
 .export-buttons button:hover {
     background-color: #005ec4;
 }
+
+
+/* === Responsive amélioration basique === */
+@media (max-width: 768px) {
+    .stats {
+        flex-direction: column;
+    }
+
+    table, thead, tbody, th, td, tr {
+        display: block;
+    }
+
+    thead {
+        display: none;
+    }
+
+    td {
+        position: relative;
+        padding-left: 50%;
+        text-align: left;
+    }
+
+    td::before {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 45%;
+        padding-left: 0.75rem;
+        font-weight: bold;
+        white-space: nowrap;
+    }
+
+    tr td:nth-child(1)::before { content: "Nom"; }
+    tr td:nth-child(2)::before { content: "SIRET"; }
+    tr td:nth-child(3)::before { content: "Ville"; }
+    tr td:nth-child(4)::before { content: "Actions"; }
+}
