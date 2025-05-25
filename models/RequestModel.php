@@ -178,8 +178,10 @@ public function createRequest(array $step3, int $userId, int $companyId, array $
         $stmt = $this->pdo->query("
             SELECT 
                 r.id,
+                r.*,
                 CONCAT(u.last_name, ' ', u.first_name) AS student_name,
                 c.name AS company_name,
+                r.tutor_id,
                 r.contract_type,
                 r.referent_email,
                 r.mission,
@@ -195,6 +197,43 @@ public function createRequest(array $step3, int $userId, int $companyId, array $
         ");
 
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+    
+public function getAllWithTutors(): array
+{
+    $stmt = $this->pdo->prepare("
+        SELECT 
+            r.*, 
+            tut.id AS tutor_id,
+            tut.first_name AS tutor_first_name, 
+            tut.last_name AS tutor_last_name,
+            stu.first_name AS student_first_name,
+            stu.last_name AS student_last_name,
+            c.name AS company_name
+        FROM requests r
+        LEFT JOIN users tut ON r.tutor_id = tut.id
+        LEFT JOIN users stu ON r.student_id = stu.id
+        LEFT JOIN companies c ON r.company_id = c.id
+    ");
+    $stmt->execute();
+    $requests = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+
+    foreach ($requests as &$req) {
+        $req['tutor_name'] = trim(($req['tutor_first_name'] ?? '') . ' ' . ($req['tutor_last_name'] ?? ''));
+        $req['student_name'] = trim(($req['student_first_name'] ?? '') . ' ' . ($req['student_last_name'] ?? ''));
+        $req['company_name'] = $req['company_name'] ?? '—';
+    }
+
+    return $requests;
+}
+
+    public function updateTutor(int $requestId, int $tutorId): bool
+    {
+        $stmt = $this->pdo->prepare("UPDATE requests SET tutor_id = :tutor WHERE id = :id");
+        return $stmt->execute([
+            'tutor' => $tutorId,
+            'id' => $requestId
+        ]);
     }
 
     public function findRequestInfoById(int $requestId): ?array{

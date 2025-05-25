@@ -30,18 +30,19 @@ return [
     '/profile'                  => ['App\Controller\ProfileController', 'index'],
     '/profile/submit'           => ['App\Controller\ProfileController', 'submit'],
 
-    // Admin
-    '/admin/dashboard'          => ['App\Controller\AdminController', 'dashboard'],
-    '/admin/stats'              => ['App\Controller\AdminController', 'stats'],
-    '/admin/tab/users'          => ['App\Controller\AdminController', 'tabUsers'],
-    '/admin/tab/requests'       => ['App\Controller\AdminController', 'tabRequests'],
-    '/admin/tab/companies'      => ['App\Controller\AdminController', 'tabCompanies'],
-    '/admin/users/updateRole'   => ['App\Controller\AdminController', 'updateUserRole'],
-    '/admin/users/delete'       => ['App\Controller\AdminController', 'deleteUser'],
-    '/admin/users/suspend'      => ['App\Controller\AdminController', 'toggleActive'],
-    '/admin/requests/view'      => ['App\Controller\AdminController', 'viewRequest'],
-    '/admin/companies/delete'   => ['App\Controller\AdminController', 'deleteCompany'],
-    '/admin/companies/view'     => ['App\Controller\AdminController', 'viewCompany'],
+    //  Ajout du dashboard admin
+    '/admin/dashboard' => ['App\Controller\AdminController', 'dashboard'],
+    '/admin/stats' => ['App\Controller\AdminController', 'stats'],
+    '/admin/tab/users'      => ['App\Controller\AdminController', 'tabUsers'],
+    '/admin/tab/requests'   => ['App\Controller\AdminController', 'tabRequests'],
+    '/admin/tab/companies'  => ['App\Controller\AdminController', 'tabCompanies'],
+    '/admin/users/updateRole' => ['App\Controller\AdminController', 'updateUserRole'],
+    '/admin/users/delete' => ['App\Controller\AdminController', 'deleteUser'],
+    '/admin/users/suspend' => ['App\Controller\AdminController', 'toggleActive'],
+    '/admin/requests/view' => ['App\Controller\AdminController', 'viewRequest'],
+    '/admin/requests/updateTutor' => ['App\Controller\AdminController', 'updateTutor'],
+    '/admin/companies/delete' => ['App\Controller\AdminController', 'deleteCompany'],
+    '/admin/companies/view' => ['App\Controller\AdminController', 'viewCompany'],
     '/admin/companies/requests' => ['App\Controller\AdminController', 'getCompanyRequests'],
 
     // Responsable pédagogique

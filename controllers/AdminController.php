@@ -51,18 +51,24 @@ class AdminController
         ]);
     }
 
-    // Onglet Demandes
+        // Onglet Demandes
     public function tabRequests(): void
     {
         $this->requireAdmin();
 
         $requestModel = new RequestModel();
-        $requests = $requestModel->findAll();
+        $requests = $requestModel->getAllWithTutors(); // ✅ Corrigé ici
+
+        $userModel = new UserModel();
+        $tutors = $userModel->findByRole('tutor');
 
         View::render('admin/tabs/requests', [
-            'requests' => $requests
+            'requests' => $requests,
+            'tutors' => $tutors
         ]);
     }
+
+
 
     // Onglet Entreprises
     public function tabCompanies(): void
@@ -84,6 +90,8 @@ class AdminController
 
         $userId = $_POST['user_id'] ?? null;
         $role   = $_POST['role'] ?? null;
+        $is_admin = isset($_POST['is_admin']) && $_POST['is_admin'] === 'on' ? 1 : 0;
+
 
         if (!$userId || !$role) {
             echo json_encode(['status' => 'error', 'message' => 'Paramètres invalides']);
@@ -91,7 +99,7 @@ class AdminController
         }
 
         $userModel = new UserModel();
-        $success = $userModel->updateRole((int)$userId, $role);
+        $success = $userModel->updateRole((int)$userId, $role, $is_admin);
 
         if ($success) {
             echo json_encode(['status' => 'success']);
@@ -194,6 +202,7 @@ public function viewRequest(): void
     }
 
     $requestModel = new \App\Model\RequestModel();
+    
     $userModel = new \App\Model\UserModel();
     $companyModel = new \App\Model\CompanyModel();
 
@@ -245,5 +254,28 @@ public function stats(): void
         'validFinal' => $validFinal,
     ]);
 }
+
+public function updateTutor(): void {
+    
+    $this->requireAdmin();
+
+    $requestId = $_POST['request_id'] ?? null;
+    $tutorId   = $_POST['tutor_id'] ?? null;
+
+    if (!$requestId || !$tutorId) {
+        echo json_encode(['status' => 'error', 'message' => 'Champs manquants']);
+        return;
+    }
+
+    $model = new \App\Model\RequestModel();
+    $success = $model->updateTutor((int)$requestId, (int)$tutorId);
+
+    echo json_encode([
+        'status' => $success ? 'success' : 'error',
+        'message' => $success ? null : 'Échec de mise à jour.'
+    ]);
+}
+
+
 
 }

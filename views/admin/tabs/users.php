@@ -1,29 +1,46 @@
 <link rel="stylesheet" href="/stalhub/public/css/modal-users-admin.css">
-<div style="margin-bottom: 20px;">
-    <label for="roleFilter">Filtrer par rôle :</label>
-    <select id="roleFilter" onchange="filterUsers()" style="padding: 8px; border-radius: 6px;">
-        <option value="all">Tous</option>
-        <?php
-        $roleLabels = [
-            'student' => 'Étudiant',
-            'cfa' => 'CFA',
-            'director' => 'Direction',
-            'company' => 'Entreprise',
-            'reviewer' => 'Relecteur',
-            'professional_responsible' => 'Responsable pédagogique',
-            'academic_secretary' => 'Secrétariat',
-            'tutor' => 'Tuteur'
-        ];
-
-        $roles = array_unique(array_column($users, 'role'));
-        foreach ($roles as $role) {
-            $value = strtolower($role);
-            $label = $roleLabels[$value] ?? ucfirst($value);
-            echo "<option value=\"$value\">$label</option>";
-        }
-        ?>
-    </select>
+<div class="export-buttons">
+    <button onclick="exportUsers('csv')">⬇️ Exporter CSV</button>
+    <button onclick="exportUsers('excel')">📊 Exporter Excel</button>
+    <button onclick="exportUsers('print')">🖨️ Version Imprimable</button>
 </div>
+
+<div class="filter-bar">
+    <div class="filter-group">
+        <label for="roleFilter">🎯  Filtrer par rôle</label>
+        <select id="roleFilter" onchange="filterUsers()">
+            <option value="all">Tous</option>
+            <?php
+            $roleLabels = [
+                'student' => 'Étudiant',
+                'cfa' => 'CFA',
+                'director' => 'Direction',
+                'company' => 'Entreprise',
+                'reviewer' => 'Relecteur',
+                'professional_responsible' => 'Responsable pédagogique',
+                'academic_secretary' => 'Secrétariat',
+                'tutor' => 'Tuteur'
+            ];
+
+            $roles = array_unique(array_column($users, 'role'));
+            foreach ($roles as $role) {
+                $value = strtolower($role);
+                $label = $roleLabels[$value] ?? ucfirst($value);
+                echo "<option value=\"$value\">$label</option>";
+            }
+            ?>
+        </select>
+    </div>
+
+    <div class="filter-group">
+        <label for="searchInput">🔍  Rechercher</label>
+        <input type="text" id="searchInput" onkeyup="searchUsers()" placeholder="Nom, prénom ou email...">
+    </div>
+</div>
+
+
+
+
 
 <table>
     <thead>
@@ -36,9 +53,13 @@
     </thead>
     <tbody id="userTable">
         <?php foreach ($users as $user): ?>
-            <tr data-role="<?= strtolower(htmlspecialchars($user['role'])) ?>">
-                <td><?= htmlspecialchars($user['last_name'] . ' ' . $user['first_name']) ?></td>
-                <td><?= htmlspecialchars($user['email']) ?></td>
+            <tr 
+    data-role="<?= strtolower(htmlspecialchars($user['role'])) ?>"
+    data-user="<?= htmlspecialchars(json_encode($user), ENT_QUOTES, 'UTF-8') ?>"
+>
+
+                <td data-label="Nom complet"><?= htmlspecialchars($user['last_name'] . ' ' . $user['first_name']) ?></td>
+                <td data-label="Email"><?= htmlspecialchars($user['email']) ?></td>
                 <?php
                 $roleLabels = [
                     'student' => 'Étudiant',
@@ -53,25 +74,26 @@
                 $role = $user['role'] ?? 'unknown';
                 $label = $roleLabels[$role] ?? ucfirst($role);
                 ?>
-                <td><?= htmlspecialchars($label) ?></td>
-
-                <td>
+                <td data-label="Rôle"><?= htmlspecialchars($label) ?></td>
+                <td data-label="Actions">
                     <a href="javascript:void(0);" onclick='openModal(<?= json_encode($user, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>)'>Voir</a>
                     <?php if ($user['role'] === 'student'): ?>
                         <a href="/stalhub/admin/users/suspend?id=<?= $user['id'] ?>">
-                            <?= $user['is_active'] ? 'Suspendre' : 'Activer le compte' ?>
+                            <?= $user['is_active'] ? 'Suspendre' : 'Activer' ?>
                         </a>
                     <?php endif; ?>
-
                     <a href="/stalhub/admin/users/delete?id=<?= $user['id'] ?>" onclick="return confirm('Confirmer la suppression ?')">Supprimer</a>
                 </td>
             </tr>
         <?php endforeach; ?>
         <?php if (empty($users)): ?>
-            <tr><td colspan="4">Aucun utilisateur trouvé.</td></tr>
+            <tr>
+                <td colspan="4" style="text-align:center;">Aucun utilisateur trouvé.</td>
+            </tr>
         <?php endif; ?>
     </tbody>
 </table>
+
 
 <!-- MODAL HTML -->
 <div id="userModal" class="modal" style="display:none;">
@@ -93,6 +115,11 @@
                 <option value="academic_secretary">Secrétariat</option>
                 <option value="tutor">Tuteur</option>
             </select>
+
+            <label for="is_admin" style="display:block; margin-top:10px;">
+                <input type="checkbox" name="is_admin" id="is_admin" style="margin-right:5px;">
+                Administrateur
+            </label>
             <button type="submit" style="padding:10px 20px; background:#004A7C; color:white; border:none; border-radius:4px; cursor:pointer;">Mettre à jour</button>
         </form>
     </div>
@@ -130,5 +157,6 @@ function openModal(user) {
 function closeModal() {
     document.getElementById('userModal').style.display = 'none';
 }
+
 
 </script>
