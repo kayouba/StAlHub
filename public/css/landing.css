@@ -1,0 +1,154 @@
+body {
+  margin: 0;
+  font-family: 'Open Sans', sans-serif;
+  background: radial-gradient(circle at top left, #001F3F, #000d1a 80%);
+  color: white;
+  overflow-x: hidden;
+}
+
+.container {
+  min-height: 84vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: url("https://www.transparenttextures.com/patterns/cubes.png");
+  backdrop-filter: blur(5px);
+  padding: 40px 20px;
+  position: relative;
+}
+
+.glass-box {
+  background: rgba(0, 31, 63, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  padding: 60px 40px;
+  text-align: center;
+  box-shadow: 0 0 20px rgba(0, 204, 255, 0.4);
+  max-width: 600px;
+  width: 100%;
+  animation: fadeIn 1.5s ease;
+}
+
+.glass-box h1 {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 3em;
+  margin-bottom: 10px;
+  color: #00cfff;
+  letter-spacing: 1px;
+}
+
+.glass-box p {
+  font-size: 1.2em;
+  color: #ddd;
+  margin-bottom: 40px;
+}
+
+.buttons {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 30px;
+}
+
+.btn {
+  text-decoration: none;
+  padding: 15px 40px;
+  border-radius: 50px;
+  background: linear-gradient(135deg, #00cfff, #005dab);
+  color: white;
+  font-weight: bold;
+  font-size: 1.1em;
+  transition: all 0.3s ease;
+  box-shadow: 0 0 15px rgba(0, 204, 255, 0.5);
+  border: 2px solid rgba(255, 255, 255, 0.2);
+}
+
+.btn:hover {
+  transform: scale(1.08);
+  box-shadow: 0 0 25px rgba(0, 204, 255, 0.9);
+  background: linear-gradient(135deg, #00e6ff, #0074d9);
+}
+
+footer {
+  text-align: center;
+  padding: 20px;
+  color: #ccc;
+  font-size: 0.9em;
+  background: #000d1a;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* Optional animation */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.logo-ubx {
+  position: absolute;
+  top: 20px;
+  right: 30px;
+  z-index: 10;
+}
+
+.logo-ubx img {
+  height: 90px;
+  width: auto;
+}
+
+.logo-ubx img:hover {
+  transform: scale(1.05);
+}
+@media (max-width: 768px) {
+  .glass-box {
+    padding: 40px 20px;
+  }
+
+  .glass-box h1 {
+    font-size: 2.2em;
+  }
+
+  .glass-box p {
+    font-size: 1em;
+  }
+
+  .buttons {
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .btn {
+    padding: 14px 30px;
+    font-size: 1em;
+    width: 100%;
+    max-width: 300px;
+    margin: 0 auto;
+  }
+
+  .logo-ubx {
+    top: 10px;
+    right: 10px;
+  }
+
+  .logo-ubx img {
+    height: 60px;
+  }
+}
+
+@media (max-width: 480px) {
+  .glass-box h1 {
+    font-size: 1.8em;
+  }
+
+  .glass-box p {
+    font-size: 0.95em;
+  }
+
+  .btn {
+    font-size: 0.95em;
+    padding: 12px 24px;
+  }
+
+  footer {
+    font-size: 0.8em;
+  }
+}
