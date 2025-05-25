@@ -20,7 +20,7 @@
             <span>⏻</span>
             Déconnexion
         </a>
-        <?php if (isset($_SESSION['user']) && $_SESSION['user']['is_admin']): ?>
+        <?php if (isset($_SESSION['user']) && isset($_SESSION['user']['is_admin']) && $_SESSION['user']['is_admin'] === 1): ?>
         <a class="nav-link text-warning fw-bold" href="/stalhub/admin/dashboard">
             <span>⚙️</span>
             Administration

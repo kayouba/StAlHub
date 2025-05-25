@@ -13,7 +13,10 @@ class OTPController
 
     public function verify(): void
     {
-        session_start();
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+
 
         $userId = $_SESSION['user_id'] ?? null;
         $code = $_POST['code'] ?? '';

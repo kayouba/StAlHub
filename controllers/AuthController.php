@@ -19,7 +19,9 @@ class AuthController
 
     public function login(): void
     {
-        session_start();
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
 
         $email = $_POST['email'] ?? '';
         $password = $_POST['password'] ?? '';
