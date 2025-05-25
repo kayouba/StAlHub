@@ -1,3 +1,4 @@
+<?php use App\Lib\StatusTranslator; ?>
 <link rel="stylesheet" href="/stalhub/public/css/modal-request-admin.css">
 <div class="export-buttons">
     <button onclick="exportRequests('csv')">⬇️ Exporter CSV</button>
@@ -78,7 +79,7 @@
                 <td><?= $req['id'] ?></td>
                 <td data-label="Étudiant"><?= htmlspecialchars($req['student_name'] ?? '—') ?></td>
                 <td data-label="Entreprise"><?= htmlspecialchars($req['company_name'] ?? '—') ?></td>
-                <td><?= htmlspecialchars($req['status']) ?></td>
+                <td><?= htmlspecialchars(StatusTranslator::translate($req['status'])) ?></td>
                 <td><?= htmlspecialchars($req['tutor_name'] ?? '—') ?></td>
                 <td>
                     <a href="javascript:void(0);" onclick='openRequestModal(<?= json_encode($req, JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_TAG) ?>)'>Voir</a>

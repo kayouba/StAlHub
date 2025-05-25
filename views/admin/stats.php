@@ -112,7 +112,7 @@ $pAttente = percent($totalAttente, $totalDemandes);
     <table class="stats-table">
         <tr>
             <td><span class="tag green">✅ Validées</span></td>
-            <td>Demandes validées à un ou plusieurs niveaux</td>
+            <td>Demandes validées </td>
             <td class="align-right"><?= $pValide ?>%</td>
         </tr>
         <tr>
