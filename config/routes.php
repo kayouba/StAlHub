@@ -8,7 +8,7 @@ return [
     '/otp'            => ['App\Controller\OTPController', 'show'],
     '/otp/verify'     => ['App\Controller\OTPController', 'verify'],
     '/dashboard'      => ['App\Controller\DashboardController', 'index'],
-    '/logout'         => ['App\LogoutController', 'logout'],
+    '/logout' => ['App\Controller\LogoutController', 'index'],
     '/mentions-legales' => ['App\Controller\AuthController', 'mentionsLegales'],
 
     //Student

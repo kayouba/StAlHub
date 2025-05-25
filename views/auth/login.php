@@ -112,6 +112,12 @@
         <?php if (!empty($error)): ?>
             <div class="error"><?= htmlspecialchars($error) ?></div>
         <?php endif; ?>
+        <?php if (!empty($_GET['timeout'])): ?>
+            <div class="error" style="color: #ffd966;">
+                Vous avez été déconnecté après une période d'inactivité.
+            </div>
+        <?php endif; ?>
+
 
         <form method="POST" action="/stalhub/login/post">
             <input type="email" name="email" placeholder="Adresse e-mail" required>

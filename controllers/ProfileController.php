@@ -96,33 +96,47 @@ class ProfileController extends BaseController
             if (!file_exists($uploadDir)) {
                 mkdir($uploadDir, 0777, true);
             }
-
-            // CV (optionnel)
             if (!empty($_FILES['cv']['tmp_name'])) {
                 $cvPath = $uploadDir . 'cv.pdf.enc';
                 if (FileCrypto::encrypt($_FILES['cv']['tmp_name'], $cvPath)) {
-                    $data['cv_filename'] = 'cv.pdf.enc';
-                    
-                } else {
-                    
-                    $_SESSION['form_errors'] = ["Erreur lors du chiffrement du CV"];
-                    header('Location: /stalhub/profile');
-                    exit;
+                    $_SESSION['step4']['cv'] = $userPublicPath . '/cv.pdf.enc';
                 }
             }
 
-            // Assurance (optionnel)
+            // ➤ Assurance
             if (!empty($_FILES['assurance']['tmp_name'])) {
                 $assurancePath = $uploadDir . 'assurance.pdf.enc';
-                if (FileCrypto::encrypt($_FILES['assurance']['tmp_name'], $assurancePath)) {
-                    $data['insurance_filename'] = 'assurance.pdf.enc';
-
-                } else {
-                    $_SESSION['form_errors'] = ["Erreur lors du chiffrement de l'attestation d'assurance"];
-                    header('Location: /stalhub/profile');
-                    exit;
+                if (FileCrypto::encrypt($_FILES['insurance']['tmp_name'], $assurancePath)) {
+                    $_SESSION['step4']['insurance'] = $userPublicPath . '/assurance.pdf.enc';
                 }
             }
+
+            // CV (optionnel)
+            // if (!empty($_FILES['cv']['tmp_name'])) {
+            //     $cvPath = $uploadDir . 'cv.pdf.enc';
+            //     if (FileCrypto::encrypt($_FILES['cv']['tmp_name'], $cvPath)) {
+            //         $data['cv_filename'] = 'cv.pdf.enc';
+                    
+            //     } else {
+                    
+            //         $_SESSION['form_errors'] = ["Erreur lors du chiffrement du CV"];
+            //         header('Location: /stalhub/profile');
+            //         exit;
+            //     }
+            // }
+
+            // // Assurance (optionnel)
+            // if (!empty($_FILES['assurance']['tmp_name'])) {
+            //     $assurancePath = $uploadDir . 'assurance.pdf.enc';
+            //     if (FileCrypto::encrypt($_FILES['assurance']['tmp_name'], $assurancePath)) {
+            //         $data['insurance_filename'] = 'assurance.pdf.enc';
+
+            //     } else {
+            //         $_SESSION['form_errors'] = ["Erreur lors du chiffrement de l'attestation d'assurance"];
+            //         header('Location: /stalhub/profile');
+            //         exit;
+            //     }
+            // }
         }
 
         try {

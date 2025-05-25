@@ -14,7 +14,7 @@ class BaseController
 
     protected function getUserId(): ?int
     {
-        session_start();
+        // session_start();
         return $_SESSION['user_id'] ?? null;
     }
 }

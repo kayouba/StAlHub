@@ -42,40 +42,25 @@
                oninput="this.setCustomValidity('')">
 
         <label>Parcours</label>
-        <input type="text" name="parcours" value="MIAGE" readonly>
+        <input type="text" name="track" value="MIAGE" readonly>
 
         <label>Formation</label>
-        <select name="formation" required
+        <select name="program" required
                 oninvalid="this.setCustomValidity('Veuillez sélectionner votre formation')"
                 oninput="this.setCustomValidity('')">
             <option value="">-- Sélectionner --</option>
-            <option value="Licence1" <?= ($user['formation'] ?? '') === 'Licence1' ? 'selected' : '' ?>>Licence 3</option>
-            <option value="Master1" <?= ($user['formation'] ?? '') === 'Master1' ? 'selected' : '' ?>>Master 1</option>
-            <option value="Master2" <?= ($user['formation'] ?? '') === 'Master2' ? 'selected' : '' ?>>Master 2</option>
+            <option value="L3" <?= ($user['program'] ?? '') === 'L3' ? 'selected' : '' ?>>Licence 3</option>
+            <option value="M1" <?= ($user['program'] ?? '') === 'M1' ? 'selected' : '' ?>>Master 1</option>
+            <option value="M2" <?= ($user['program'] ?? '') === 'M2' ? 'selected' : '' ?>>Master 2</option>
         </select>
 
-        <div style="display: flex; gap: 10px; align-items: flex-start; flex-wrap: wrap;">
-            <div style="flex: 0 0 100px; min-width: 100px; margin-right:12px;">
-                <label for="country_code">Code pays</label>
-                <input type="text" name="country_code" id="country_code"
-                    value="<?= htmlspecialchars($user['country_code'] ?? '+33') ?>"
-                    placeholder="+33"
-                    required
-                    oninvalid="this.setCustomValidity('Veuillez entrer un indicatif pays (ex: +33)')"
-                    oninput="this.setCustomValidity('')">
-            </div>
-
-            <div style="flex: 1;">
-                <label for="phone">Téléphone</label>
-                <input type="tel" name="phone" id="phone"
-                    value="<?= htmlspecialchars($user['phone'] ?? '') ?>"
-                    placeholder="Ex: 612345678"
-                    pattern="^[1-9]\d{7,13}$"
-                    required
-                    oninvalid="this.setCustomValidity('Veuillez entrer un numéro sans indicatif (ex: 612345678)')"
-                    oninput="this.setCustomValidity('')">
-            </div>
-        </div>
+        <label>Téléphone</label>
+        <input type="tel" name="phone"
+               value="<?= htmlspecialchars($user['phone_number'] ?? '') ?>"
+               pattern="^0[1-9]\d{8}$"
+               placeholder="Ex: 0612345678" required
+               oninvalid="this.setCustomValidity('Veuillez entrer un numéro de téléphone valide (ex: 0612345678)')"
+               oninput="this.setCustomValidity('')">
 
 
         <div class="form-actions">

@@ -45,7 +45,7 @@ class AuthController
             'is_admin' => (bool) $user['is_admin'], // assure que c’est bien un bool
             'role' => $user['role'] ?? 'student',
         ];
-
+        $_SESSION['user_id'] = $user['id'];
 
         $otp = random_int(100000, 999999);
         $hash = password_hash($otp, PASSWORD_DEFAULT);

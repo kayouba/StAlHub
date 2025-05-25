@@ -44,7 +44,7 @@
   ?>
 
   <div class="stats">
-    <div class="stat-box">En attente<br><strong><?= $statusCounts['SOUMISE'] ?></strong></div>
+    <div class="stat-box">En Cours de traitement<br><strong><?= $statusCounts['SOUMISE'] ?></strong></div>
     <div class="stat-box">Validée<br><strong><?= $statusCounts['VALIDEE'] ?></strong></div>
     <div class="stat-box">Refusée<br><strong><?= $statusCounts['REFUSEE'] ?></strong></div>
     <div class="stat-box">Brouillon<br><strong><?= $statusCounts['BROUILLON'] ?></strong></div>

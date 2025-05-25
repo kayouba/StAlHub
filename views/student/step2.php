@@ -14,8 +14,7 @@
     <h1>Nouvelle Demande</h1>
     <?php include __DIR__ . '/steps.php'; ?>
 
-
-    <form action="/stalhub/student/request/step3" method="POST" class="request-form">
+    <form id="step3-form" action="/stalhub/student/request/step3" method="POST" class="request-form">
         <h2>Informations sur le poste</h2>
 
         <label>Type de contrat</label>
@@ -53,19 +52,16 @@
         <label>Missions</label>
         <textarea name="missions" rows="10" required><?= htmlspecialchars($step2['missions'] ?? '') ?></textarea>
 
-
         <label>Le télétravail est-il possible ?</label>
-        <select name="is_remote" required>
+        <select name="is_remote" id="is_remote" required>
             <option value="">-- Sélectionner --</option>
             <option value="1" <?= ($step2['is_remote'] ?? '') === '1' ? 'selected' : '' ?>>Oui</option>
             <option value="0" <?= ($step2['is_remote'] ?? '') === '0' ? 'selected' : '' ?>>Non</option>
         </select>
 
         <label>Si oui, nombre de jours de télétravail par semaine</label>
-        <input type="number" name="remote_days_per_week" min="0" max="5"
-            value="<?= htmlspecialchars($step2['remote_days_per_week'] ?? '') ?>">
-
-
+        <input type="number" name="remote_days_per_week" id="remote_days_per_week" min="0" max="5"
+               value="<?= htmlspecialchars($step2['remote_days_per_week'] ?? '') ?>">
 
         <div class="form-actions">
             <a href="/stalhub/student/new-request" class="button">← Retour</a>
@@ -73,3 +69,31 @@
         </div>
     </form>
 </main>
+
+<script>
+    const form = document.getElementById('step3-form');
+    const remoteSelect = document.getElementById('is_remote');
+    const remoteDaysInput = document.getElementById('remote_days_per_week');
+
+    form.addEventListener('submit', function (e) {
+        const isRemote = remoteSelect.value;
+        const remoteDays = remoteDaysInput.value;
+
+        if (isRemote === "1" && (!remoteDays || parseInt(remoteDays) <= 0)) {
+            e.preventDefault();
+            alert("Veuillez indiquer le nombre de jours de télétravail par semaine.");
+            remoteDaysInput.focus();
+        }
+    });
+
+    remoteSelect.addEventListener('change', () => {
+        if (remoteSelect.value === "1") {
+            remoteDaysInput.required = true;
+        } else {
+            remoteDaysInput.required = false;
+            remoteDaysInput.value = '';
+        }
+    });
+</script>
+
+</html>

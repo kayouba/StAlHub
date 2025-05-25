@@ -16,7 +16,7 @@
             <span>👤</span>
             Profil
         </a>
-        <a href="/stalhub">
+        <a href="/stalhub/logout">
             <span>⏻</span>
             Déconnexion
         </a>
