@@ -328,6 +328,21 @@ public function getAllWithTutors(): array
         return $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
     }
 
+    /**
+     * Récupère toutes les demandes d’un utilisateur donné.
+     *
+     * @param int $userId
+     * @return array
+     */
+    public function findByUserId(int $userId): array
+    {
+        $sql = "SELECT * FROM requests WHERE user_id = :user_id ORDER BY created_at DESC";
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute(['user_id' => $userId]);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+
     public function findByCompanyId(int $companyId): array
     {
         $stmt = $this->pdo->prepare("

@@ -192,13 +192,14 @@ class StudentController
 
 
         // === Préchargement depuis le profil si pas en session ===
-        if (empty($_SESSION['step4']['cv']) && file_exists($userDir . 'cv.pdf')) {
-            $_SESSION['step4']['cv'] = $userPublicPath . '/cv.pdf';
+        if (empty($_SESSION['step4']['cv']) && file_exists($userDir . 'cv.pdf.enc')) {
+            $_SESSION['step4']['cv'] = $userPublicPath . '/cv.pdf.enc';
         }
 
-        if (empty($_SESSION['step4']['insurance']) && file_exists($userDir . 'assurance.pdf')) {
-            $_SESSION['step4']['insurance'] = $userPublicPath . '/assurance.pdf';
+        if (empty($_SESSION['step4']['insurance']) && file_exists($userDir . 'assurance.pdf.enc')) {
+            $_SESSION['step4']['insurance'] = $userPublicPath . '/assurance.pdf.enc';
         }
+
 
         // Affichage
         View::render('student/step4', [
@@ -332,11 +333,13 @@ class StudentController
             exit;
         }
 
-        $requestModel = new RequestModel();
-        $documentModel = new RequestDocumentModel();
+        $requestModel = new \App\Model\RequestModel();
+        $documentModel = new \App\Model\RequestDocumentModel();
+        $statusModel = new \App\Model\StatusHistoryModel();
 
         $request = $requestModel->findByIdForUser($requestId, $userId);
         $documents = $documentModel->getDocumentsForRequest($requestId);
+        $statusHistory = $statusModel->getHistoryForRequest($requestId);
 
         if (!$request) {
             $_SESSION['error'] = "Demande introuvable.";
@@ -344,10 +347,12 @@ class StudentController
             exit;
         }
 
-        View::render('student/view-request', [
+        \App\View::render('student/view-request', [
             'request' => $request,
-            'documents' => $documents
+            'documents' => $documents,
+            'statusHistory' => $statusHistory
         ]);
     }
+
 
 }

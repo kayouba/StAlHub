@@ -1,10 +1,21 @@
 <?php
+use App\Lib\StatusTranslator;
+
 $request = $request ?? [];
 $documents = $documents ?? [];
+$statusHistory = $statusHistory ?? [];
 
 function safe($value): string {
     return htmlspecialchars($value ?? '');
 }
+
+$statusLabel = StatusTranslator::translate($request['status'] ?? '');
+$statusClass = match($request['status']) {
+    'VALIDEE', 'VALID_DIRECTION', 'VALIDE' => 'badge-green',
+    'REFUSEE', 'REFUSEE_CFA', 'REFUSEE_PEDAGO' => 'badge-red',
+    'SOUMISE', 'EN_ATTENTE_CFA', 'EN_ATTENTE_SIGNATURE_ENT' => 'badge-blue',
+    default => 'badge-grey',
+};
 ?>
 
 <!DOCTYPE html>
@@ -21,42 +32,44 @@ function safe($value): string {
 <main class="request-container">
     <h1>Détail de la demande</h1>
 
-    <div class="steps">
-        <div class="step <?= ($request['status'] ?? '') === 'SOUMISE' ? 'active' : 'completed' ?>">1</div>
-        <div class="step <?= ($request['status'] ?? '') === 'VALIDEE' ? 'active' : '' ?>">2</div>
-        <div class="step <?= ($request['status'] ?? '') === 'REFUSEE' ? 'active' : '' ?>">3</div>
-    </div>
+    <section>
+        <h2>Statut actuel</h2>
+        <p><strong>État :</strong> <span class="badge <?= $statusClass ?>"><?= $statusLabel ?></span></p>
+    </section>
 
     <section>
-        <h2>Informations personnelles</h2>
-        <p><strong>Nom :</strong> <?= safe($request['last_name']) ?></p>
-        <p><strong>Prénom :</strong> <?= safe($request['first_name']) ?></p>
-        <p><strong>Email :</strong> <?= safe($request['email']) ?></p>
-        <p><strong>Numéro étudiant :</strong> <?= safe($request['student_number']) ?></p>
-        <p><strong>Téléphone :</strong> <?= safe($request['phone']) ?></p>
+        <h2>Historique du statut</h2>
+        <ul class="timeline">
+            <?php foreach ($statusHistory as $step): ?>
+                <li>
+                    <strong><?= safe(StatusTranslator::translate($step['label'])) ?></strong>
+                    — <?= date('d/m/Y H:i', strtotime($step['updated_at'])) ?>
+                    <?php if (!empty($step['comment'])): ?>
+                        <br><em><?= nl2br(safe($step['comment'])) ?></em>
+                    <?php endif; ?>
+                </li>
+            <?php endforeach; ?>
+        </ul>
     </section>
 
     <section>
         <h2>Entreprise</h2>
         <p><strong>Nom :</strong> <?= safe($request['company_name']) ?></p>
         <p><strong>SIRET :</strong> <?= safe($request['siret']) ?></p>
-        <?php if (!empty($request['industry'])): ?>
-            <p><strong>Secteur :</strong> <?= safe($request['industry']) ?></p>
-        <?php endif; ?>
         <p><strong>Ville :</strong> <?= safe($request['city']) ?></p>
         <p><strong>Code postal :</strong> <?= safe($request['postal_code']) ?></p>
     </section>
 
     <section>
         <h2>Poste</h2>
-        <p><strong>Type :</strong> <?= ($request['contract_type'] ?? '') === 'stage' ? 'Stage' : 'Alternance' ?></p>
+        <p><strong>Type :</strong> <?= $request['contract_type'] === 'stage' ? 'Stage' : 'Alternance' ?></p>
         <p><strong>Intitulé :</strong> <?= safe($request['job_title']) ?></p>
         <p><strong>Date de début :</strong> <?= safe($request['start_date']) ?></p>
         <p><strong>Date de fin :</strong> <?= safe($request['end_date']) ?></p>
         <p><strong>Volume horaire :</strong> <?= safe($request['weekly_hours']) ?> h/semaine</p>
         <p><strong>Rémunération :</strong> <?= safe($request['salary']) ?> €/<?= safe($request['salary_duration']) ?></p>
         <p><strong>Missions :</strong> <?= nl2br(safe($request['mission'])) ?></p>
-
+        <p><strong>Tuteur :</strong> <?= safe($request['supervisor_last_name'] . ' ' . $request['supervisor_first_name']) ?></p>
     </section>
 
     <section>
@@ -71,10 +84,12 @@ function safe($value): string {
         </ul>
     </section>
 
-    <section>
-        <h2>Statut</h2>
-        <p><strong>État actuel :</strong> <?= ucfirst(strtolower($request['status'] ?? 'Inconnu')) ?></p>
-    </section>
+    <?php if ($request['status'] === 'VALIDE'): ?>
+        <section>
+            <h2>Convention</h2>
+            <a href="/stalhub/student/convention/download?id=<?= $request['id'] ?>" class="button">📄 Télécharger la convention signée</a>
+        </section>
+    <?php endif; ?>
 
     <div class="form-actions">
         <a href="/stalhub/dashboard" class="button">← Retour au tableau de bord</a>

@@ -9,6 +9,7 @@
 
 <?php include __DIR__ . '/../components/sidebar.php'; ?>
 
+
 <div class="main">
 
   <?php if (!empty($_SESSION['success_message'])): ?>
@@ -43,7 +44,7 @@
   ?>
 
   <div class="stats">
-    <div class="stat-box">En attente<br><strong><?= $statusCounts['SOUMISE'] ?></strong></div>
+    <div class="stat-box">En Cours de traitement<br><strong><?= $statusCounts['SOUMISE'] ?></strong></div>
     <div class="stat-box">Validée<br><strong><?= $statusCounts['VALIDEE'] ?></strong></div>
     <div class="stat-box">Refusée<br><strong><?= $statusCounts['REFUSEE'] ?></strong></div>
     <div class="stat-box">Brouillon<br><strong><?= $statusCounts['BROUILLON'] ?></strong></div>
@@ -73,7 +74,7 @@
             <td data-label="Entreprise"><?= htmlspecialchars($request['company_name']) ?></td>
             <td data-label="Date de début"><?= htmlspecialchars($request['start_date']) ?></td>
             <td data-label="Date de fin"><?= htmlspecialchars($request['end_date']) ?></td>
-            <td data-label="État"><?= ucfirst(strtolower($request['status'])) ?></td>
+            <td data-label="État"><?= htmlspecialchars($request['translated_status']) ?></td>
             <td data-label="Action">
                 <a class="voir-link" href="/stalhub/student/request/view?id=<?= $request['id'] ?>">voir</a>
             </td>

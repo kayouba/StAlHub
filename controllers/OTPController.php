@@ -17,7 +17,6 @@ class OTPController
             session_start();
         }
 
-
         $userId = $_SESSION['user_id'] ?? null;
         $code = $_POST['code'] ?? '';
 
