@@ -36,6 +36,7 @@ return [
     '/admin/users/delete' => ['App\Controller\AdminController', 'deleteUser'],
     '/admin/users/suspend' => ['App\Controller\AdminController', 'toggleActive'],
     '/admin/requests/view' => ['App\Controller\AdminController', 'viewRequest'],
+    '/admin/requests/updateTutor' => ['App\Controller\AdminController', 'updateTutor'],
     '/admin/companies/delete' => ['App\Controller\AdminController', 'deleteCompany'],
     '/admin/companies/view' => ['App\Controller\AdminController', 'viewCompany'],
     '/admin/companies/requests' => ['App\Controller\AdminController', 'getCompanyRequests'],

@@ -111,5 +111,11 @@ class UserModel
     return $stmt->execute(['id' => $id]);
 }
 
+public function findByRole(string $role): array
+{
+    $stmt = $this->pdo->prepare("SELECT id, first_name, last_name, students_assigned, students_to_assign FROM users WHERE role = :role");
+    $stmt->execute(['role' => $role]);
+    return $stmt->fetchAll(\PDO::FETCH_ASSOC);
+}
 
 }

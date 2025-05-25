@@ -1,7 +1,13 @@
 <link rel="stylesheet" href="/stalhub/public/css/modal-users-admin.css">
+<div class="export-buttons">
+    <button onclick="exportUsers('csv')">⬇️ Exporter CSV</button>
+    <button onclick="exportUsers('excel')">📊 Exporter Excel</button>
+    <button onclick="exportUsers('print')">🖨️ Version Imprimable</button>
+</div>
+
 <div class="filter-bar">
     <div class="filter-group">
-        <label for="roleFilter">🎯 Filtrer par rôle</label>
+        <label for="roleFilter">🎯  Filtrer par rôle</label>
         <select id="roleFilter" onchange="filterUsers()">
             <option value="all">Tous</option>
             <?php
@@ -27,10 +33,12 @@
     </div>
 
     <div class="filter-group">
-        <label for="searchInput">🔍 Rechercher</label>
+        <label for="searchInput">🔍  Rechercher</label>
         <input type="text" id="searchInput" onkeyup="searchUsers()" placeholder="Nom, prénom ou email...">
     </div>
 </div>
+
+
 
 
 
@@ -45,7 +53,11 @@
     </thead>
     <tbody id="userTable">
         <?php foreach ($users as $user): ?>
-            <tr data-role="<?= strtolower(htmlspecialchars($user['role'])) ?>">
+            <tr 
+    data-role="<?= strtolower(htmlspecialchars($user['role'])) ?>"
+    data-user="<?= htmlspecialchars(json_encode($user), ENT_QUOTES, 'UTF-8') ?>"
+>
+
                 <td data-label="Nom complet"><?= htmlspecialchars($user['last_name'] . ' ' . $user['first_name']) ?></td>
                 <td data-label="Email"><?= htmlspecialchars($user['email']) ?></td>
                 <?php
