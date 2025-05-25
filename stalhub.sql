@@ -117,3 +117,29 @@ UNLOCK TABLES;
 
 -- Dump completed on 2025-05-13 20:57:32
 SET FOREIGN_KEY_CHECKS=1;
+
+
+-- Ajout
+
+-- Table pour les conventions de stage
+CREATE TABLE IF NOT EXISTS conventions (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    request_id INT NOT NULL,
+    director_id INT NULL,
+    director_signed TINYINT(1) DEFAULT 0,
+    signature_date DATETIME NULL,
+    comments TEXT NULL,
+    created_at DATETIME NOT NULL,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (request_id) REFERENCES requests(id) ON DELETE CASCADE,
+    FOREIGN KEY (director_id) REFERENCES users(id) ON DELETE SET NULL,
+    UNIQUE KEY unique_request_convention (request_id)
+);
+
+-- Index pour optimiser les requêtes
+CREATE INDEX idx_conventions_request_id ON conventions(request_id);
+CREATE INDEX idx_conventions_director_signed ON conventions(director_signed);
+CREATE INDEX idx_conventions_signature_date ON conventions(signature_date);
+
+-- Mise à jour de la table requests pour ajouter le statut FINALISEE si nécessaire
+-- ALTER TABLE requests MODIFY COLUMN status ENUM('BROUILLON', 'SOUMISE', 'VALIDEE', 'REFUSEE', 'FINALISEE') DEFAULT 'BROUILLON';

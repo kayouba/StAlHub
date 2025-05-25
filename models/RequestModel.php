@@ -102,6 +102,39 @@ class RequestModel
         return $result ?: null;
     }
 
+    public function findById(int $requestId): ?array{
+        $sql = "SELECT 
+                    r.*, 
+                    c.name AS company_name, 
+                    c.siret, 
+                    c.city, 
+                    c.postal_code,
+                    u.first_name,
+                    u.last_name,
+                    u.email,
+                    u.student_number,
+                    u.phone_number AS phone,
+                    r.mission,
+                    r.salary_value AS salary,
+                    r.salary_duration,
+                    u.level
+                FROM requests r
+                JOIN companies c ON r.company_id = c.id
+                JOIN users u ON r.student_id = u.id
+                WHERE r.id = :requestId";
+
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute(['requestId' => $requestId]);
+
+        $result = $stmt->fetch(\PDO::FETCH_ASSOC);
+        return $result ?: null;
+    }
+
+
+
+
+
+
     public function getAdminStats(): array
     {
         $sql = "

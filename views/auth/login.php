@@ -8,72 +8,96 @@
             margin: 0;
             padding: 0;
             font-family: "Segoe UI", sans-serif;
-            background-color: #004A7C;
+            background: linear-gradient(135deg, #004A7C, #0e2b47);
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
+            overflow: hidden;
         }
 
         .login-container {
-            background-color: #fff;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(12px);
             padding: 40px;
-            border-radius: 10px;
+            border-radius: 15px;
             width: 380px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 0 30px rgba(0, 74, 124, 0.5);
             text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #fff;
         }
 
         .login-container img {
-            width: 180px;
+            width: 240px;
             margin-bottom: 20px;
+            filter: drop-shadow(0 0 40px white);
         }
 
         .login-container h2 {
-            color: #004A7C;
+            font-size: 26px;
             margin-bottom: 25px;
+            color: #ffffff;
+            text-shadow: 0 0 5px rgba(255, 255, 255, 0.2);
         }
 
         .login-container input {
             width: 100%;
-            padding: 12px;
+            padding: 14px;
             margin-bottom: 16px;
-            border: 1px solid #ccc;
-            border-radius: 6px;
-            font-size: 14px;
+            border: none;
+            border-radius: 8px;
+            font-size: 15px;
+            background: rgba(255, 255, 255, 0.15);
+            color: white;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .login-container input::placeholder {
+            color: #ddd;
+        }
+
+        .login-container input:focus {
+            background: rgba(255, 255, 255, 0.25);
+            box-shadow: 0 0 8px rgba(255, 255, 255, 0.3);
         }
 
         .login-container button {
             width: 100%;
-            padding: 12px;
-            background-color: #004A7C;
+            padding: 14px;
+            background: linear-gradient(145deg, #00b7ff, #004a7c);
             color: #fff;
             border: none;
-            border-radius: 6px;
+            border-radius: 8px;
             font-size: 16px;
             font-weight: bold;
             cursor: pointer;
-            transition: background-color 0.3s ease;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 15px rgba(0, 183, 255, 0.4);
         }
 
         .login-container button:hover {
-            background-color: #00345a;
+            background: linear-gradient(145deg, #0083c7, #00385d);
+            box-shadow: 0 0 20px rgba(0, 183, 255, 0.6);
         }
 
         .register-link {
             display: block;
-            margin-top: 15px;
+            margin-top: 20px;
             font-size: 14px;
-            color: #004A7C;
+            color: #ffffff;
             text-decoration: none;
+            transition: color 0.3s;
         }
 
         .register-link:hover {
+            color: #00bfff;
             text-decoration: underline;
         }
 
         .error {
-            color: red;
+            color: #ff4b4b;
             font-size: 14px;
             margin-bottom: 16px;
         }
@@ -82,7 +106,7 @@
 <body>
 
     <div class="login-container">
-<img src="/stalhub/assets/img/universite-bordeaux.png" alt="Université de Bordeaux">
+        <img src="/stalhub/assets/img/stalhub-logo.png" alt="Logo StalHub">
         <h2>Connexion à StalHub</h2>
 
         <?php if (!empty($error)): ?>

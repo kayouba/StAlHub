@@ -21,12 +21,28 @@ return [
     '/profile'         => ['App\Controller\ProfileController', 'index'],
     '/profile/submit'  => ['App\Controller\ProfileController', 'submit'],
 
-    //  Ajout du dashboard admin
+    // Admin
     '/admin/dashboard' => ['App\Controller\AdminController', 'dashboard'],
     '/admin/tab/users'      => ['App\Controller\AdminController', 'tabUsers'],
     '/admin/tab/requests'   => ['App\Controller\AdminController', 'tabRequests'],
     '/admin/tab/companies'  => ['App\Controller\AdminController', 'tabCompanies'],
+// Routes Direction - Version Adaptée
+'/direction/dashboard' => ['App\Controller\DirectionController', 'dashboard'], // Liste des demandes
+'/direction/details' => ['App\Controller\DirectionController', 'detailsFile'], // Détail demande (avec id GET param)
+
+// Routes pour les actions sur les documents (NOUVELLES)
+'/direction/document/sign' => ['App\Controller\DirectionController', 'signerDocument'], // Signer un document (POST)
+'/direction/document/validate' => ['App\Controller\DirectionController', 'validerDocument'], // Valider un document (POST)
+'/direction/document/comment' => ['App\Controller\DirectionController', 'updateCommentaire'], // Mettre à jour commentaire (POST)
+
+// Routes pour les actions globales (NOUVELLES)
+'/direction/documents/sign-all' => ['App\Controller\DirectionController', 'signerTousDocuments'], // Signer tous les documents (POST)
+'/direction/documents/validate-all' => ['App\Controller\DirectionController', 'validerTousDocuments'], // Valider tous les documents (POST)
+'/direction/dossier/finalize' => ['App\Controller\DirectionController', 'finaliserDossier'], // Finaliser le dossier (POST)
+
+// Route ancienne conservée pour compatibilité
+'/direction/demande/sign' => ['App\Controller\DirectionController', 'signerDemande'], // Signature demande (POST) - À garder si utilisée ailleurs
+'/direction/save-comment'           => ['App\Controller\DirectionController', 'saveComment'],
 
 
 ];
-

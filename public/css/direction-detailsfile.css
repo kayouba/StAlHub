@@ -1,0 +1,463 @@
+/* Base reset */
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f2f4f8;
+    display: flex;
+}
+
+/* Structure principale */
+.main-content {
+    margin-left: 250px;
+    padding: 30px;
+    width: calc(100% - 250px);
+}
+
+.section {
+    background-color: #fff;
+    padding: 25px;
+    margin-bottom: 30px;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+h3 {
+    color: #34495e;
+    margin-bottom: 15px;
+}
+
+.section p {
+    margin: 8px 0;
+}
+
+.label {
+    font-weight: bold;
+    display: inline-block;
+    width: 220px;
+    color: #333;
+}
+
+.value {
+    color: #555;
+}
+
+/* Table */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 15px;
+}
+
+th, td {
+    padding: 12px;
+    border-bottom: 1px solid #e0e0e0;
+    text-align: left;
+}
+
+th {
+    background-color: #f5f5f5;
+    color: #333;
+}
+
+/* Statuts */
+.status-valid {
+    color: green;
+    font-weight: bold;
+}
+
+.status-refused {
+    color: red;
+    font-weight: bold;
+}
+
+.status-pending {
+    color: orange;
+    font-weight: bold;
+}
+
+.status-signed {
+    background-color: #d1ecf1;
+    color: #0c5460;
+}
+
+.status-validated {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+/* Icônes */
+.icon-check {
+    color: green;
+    font-size: 18px;
+}
+
+.icon-cross {
+    color: gray;
+    font-size: 18px;
+}
+
+/* Boutons */
+.btn,
+.btn-view,
+.btn-sign,
+.btn-refuse,
+.btn-validate,
+.btn-save-comment,
+.btn-validate-all,
+.btn-finalize,
+.btn-cancel,
+.btn-confirm {
+    padding: 10px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: 500;
+    text-decoration: none;
+    display: inline-block;
+    text-align: center;
+    transition: all 0.3s ease;
+}
+
+.btn-view {
+    background-color: #007bff;
+    color: white;
+}
+
+.btn-view:hover {
+    background-color: #0056b3;
+}
+
+.btn-sign {
+    background-color: #28a745;
+    color: white;
+}
+
+.btn-sign:hover {
+    background-color: #218838;
+}
+
+.btn-refuse {
+    background-color: #dc3545;
+    color: white;
+}
+
+.btn-refuse:hover {
+    background-color: #c82333;
+}
+
+.btn-validate {
+    background-color: #17a2b8;
+    color: white;
+}
+
+.btn-validate:hover {
+    background-color: #138496;
+}
+
+.btn-save-comment {
+    background-color: #6c757d;
+    color: white;
+}
+
+.btn-save-comment:hover {
+    background-color: #5a6268;
+}
+
+.btn-validate-all {
+    background-color: #17a2b8;
+    color: white;
+    margin-right: 10px;
+}
+
+.btn-validate-all:hover {
+    background-color: #138496;
+}
+
+.btn-finalize {
+    background-color: #6f42c1;
+    color: white;
+}
+
+.btn-finalize:hover {
+    background-color: #5a2d91;
+}
+
+.btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* Sections */
+.documents-container {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    margin-top: 15px;
+}
+
+.document-card {
+    background: white;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    overflow: hidden;
+    transition: box-shadow 0.3s ease;
+}
+
+.document-card:hover {
+    box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+}
+
+.document-card[data-loading="true"] {
+    opacity: 0.6;
+    pointer-events: none;
+}
+
+.document-header {
+    background-color: #f8f9fa;
+    padding: 15px 20px;
+    border-bottom: 1px solid #e0e0e0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.document-title {
+    margin: 0;
+    color: #333;
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.document-status span {
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 500;
+    text-transform: uppercase;
+}
+
+.document-body {
+    padding: 20px;
+}
+
+.document-info {
+    margin-bottom: 15px;
+}
+
+.document-info p {
+    margin: 5px 0;
+    color: #666;
+}
+
+.comment-section {
+    margin: 15px 0;
+    padding: 15px;
+    background-color: #f8f9fa;
+    border-radius: 5px;
+}
+
+.comment-input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    resize: vertical;
+    font-family: inherit;
+    margin-top: 5px;
+    margin-bottom: 10px;
+}
+
+.attachment-section {
+    margin: 15px 0;
+}
+
+.attachment-section h5 {
+    margin: 0 0 10px 0;
+    color: #333;
+}
+
+.action-buttons,
+.validation-section {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 15px;
+}
+
+.badge {
+    padding: 6px 12px;
+    border-radius: 15px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.badge-success {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.badge-danger {
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
+.no-file {
+    color: #dc3545;
+    font-style: italic;
+}
+
+.actions-section {
+    margin-top: 30px;
+    padding: 20px;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    text-align: center;
+}
+
+/* Messages */
+.global-message {
+    margin-top: 15px;
+    padding: 10px;
+    border-radius: 5px;
+    font-weight: 500;
+}
+
+.global-message.success {
+    background-color: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
+.global-message.error {
+    background-color: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+
+.warning-note {
+    color: #856404;
+    background-color: #fff3cd;
+    padding: 15px;
+    border-radius: 5px;
+    margin-top: 15px;
+    border-left: 4px solid #ffc107;
+}
+
+.finalize-note {
+    color: #155724;
+    background-color: #d4edda;
+    padding: 15px;
+    border-radius: 5px;
+    margin-top: 15px;
+    border-left: 4px solid #28a745;
+}
+
+/* Modal */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.5);
+    /* Ces propriétés permettent le centrage parfait */
+    align-items: center;
+    justify-content: center;
+}
+
+/* Quand la modal est visible, activer le flexbox */
+.modal[style*="display: block"] {
+    display: flex !important;
+}
+
+.modal-content {
+    background-color: white;
+    padding: 30px;
+    border-radius: 8px;
+    max-width: 500px;
+    width: 90%;
+    text-align: center;
+    /* Assurer que le contenu ne dépasse pas l'écran */
+    max-height: 80vh;
+    overflow-y: auto;
+    /* Centrage de secours au cas où */
+    margin: auto;
+    /* Animation d'apparition */
+    transform: scale(0.9);
+    transition: transform 0.2s ease;
+}
+
+/* Animation quand la modal s'ouvre */
+.modal[style*="display: block"] .modal-content {
+    transform: scale(1);
+}
+
+.modal-actions {
+    margin-top: 20px;
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.btn-cancel {
+    background-color: #6c757d;
+    color: white;
+    min-width: 100px;
+}
+
+.btn-confirm {
+    background-color: #007bff;
+    color: white;
+    min-width: 100px;
+}
+
+.btn-cancel:hover {
+    background-color: #5a6268;
+}
+
+.btn-confirm:hover {
+    background-color: #0056b3;
+}
+
+/* Debug */
+.debug-info {
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    padding: 10px;
+    margin: 10px 0;
+    border-radius: 4px;
+    font-family: monospace;
+    font-size: 12px;
+}
+
+/* Notifications */
+.notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 15px 20px;
+    border-radius: 5px;
+    color: white;
+    font-weight: 500;
+    z-index: 1001;
+    min-width: 300px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    opacity: 0.95;
+}
+
+.notification.success {
+    background-color: #28a745;
+}
+
+.notification.error {
+    background-color: #dc3545;
+}
+

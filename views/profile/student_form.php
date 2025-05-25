@@ -23,7 +23,6 @@
     h2 {
       text-align: center;
       margin-bottom: 30px;
-      color: #003366;
     }
 
     label {
