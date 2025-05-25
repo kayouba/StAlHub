@@ -227,14 +227,44 @@ public function getAllWithTutors(): array
     return $requests;
 }
 
-    public function updateTutor(int $requestId, int $tutorId): bool
-    {
+    public function updateTutor(int $requestId, int $newTutorId): bool
+{
+    $this->pdo->beginTransaction();
+
+    try {
+        // 🔍 1. Récupérer le tuteur actuel (avant changement)
+        $stmt = $this->pdo->prepare("SELECT tutor_id FROM requests WHERE id = :id");
+        $stmt->execute(['id' => $requestId]);
+        $oldTutorId = $stmt->fetchColumn();
+
+        // 🧭 2. Mettre à jour la demande avec le nouveau tuteur
         $stmt = $this->pdo->prepare("UPDATE requests SET tutor_id = :tutor WHERE id = :id");
-        return $stmt->execute([
-            'tutor' => $tutorId,
+        $stmt->execute([
+            'tutor' => $newTutorId,
             'id' => $requestId
         ]);
+
+        // ✅ 3. Incrémenter le compteur du nouveau tuteur
+        $stmt = $this->pdo->prepare("UPDATE users SET students_assigned = students_assigned + 1 WHERE id = :id");
+        $stmt->execute(['id' => $newTutorId]);
+
+        // 🚫 4. Décrémenter le compteur de l'ancien tuteur (s'il existe et est différent)
+        if ($oldTutorId && $oldTutorId != $newTutorId) {
+            $stmt = $this->pdo->prepare("UPDATE users SET students_assigned = students_assigned - 1 WHERE id = :id");
+            $stmt->execute(['id' => $oldTutorId]);
+        }
+
+        $this->pdo->commit();
+        return true;
+
+    } catch (\PDOException $e) {
+        $this->pdo->rollBack();
+        error_log("Erreur lors de la mise à jour du tuteur : " . $e->getMessage());
+        return false;
     }
+}
+
+
 
     public function findRequestInfoById(int $requestId): ?array{
     $sql = "SELECT 
