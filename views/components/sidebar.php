@@ -6,7 +6,6 @@
     <div class="logo">
         <h2>StAlHub</h2>
     </div>
-
     <nav class="nav-links">
         <a href="/stalhub/dashboard">
             <span>🏠</span>
@@ -20,18 +19,14 @@
             <span>⏻</span>
             Déconnexion
         </a>
-        <?php if (isset($_SESSION['user']) && isset($_SESSION['user']['is_admin']) && $_SESSION['user']['is_admin'] === 1): ?>
-        <a class="nav-link text-warning fw-bold" href="/stalhub/admin/dashboard">
-            <span>⚙️</span>
-            Administration
-        </a>
-        <a class="nav-link text-warning fw-bold" href="/stalhub/admin/stats">
-            <span>📊</span>
-            Statistiques
-        </a>
-<?php endif; ?>
-
-
+        <?php if (!empty($_SESSION['user']) && !empty($_SESSION['user']['is_admin'])): ?>
+            <a class="nav-link text-warning fw-bold" href="/stalhub/admin/dashboard">
+                <span>⚙️</span> Administration
+            </a>
+            <a class="nav-link text-warning fw-bold" href="/stalhub/admin/stats">
+                <span>📊</span> Statistiques
+            </a>
+        <?php endif; ?>
     </nav>
 </aside>
 
