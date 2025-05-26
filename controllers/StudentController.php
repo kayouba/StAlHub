@@ -292,17 +292,19 @@ class StudentController
         $cvRelative = "/uploads/users/$userId/cv.pdf.enc";
         $cvPath = __DIR__ . '/../public' . $cvRelative;
         if (file_exists($cvPath)) {
-            $documentModel->saveDocument($requestId, "/stalhub" . $cvRelative, 'CV');
+            $destCvPath = $uploadDir . 'cv.pdf.enc';
+            copy($cvPath, $destCvPath);
+            $documentModel->saveDocument($requestId, "/stalhub/uploads/users/$userId/demandes/$requestFolder/cv.pdf.enc", 'CV');
         }
 
         // 5. Assurance (profil)
         $assuranceRelative = "/uploads/users/$userId/assurance.pdf.enc";
         $assurancePath = __DIR__ . '/../public' . $assuranceRelative;
         if (file_exists($assurancePath)) {
-            $documentModel->saveDocument($requestId, "/stalhub" . $assuranceRelative, 'Assurance');
+            $destAssurancePath = $uploadDir . 'assurance.pdf.enc';
+            copy($assurancePath, $destAssurancePath);
+            $documentModel->saveDocument($requestId, "/stalhub/uploads/users/$userId/demandes/$requestFolder/assurance.pdf.enc", 'Assurance');
         }
-
-
 
         // 6. Nettoyage session
         unset($_SESSION['step1'], $_SESSION['step2'], $_SESSION['step3'], $_SESSION['step4']);
@@ -353,6 +355,42 @@ class StudentController
             'statusHistory' => $statusHistory
         ]);
     }
+
+
+    public function uploadCorrection(): void
+    {
+        $userId = $_SESSION['user_id'] ?? null;
+        if (!$userId) {
+            header('Location: /stalhub/login');
+            exit;
+        }
+
+        $requestId = $_POST['request_id'] ?? null;
+        if (!$requestId || empty($_FILES['documents'])) {
+            $_SESSION['form_errors'] = ['Aucun document à mettre à jour.'];
+            header("Location: /stalhub/student/request/view?id=$requestId");
+            exit;
+        }
+
+        $documentModel = new RequestDocumentModel();
+        $userDir = __DIR__ . "/../public/uploads/users/$userId/demandes/" . date('Y-m-d_His') . "/";
+        if (!file_exists($userDir)) mkdir($userDir, 0777, true);
+
+        foreach ($_FILES['documents']['tmp_name'] as $docId => $tmpFile) {
+            if (!is_uploaded_file($tmpFile)) continue;
+
+            $filename = $userDir . $docId . '_' . basename($_FILES['documents']['name'][$docId]) . '.enc';
+            if (FileCrypto::encrypt($tmpFile, $filename)) {
+                $publicPath = str_replace(__DIR__ . '/../public', '/stalhub', $filename);
+                $documentModel->replaceDocument($docId, $publicPath, 'submitted');
+            }
+        }
+
+        $_SESSION['success_message'] = "Documents mis à jour avec succès.";
+        header("Location: /stalhub/student/request/view?id=$requestId");
+        exit;
+    }
+
 
 
 }

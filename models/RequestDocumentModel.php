@@ -16,7 +16,6 @@ class RequestDocumentModel
 
     public function saveDocument(int $requestId, string $filePath, string $label): void
     {
-        var_dump('save');
         $stmt = $this->pdo->prepare("INSERT INTO request_documents (
             request_id, file_path, label, status, uploaded_at
         ) VALUES (
@@ -30,12 +29,20 @@ class RequestDocumentModel
             'status'     => 'submitted'
         ]);
     }
+
     public function getDocumentsForRequest(int $requestId): array
     {
-        $sql = "SELECT label, file_path FROM request_documents WHERE request_id = :requestId";
+        $sql = "SELECT id, label, file_path, status FROM request_documents WHERE request_id = :requestId";
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute(['requestId' => $requestId]);
         return $stmt->fetchAll(\PDO::FETCH_ASSOC);
     }
+
+    public function replaceDocument(int $id, string $newPath, string $status): bool
+    {
+        $stmt = $this->pdo->prepare("UPDATE request_documents SET file_path = ?, status = ?, uploaded_at = NOW() WHERE id = ?");
+        return $stmt->execute([$newPath, $status, $id]);
+    }
+
 
 }

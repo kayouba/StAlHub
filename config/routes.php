@@ -19,6 +19,7 @@ return [
     '/student/request/step5'    => ['App\Controller\StudentController', 'step5'],
     '/student/request/view'     => ['App\Controller\StudentController', 'viewRequest'],
     '/student/request/submit'   => ['App\Controller\StudentController', 'submitRequest'],
+    '/student/upload-correction'=> ['App\Controller\StudentController', 'uploadCorrection'],
 
     // Tuteur
     '/tutor/dashboard'          => ['App\Controller\TutorController', 'index'],

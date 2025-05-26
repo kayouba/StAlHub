@@ -74,15 +74,30 @@ $statusClass = match($request['status']) {
 
     <section>
         <h2>Documents fournis</h2>
-        <ul>
-            <?php foreach ($documents as $doc): ?>
-                <li>
-                    <strong><?= safe($doc['label']) ?> :</strong>
-                    <a href="/stalhub/document/view?file=<?= urlencode($doc['file_path']) ?>" target="_blank">Voir le document</a>
-                </li>
-            <?php endforeach; ?>
-        </ul>
+        <form action="/stalhub/student/upload-correction" method="POST" enctype="multipart/form-data">
+            <input type="hidden" name="request_id" value="<?= $request['id'] ?>">
+            <ul>
+                <?php foreach ($documents as $doc): ?>
+                    <li>
+                        <strong><?= safe($doc['label']) ?> :</strong>
+                        <a href="/stalhub/document/view?file=<?= urlencode($doc['file_path']) ?>" target="_blank">Voir</a>
+
+                        <?php if ($doc['status'] === 'rejected'): ?>
+                            <br>
+                            <label>Remplacer le document :</label>
+                            <input type="file" name="documents[<?= $doc['id'] ?>]" accept=".pdf,.jpg,.jpeg,.png">
+                        <?php elseif ($doc['status'] === 'validated'): ?>
+                            <span style="color: green;">(Validé)</span>
+                        <?php elseif ($doc['status'] === 'submitted'): ?>
+                            <span style="color: orange;">(En attente de validation)</span>
+                        <?php endif; ?>
+                    </li>
+                <?php endforeach; ?>
+            </ul>
+            <button type="submit">Envoyer les documents corrigés</button>
+        </form>
     </section>
+
 
     <?php if ($request['status'] === 'VALIDE'): ?>
         <section>

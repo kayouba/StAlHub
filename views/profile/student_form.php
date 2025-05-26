@@ -158,11 +158,8 @@
 
         <label>Année d'études</label>
         <input type="text" name="level" value="<?= date('Y') . '-' . (date('Y') + 1) ?>" readonly>
-      <?php endif; ?>
-    </div>
 
-    <!-- Documents -->
-    <div class="section">
+      <div class="section">
       <div class="section-title">Documents (facultatifs)</div>
 
       <label for="cv">CV <small>Format PDF</small></label>
@@ -186,6 +183,12 @@
 
       <p class="section-note">Ces documents peuvent être ajoutés ou modifiés à tout moment.</p>
     </div>
+
+      <?php endif; ?>
+    </div>
+
+    <!-- Documents -->
+
 
 
     <button type="submit" class="btn">Enregistrer les modifications</button>
