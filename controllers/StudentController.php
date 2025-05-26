@@ -154,6 +154,39 @@ class StudentController
 
         // === GESTION UPLOAD AVEC CHIFFREMENT ===
         if (!empty($_FILES)) {
+            $errors = [];
+
+            // Liste des fichiers obligatoires (toujours requis)
+            $requiredFiles = [
+                'cv' => 'CV',
+                'insurance' => "Attestation d'assurance"
+            ];
+
+            // Ajouter les fichiers spécifiques si stage à l'étranger
+            $country = $_SESSION['step3']['country'] ?? 'France';
+            if ($country === 'Étranger') {
+                $requiredFiles += [
+                    'social_security' => 'Attestation de sécurité sociale',
+                    'cpam' => 'Attestation CPAM',
+                    'data_collection_form' => 'Personal data collection form'
+                    // Pas obligatoire : accident_protection
+                ];
+            }
+
+            // Vérification de la présence des fichiers (nouveau ou existant)
+            foreach ($requiredFiles as $field => $label) {
+                if (empty($_FILES[$field]['tmp_name']) && empty($_SESSION['step4'][$field])) {
+                    $errors[] = "Le document obligatoire \"$label\" est manquant.";
+                }
+            }
+
+
+            if (!empty($errors)) {
+                $_SESSION['form_errors'] = $errors;
+                header('Location: /stalhub/student/request/step4');
+                exit;
+            }
+
             // ➤ CV
             if (!empty($_FILES['cv']['tmp_name'])) {
                 $cvPath = $userDir . 'cv.pdf.enc';
@@ -170,22 +203,30 @@ class StudentController
                 }
             }
 
-            // ➤ Justificatif (toujours temporaire)
-            if (!empty($_FILES['justification']['tmp_name'])) {
-                $tempDir = __DIR__ . "/../public/uploads/temp/$userId/";
-                if (!file_exists($tempDir)) {
-                    mkdir($tempDir, 0777, true);
-                }
+            // ➤ Docs pour l’étranger (stockés temporairement)
+            $tmpDir = sys_get_temp_dir() . "/stalhub_user_$userId/";
+            if (!file_exists($tmpDir)) mkdir($tmpDir, 0777, true);
 
-                $filename = time() . '_' . basename($_FILES['justification']['name']) . '.enc';
-                $tempPath = $tempDir . $filename;
+            if ($country === 'Étranger') {
+                $foreignDocs = [
+                    'social_security',
+                    'cpam',
+                    'data_collection_form',
+                    'accident_protection' // facultatif
+                ];
 
-                if (FileCrypto::encrypt($_FILES['justification']['tmp_name'], $tempPath)) {
-                    $_SESSION['step4']['justification'] = "/stalhub/uploads/temp/$userId/$filename";
+                foreach ($foreignDocs as $field) {
+                    if (!empty($_FILES[$field]['tmp_name'])) {
+                        $tmpPath = $tmpDir . $field . '.pdf.enc';
+                        if (FileCrypto::encrypt($_FILES[$field]['tmp_name'], $tmpPath)) {
+                            $_SESSION['step4'][$field . '.pdf.enc'] = $tmpPath;
+                        }
+                    }
                 }
             }
 
-            // Redirection
+
+            // Redirection vers l'étape suivante
             header('Location: /stalhub/student/request/step5');
             exit;
         }
@@ -245,7 +286,7 @@ class StudentController
      * 8. Nettoie les données de session.
      * 9. Redirige vers le tableau de bord avec un message de succès.
      */
-    public function submitRequest(): void
+   public function submitRequest(): void
     {
         $userId = $_SESSION['user_id'] ?? null;
         if (!$userId) {
@@ -254,10 +295,8 @@ class StudentController
         }
         StepGuard::requireAll(['step1', 'step2', 'step3', 'step4'], '/stalhub/student/new-request');
 
-
         $step3 = $_SESSION['step2'] ?? [];
         $step2 = $_SESSION['step3'] ?? [];
-
         $step4 = $_SESSION['step4'] ?? [];
 
         $companyModel = new CompanyModel();
@@ -275,46 +314,62 @@ class StudentController
             mkdir($uploadDir, 0777, true);
         }
 
-        // 3. Justificatif (temporaire, spécifique à cette demande)
-        if (!empty($step4['justification'])) {
-            $srcPath = realpath(__DIR__ . '/../public' . str_replace('/stalhub', '', $step4['justification']));
-            if ($srcPath && file_exists($srcPath)) {
-                $filename = basename($srcPath);
-                $destPath = $uploadDir . $filename;
-                rename($srcPath, $destPath);
+        // 3. Documents obligatoires (CV + assurance)
+        $documentsToSave = [
+            'cv.pdf.enc' => 'CV',
+            'assurance.pdf.enc' => 'Assurance'
+        ];
 
-                $publicPath = "/stalhub/uploads/users/$userId/demandes/$requestFolder/$filename";
-                $documentModel->saveDocument($requestId, $publicPath, 'Justificatif');
+        // 4. Ajouter documents étrangers si nécessaire
+        if (($step2['country'] ?? '') === 'Étranger') {
+            $documentsToSave += [
+                'social_security.pdf.enc' => 'Attestation sécurité sociale',
+                'cpam.pdf.enc' => 'Attestation CPAM',
+                'data_collection_form.pdf.enc' => 'Personal Data Collection Form',
+                'accident_protection.pdf.enc' => 'Formulaire protection accidents du travail'
+            ];
+        }
+
+
+        foreach ($documentsToSave as $filename => $label) {
+            $sessionPath = $_SESSION['step4'][$filename] ?? null;
+
+            if ($sessionPath) {
+                if (str_starts_with($sessionPath, '/tmp')) {
+                    $srcPath = $sessionPath; // Document temporaire (étranger)
+                } else {
+                    $srcPath = realpath(__DIR__ . '/../public' . str_replace('/stalhub', '', $sessionPath)); // Document du profil
+                }
+                if ($srcPath && file_exists($srcPath)) {
+                    $destPath = $uploadDir . basename($srcPath);
+                    rename($srcPath, $destPath);
+
+                    $publicPath = "/stalhub/uploads/users/$userId/demandes/$requestFolder/" . basename($srcPath);
+                    $documentModel->saveDocument($requestId, $publicPath, $label);
+                }
             }
         }
 
-        // 4. CV (profil)
-        $cvRelative = "/uploads/users/$userId/cv.pdf.enc";
-        $cvPath = __DIR__ . '/../public' . $cvRelative;
-        if (file_exists($cvPath)) {
-            $destCvPath = $uploadDir . 'cv.pdf.enc';
-            copy($cvPath, $destCvPath);
-            $documentModel->saveDocument($requestId, "/stalhub/uploads/users/$userId/demandes/$requestFolder/cv.pdf.enc", 'CV');
-        }
 
-        // 5. Assurance (profil)
-        $assuranceRelative = "/uploads/users/$userId/assurance.pdf.enc";
-        $assurancePath = __DIR__ . '/../public' . $assuranceRelative;
-        if (file_exists($assurancePath)) {
-            $destAssurancePath = $uploadDir . 'assurance.pdf.enc';
-            copy($assurancePath, $destAssurancePath);
-            $documentModel->saveDocument($requestId, "/stalhub/uploads/users/$userId/demandes/$requestFolder/assurance.pdf.enc", 'Assurance');
-        }
-
-        // 6. Nettoyage session
+        // 5. Nettoyage session
         unset($_SESSION['step1'], $_SESSION['step2'], $_SESSION['step3'], $_SESSION['step4']);
 
-        // 7. Redirection
+                
+        // Nettoyer les fichiers temporaires
+        $tmpDir = sys_get_temp_dir() . "/stalhub_user_$userId/";
+        if (file_exists($tmpDir)) {
+            foreach (glob("$tmpDir/*.pdf.enc") as $tmpFile) {
+                unlink($tmpFile);
+            }
+            rmdir($tmpDir);
+        }
+
+
+        // 6. Redirection
         $_SESSION['success_message'] = "Votre demande a bien été soumise.";
         header('Location: /stalhub/dashboard');
         exit;
     }
-
     /**
      * Affiche les détails d'une demande spécifique pour l'étudiant connecté.
      *
