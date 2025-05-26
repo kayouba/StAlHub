@@ -52,6 +52,13 @@ return [
     '/responsable/traiter'          => ['App\Controller\ResponsablePedaController', 'traiter'],
     '/responsable/switchTutor' => ['\App\Controller\ResponsablePedaController' ,'switchTutor'],
 
+    //Secretary
+   '/secretary/dashboard' => ['App\Controller\SecretaryController', 'dashboard'],
+   '/secretary/details' => ['App\Controller\SecretaryController', 'detailsFile'],
+   '/secretary/update-document-status' => ['App\Controller\SecretaryController', 'updateDocumentStatus'],
+   '/secretary/validate-all-documents' => ['App\Controller\SecretaryController', 'validateAllDocuments'],
+   '/secretary/save-comment' => ['App\Controller\SecretaryController', 'saveComment'],
+
 
    /*  '/responsable/valider' => ['App\Controller\ResponsablePedaController', 'valider'],
     '/responsable/refuser' => ['App\Controller\ResponsablePedaController', 'refuser'], */
