@@ -49,7 +49,7 @@
             <label class="required">Attestation de sécurité sociale</label>
             <input type="file" name="social_security" accept=".pdf" required>
 
-            <label class="required">Attestation de la CPAM</label>
+            <label class="required">Attestation de prise en charge de la CPAM</label>
             <input type="file" name="cpam" accept=".pdf" required>
 
             <label class="required">Formulaire "Personal data collection form"</label>
