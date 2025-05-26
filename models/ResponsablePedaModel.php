@@ -118,7 +118,7 @@ class ResponsablePedaModel {
             return false;
         }
         
-        // Appliquer le mapping à la demande
+        // Applique le mapping à la demande
         return $this->mapDemandeValues($demande);
     }
 
@@ -249,7 +249,7 @@ class ResponsablePedaModel {
     }
 
     /**
-     * Traite une demande (validation, refus, etc.)
+     * Traite une demande (validation, refus)
      * 
      * @param int $id L'ID de la demande
      * @param string $action L'action à effectuer
@@ -262,8 +262,7 @@ class ResponsablePedaModel {
         // Mapping des actions vers les statuts de la BDD
         $statusMapping = [
             'valider' => 'VALID_PEDAGO',
-            'refuser' => 'REFUSEE_PEDAGO',
-            'demander_modifications' => 'MODIFICATIONS_DEMANDEES'
+            'refuser' => 'REFUSEE_PEDAGO'  
         ];
         
         $status = $statusMapping[$action] ?? 'SOUMISE';
@@ -390,5 +389,88 @@ class ResponsablePedaModel {
         $stmt = $this->pdo->query($sql);
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
+/**
+ * Change le tuteur d'une demande déjà validée avec historique
+ */
+public function updateRequestTutor(int $demande_id, int $nouveau_tuteur_id, string $motif): bool
+{
+    try {
+        $this->pdo->beginTransaction();
+        
+        // Récupérer les infos actuelles
+        $sql = "SELECT tutor_id, status FROM requests WHERE id = :id";
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute(['id' => $demande_id]);
+        $demande_actuelle = $stmt->fetch(PDO::FETCH_ASSOC);
+        
+        if (!$demande_actuelle || $demande_actuelle['status'] !== 'VALID_PEDAGO') {
+            throw new Exception("Demande non trouvée ou non validée");
+        }
+        
+        $ancien_tuteur_id = $demande_actuelle['tutor_id'];
+        
+        // Vérifier que le nouveau tuteur est différent
+        if ($ancien_tuteur_id == $nouveau_tuteur_id) {
+            throw new Exception("Le nouveau tuteur doit être différent de l'actuel");
+        }
+        
+        // Vérifier disponibilité du nouveau tuteur
+        if (!$this->verifierQuotaTuteur($nouveau_tuteur_id)) {
+            throw new Exception("Le nouveau tuteur a atteint son quota maximum");
+        }
+        
+        // Mettre à jour la demande
+        $sql = "UPDATE requests SET tutor_id = :nouveau_tuteur, updated_at = NOW() WHERE id = :id";
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute(['nouveau_tuteur' => $nouveau_tuteur_id, 'id' => $demande_id]);
+        
+        // Enregistrer dans l'historique
+        $ancien_tuteur_nom = $this->getNomTuteur($ancien_tuteur_id);
+        $nouveau_tuteur_nom = $this->getNomTuteur($nouveau_tuteur_id);
+        $commentaire = "Changement de tuteur : $ancien_tuteur_nom → $nouveau_tuteur_nom. Motif : $motif";
+        
+        $sql = "INSERT INTO status_history (request_id, previous_status, comment, changed_at) VALUES (?, 'VALID_PEDAGO', ?, NOW())";
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute([$demande_id, $commentaire]);
+        
+        $this->pdo->commit();
+        return true;
+        
+    } catch (Exception $e) {
+        $this->pdo->rollback();
+        return false;
+    }
+}
+
+/**
+ * Récupère les changements de tuteur d'une demande
+ */
+public function getChangementsTuteur(int $demande_id): array
+{
+    $sql = "
+        SELECT 
+            comment,
+            DATE_FORMAT(changed_at, '%d/%m/%Y à %H:%i') as date_formatee
+        FROM status_history 
+        WHERE request_id = :request_id 
+        AND comment LIKE '%Changement de tuteur%'
+        ORDER BY changed_at DESC
+    ";
+    
+    $stmt = $this->pdo->prepare($sql);
+    $stmt->execute(['request_id' => $demande_id]);
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+
+/**
+ * Enregistre une action dans l'historique
+ */
+public function ajouterHistorique(int $request_id, string $previous_status, string $comment): bool
+{
+    $sql = "INSERT INTO status_history (request_id, previous_status, comment, changed_at) VALUES (?, ?, ?, NOW())";
+    $stmt = $this->pdo->prepare($sql);
+    return $stmt->execute([$request_id, $previous_status, $comment]);
+}
+    
 
 }

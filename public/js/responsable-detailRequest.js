@@ -173,3 +173,19 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   }
 });
+
+function ouvrirModalChangementTuteur() {
+                    document.getElementById('modalChangementTuteur').style.display = 'block';
+                }
+                
+                function fermerModal() {
+                    document.getElementById('modalChangementTuteur').style.display = 'none';
+                }
+                
+                // Fermer modal en cliquant en dehors
+                window.onclick = function(event) {
+                    const modal = document.getElementById('modalChangementTuteur');
+                    if (event.target === modal) {
+                        modal.style.display = 'none';
+                    }
+                }

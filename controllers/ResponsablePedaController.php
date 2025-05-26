@@ -256,4 +256,40 @@ class ResponsablePedaController
         header("Location: /stalhub/responsable/requestList");
         exit;
     }
+        /**
+     * Traite le changement de tuteur
+     */
+    public function switchTutor(): void
+    {
+        $demande_id = (int)$_POST['demande_id'];
+        $nouveau_tuteur_id = (int)$_POST['nouveau_tuteur'];
+        $motif = trim($_POST['motif']);
+        
+        if (empty($motif)) {
+            $_SESSION['flash_message'] = [
+                'type' => 'error',
+                'text' => 'Le motif du changement est obligatoire'
+            ];
+            header("Location: /stalhub/responsable/detailRequest?id=$demande_id");
+            exit;
+        }
+        
+        $model = new ResponsablePedaModel();
+        
+        if ($model->updateRequestTutor($demande_id, $nouveau_tuteur_id, $motif)) {
+            $nouveauTuteurNom = $model->getNomTuteur($nouveau_tuteur_id);
+            $_SESSION['flash_message'] = [
+                'type' => 'success',
+                'text' => "Tuteur changé avec succès. Nouveau tuteur : $nouveauTuteurNom"
+            ];
+        } else {
+            $_SESSION['flash_message'] = [
+                'type' => 'error',
+                'text' => 'Erreur lors du changement de tuteur'
+            ];
+        }
+        
+        header("Location: /stalhub/responsable/detailRequest?id=$demande_id");
+        exit;
+    }
 }

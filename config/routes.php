@@ -43,10 +43,9 @@ return [
     '/responsable/detailRequest'  => ['App\Controller\ResponsablePedaController', 'detailDemande'],
 
     '/responsable/traiter' => ['App\Controller\ResponsablePedaController', 'traiter'],
+    '/responsable/switchTutor' => ['\App\Controller\ResponsablePedaController' ,'switchTutor'],
 
 
-   /*  '/responsable/valider' => ['App\Controller\ResponsablePedaController', 'valider'],
-    '/responsable/refuser' => ['App\Controller\ResponsablePedaController', 'refuser'], */
    
 
 
