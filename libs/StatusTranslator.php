@@ -29,4 +29,13 @@ class StatusTranslator
 
         return $statusMap[strtoupper($status)] ?? ucfirst(strtolower($status));
     }
+
+    public static function contractType(string $type): string
+    {
+        return match (strtolower($type)) {
+            'apprenticeship' => 'Apprentissage',
+            'internship'     => 'Stage',
+            default          => ucfirst($type),
+        };
+    }
 }
