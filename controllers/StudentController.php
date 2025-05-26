@@ -203,6 +203,15 @@ class StudentController
                 }
             }
 
+            // ➤ Récapitulatif PStage
+            if (!empty($_FILES['pstage_summary']['tmp_name'])) {
+                $pstagePath = $userDir . 'pstage_summary.pdf.enc';
+                if (FileCrypto::encrypt($_FILES['pstage_summary']['tmp_name'], $pstagePath)) {
+                    $_SESSION['step4']['pstage_summary'] = $userPublicPath . '/pstage_summary.pdf.enc';
+                }
+            }
+
+
             // ➤ Docs pour l’étranger (stockés temporairement)
             $tmpDir = sys_get_temp_dir() . "/stalhub_user_$userId/";
             if (!file_exists($tmpDir)) mkdir($tmpDir, 0777, true);
@@ -317,7 +326,8 @@ class StudentController
         // 3. Documents obligatoires (CV + assurance)
         $documentsToSave = [
             'cv.pdf.enc' => 'CV',
-            'assurance.pdf.enc' => 'Assurance'
+            'assurance.pdf.enc' => 'Assurance',
+            'pstage_summary.pdf.enc' => 'Récapitulatif PStage'
         ];
 
         // 4. Ajouter documents étrangers si nécessaire
