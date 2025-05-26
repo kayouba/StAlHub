@@ -4,8 +4,9 @@
 <!-- Sidebar -->
 <aside class="sidebar" id="sidebar">
     <div class="logo">
-        <h2><span style="color:#00cfff;">St</span>AlHub</h2>
+        <h2><span>St</span>AlHub</h2>
     </div>
+
     <nav class="nav-links">
         <a href="/stalhub/dashboard"><span>🏠</span> Tableau de bord</a>
         <a href="/stalhub/profile"><span>👤</span> Profil</a>
@@ -34,12 +35,18 @@
         box-shadow: 3px 0 15px rgba(0, 204, 255, 0.2);
     }
     .sidebar .logo h2 {
-        font-family: 'Orbitron', sans-serif;
-        font-size: 22px;
-        margin-bottom: 40px;
-        text-transform: uppercase;
-        letter-spacing: 1px;
+    font-family: 'Orbitron', sans-serif !important;
+    font-size: 22px !important;
+    margin-bottom: 40px !important;
+    text-transform: uppercase !important;
+    letter-spacing: 1px !important;
+    color: white !important;
     }
+
+    .sidebar .logo h2 span {
+        color: #00cfff !important;
+    }
+
     .nav-links a {
         display: flex;
         align-items: center;
