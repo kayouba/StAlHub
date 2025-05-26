@@ -1,4 +1,18 @@
 <link rel="stylesheet" href="/stalhub/public/css/modal-companies-admin.css">
+
+<div class="export-buttons">
+    <button onclick="exportCompanies('csv')">⬇️ CSV</button>
+    <button onclick="exportCompanies('excel')">📊 Excel</button>
+    <button onclick="exportCompanies('print')">🖨️ Imprimable</button>
+</div>
+
+<div class="filter-bar">
+    <div class="filter-group">
+         <label for="companySearch">🔍  Recherche :</label>
+        <input type="text" id="companySearch" onkeyup="filterCompanies()" placeholder="Nom, ville, SIRET..." style="padding: 6px 10px; border-radius: 6px; border: 1px solid #ccc;">
+    </div>
+</div>
+
 <table>
     <thead>
         <tr>
@@ -10,7 +24,8 @@
     </thead>
     <tbody>
         <?php foreach ($companies as $company): ?>
-            <tr>
+            <tr data-company="<?= htmlspecialchars(json_encode($company), ENT_QUOTES, 'UTF-8') ?>">
+
                 <td><?= htmlspecialchars($company['name']) ?></td>
                 <td><?= htmlspecialchars($company['siret']) ?></td>
                 <td><?= htmlspecialchars($company['city']) ?></td>

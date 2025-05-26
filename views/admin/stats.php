@@ -12,7 +12,24 @@ $validCFA       = $validCFA ?? 0;
 $refusCFA       = $refusCFA ?? 0;
 
 $validFinal     = $validFinal ?? 0;
+
+$totalDemandes = $soumise + $validPeda + $refusPeda + $attendSecret + $validSecret + $refusSecret + $attendCFA + $validCFA + $refusCFA + $validFinal;
+
+// Évite division par zéro
+function percent($part, $total) {
+    return $total > 0 ? round(($part / $total) * 100, 1) : 0;
+}
+
+// On regroupe par état global
+$totalValide = $validFinal ;
+$totalRefuse = $refusPeda + $refusSecret + $refusCFA;
+$totalAttente = $soumise + $attendSecret + $attendCFA + $validPeda + $validSecret + $validCFA;
+
+$pValide = percent($totalValide, $totalDemandes);
+$pRefuse = percent($totalRefuse, $totalDemandes);
+$pAttente = percent($totalAttente, $totalDemandes);
 ?>
+
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -90,6 +107,26 @@ $validFinal     = $validFinal ?? 0;
 
 <main class="admin-dashboard">
     <h1>📊 Statistiques</h1>
+<div class="stats-section">
+    <div class="section-title">📈 Rapport synthétique</div>
+    <table class="stats-table">
+        <tr>
+            <td><span class="tag green">✅ Validées</span></td>
+            <td>Demandes validées </td>
+            <td class="align-right"><?= $pValide ?>%</td>
+        </tr>
+        <tr>
+            <td><span class="tag orange">🕒 En attente</span></td>
+            <td>Demandes en cours de traitement</td>
+            <td class="align-right"><?= $pAttente ?>%</td>
+        </tr>
+        <tr>
+            <td><span class="tag red">❌ Refusées</span></td>
+            <td>Demandes refusées à un ou plusieurs niveaux</td>
+            <td class="align-right"><?= $pRefuse ?>%</td>
+        </tr>
+    </table>
+</div>
 
     <div class="stats-section">
         <div class="section-title">📥 Soumission</div>

@@ -42,16 +42,16 @@
                oninput="this.setCustomValidity('')">
 
         <label>Parcours</label>
-        <input type="text" name="parcours" value="MIAGE" readonly>
+        <input type="text" name="track" value="MIAGE" readonly>
 
         <label>Formation</label>
-        <select name="formation" required
+        <select name="program" required
                 oninvalid="this.setCustomValidity('Veuillez sélectionner votre formation')"
                 oninput="this.setCustomValidity('')">
             <option value="">-- Sélectionner --</option>
-            <option value="Licence1" <?= ($user['formation'] ?? '') === 'Licence1' ? 'selected' : '' ?>>Licence 3</option>
-            <option value="Master1" <?= ($user['formation'] ?? '') === 'Master1' ? 'selected' : '' ?>>Master 1</option>
-            <option value="Master2" <?= ($user['formation'] ?? '') === 'Master2' ? 'selected' : '' ?>>Master 2</option>
+            <option value="L3" <?= ($user['program'] ?? '') === 'L3' ? 'selected' : '' ?>>Licence 3</option>
+            <option value="M1" <?= ($user['program'] ?? '') === 'M1' ? 'selected' : '' ?>>Master 1</option>
+            <option value="M2" <?= ($user['program'] ?? '') === 'M2' ? 'selected' : '' ?>>Master 2</option>
         </select>
 
         <label>Téléphone</label>
@@ -61,6 +61,7 @@
                placeholder="Ex: 0612345678" required
                oninvalid="this.setCustomValidity('Veuillez entrer un numéro de téléphone valide (ex: 0612345678)')"
                oninput="this.setCustomValidity('')">
+
 
         <div class="form-actions">
             <button type="button" onclick="history.back()">← Retour</button>

@@ -1,11 +1,4 @@
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-  <meta charset="UTF-8">
-  <title>Vérification du code OTP – StalHub</title>
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500&family=Open+Sans&display=swap" rel="stylesheet">
-  <style>
-    body {
+body {
       margin: 0;
       font-family: 'Open Sans', sans-serif;
       background: radial-gradient(circle at top left, #001F3F, #000d1a 80%);
@@ -17,7 +10,7 @@
       overflow: hidden;
     }
 
-    .otp-container {
+    .register-container {
       background: rgba(0, 31, 63, 0.75);
       backdrop-filter: blur(14px);
       border: 1px solid rgba(255, 255, 255, 0.08);
@@ -25,37 +18,26 @@
       border-radius: 20px;
       padding: 50px 40px;
       width: 100%;
-      max-width: 440px;
+      max-width: 480px;
       box-sizing: border-box;
-      text-align: center;
       animation: fadeIn 1.2s ease-out;
     }
 
-    .otp-container img {
-      width: 160px;
-      margin-bottom: 20px;
-      filter: drop-shadow(0 0 10px #00cfff);
-    }
-
-    .otp-container h2 {
+    .register-container h2 {
       font-family: 'Orbitron', sans-serif;
-      font-size: 22px;
+      font-size: 24px;
       color: #00cfff;
       margin-bottom: 25px;
+      text-align: center;
     }
 
-    .otp-container label {
-      display: block;
-      font-size: 14px;
-      text-align: left;
-      margin-bottom: 8px;
-      color: #ccc;
-    }
-
-    .otp-container input[type="text"] {
+    .register-container input[type="text"],
+    .register-container input[type="email"],
+    .register-container input[type="password"],
+    .register-container input[type="tel"] {
       width: 100%;
       padding: 14px;
-      margin-bottom: 20px;
+      margin-bottom: 16px;
       border: none;
       border-radius: 10px;
       background: rgba(255, 255, 255, 0.08);
@@ -65,16 +47,16 @@
       transition: 0.3s ease;
     }
 
-    .otp-container input::placeholder {
+    .register-container input::placeholder {
       color: #ccc;
     }
 
-    .otp-container input:focus {
+    .register-container input:focus {
       background: rgba(255, 255, 255, 0.15);
       box-shadow: 0 0 8px rgba(0, 204, 255, 0.4);
     }
 
-    .otp-container button {
+    .register-container button {
       width: 100%;
       padding: 14px;
       border: none;
@@ -86,20 +68,58 @@
       cursor: pointer;
       transition: 0.3s ease;
       box-shadow: 0 0 15px rgba(0, 204, 255, 0.4);
+      margin-top: 10px;
     }
 
-    .otp-container button:hover {
+    .register-container button:hover {
       background: linear-gradient(135deg, #00e6ff, #0074d9);
       box-shadow: 0 0 25px rgba(0, 204, 255, 0.8);
+    }
+
+    label {
+      font-size: 13px;
+      display: block;
+      margin: 10px 0;
+      color: #ddd;
+    }
+
+    label a {
+      color: #00cfff;
+      text-decoration: underline;
+    }
+
+    .back-link,
+    .forgot-link {
+      display: block;
+      text-align: center;
+      margin-top: 14px;
+      font-size: 13px;
+      color: #add8ff;
+      text-decoration: none;
+      transition: 0.2s ease;
+    }
+
+    .back-link:hover,
+    .forgot-link:hover {
+      color: #ffffff;
+      text-decoration: underline;
+    }
+
+    .password-hint {
+      font-size: 12px;
+      color: #aaa;
+      margin-top: -12px;
+      margin-bottom: 16px;
     }
 
     .error {
       background-color: #ff4b4b;
       color: white;
       padding: 10px;
-      margin-bottom: 20px;
+      margin-bottom: 15px;
       border-radius: 8px;
       font-size: 14px;
+      text-align: center;
     }
 
     @keyframes fadeIn {
@@ -114,33 +134,16 @@
     }
 
     @media (max-width: 480px) {
-      .otp-container {
+      .register-container {
         padding: 40px 20px;
         width: 90%;
       }
 
-      .otp-container h2 {
+      .register-container h2 {
         font-size: 20px;
       }
+
+      .register-container button {
+        font-size: 15px;
+      }
     }
-  </style>
-</head>
-<body>
-
-  <div class="otp-container">
-    <img src="/stalhub/assets/img/stalhub-logo.png" alt="Logo Université de Bordeaux">
-    <h2>🔐 Vérification du code OTP</h2>
-
-    <?php if (!empty($error)): ?>
-      <div class="error"><?= htmlspecialchars($error) ?></div>
-    <?php endif; ?>
-
-    <form method="POST" action="/stalhub/otp/verify">
-      <label for="code">Code OTP</label>
-      <input type="text" id="code" name="code" placeholder="Entrez le code reçu" required>
-      <button type="submit">Valider</button>
-    </form>
-  </div>
-
-</body>
-</html>

@@ -1,3 +1,4 @@
+/* === MODAL GLOBAL === */
 .modal {
     position: fixed;
     inset: 0;
@@ -7,17 +8,21 @@
     display: flex;
     justify-content: center;
     align-items: center;
+    padding: 1rem;
+    overflow-y: auto;
 }
 
+/* === MODAL CONTENT === */
 .modal-content {
     background-color: #ffffff;
     color: #333;
-    border-radius: 12px;
+    border-radius: 16px;
     padding: 32px;
-    width: 500px;
-    max-height: 90vh;
+    width: 100%;
+    max-width: 500px;
+    max-height: 95vh;
     overflow-y: auto;
-    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.2);
     font-family: "Segoe UI", sans-serif;
     animation: fadeIn 0.3s ease-in-out;
     position: relative;
@@ -25,61 +30,69 @@
 
 .modal-content h3 {
     text-align: center;
-    font-size: 22px;
-    margin-bottom: 20px;
+    font-size: 24px;
+    margin-bottom: 24px;
     color: #004A7C;
+    font-weight: bold;
 }
 
 .modal-content p {
     font-size: 15px;
-    margin: 6px 0;
-    padding-bottom: 5px;
+    margin: 10px 0;
+    padding-bottom: 6px;
     border-bottom: 1px solid #eee;
+    line-height: 1.4;
 }
 
 .modal-content label {
-    margin-top: 16px;
+    margin-top: 18px;
     display: block;
     font-weight: 600;
     font-size: 14px;
-    color: #555;
+    color: #333;
 }
 
-.modal-content select {
+.modal-content select,
+.modal-content input[type="checkbox"] {
     width: 100%;
     padding: 10px;
     margin-top: 8px;
     border: 1px solid #ccc;
-    border-radius: 6px;
+    border-radius: 8px;
     font-size: 14px;
     background: #f9f9f9;
     color: #333;
 }
 
+.modal-content input[type="checkbox"] {
+    width: auto;
+}
+
 .modal-content button {
-    margin-top: 20px;
+    margin-top: 24px;
     width: 100%;
-    padding: 12px;
-    font-size: 15px;
-    font-weight: 600;
+    padding: 14px;
+    font-size: 16px;
+    font-weight: bold;
     border: none;
-    border-radius: 6px;
-    background-color: #004A7C;
+    border-radius: 8px;
+    background: linear-gradient(to right, #004A7C, #006bb3);
     color: #fff;
     cursor: pointer;
-    transition: background-color 0.3s ease;
+    transition: background 0.3s ease, transform 0.2s ease;
 }
 
 .modal-content button:hover {
-    background-color: #00345a;
+    background: linear-gradient(to right, #003a63, #005fa3);
+    transform: translateY(-1px);
 }
 
 .modal-content span {
     position: absolute;
-    right: 15px;
-    top: 12px;
-    font-size: 22px;
-    color: #888;
+    right: 18px;
+    top: 18px;
+    font-size: 24px;
+    color: #aaa;
     cursor: pointer;
     transition: color 0.2s;
 }
@@ -89,6 +102,185 @@
 }
 
 @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(-10px); }
+    from { opacity: 0; transform: translateY(-20px); }
     to { opacity: 1; transform: translateY(0); }
+}
+
+/* === FILTER BAR === */
+.filter-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+    padding: 1rem;
+    background: #f9fafb;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    align-items: flex-end;
+    justify-content: space-between;
+}
+
+.filter-group {
+    flex: 1 1 240px;
+    display: flex;
+    flex-direction: column;
+}
+
+
+.filter-group label {
+    font-weight: bold;
+    color: #004a7c;
+    margin-bottom: 4px;
+}
+
+.filter-group select,
+.filter-group input {
+    padding: 10px;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    background-color: #fff;
+    font-size: 15px;
+    color: #111827;
+    transition: border 0.2s ease;
+}
+
+.filter-group select:focus,
+.filter-group input:focus {
+    outline: none;
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
+}
+
+/* Responsive (empile les filtres) */
+@media (max-width: 640px) {
+    .filter-bar {
+        flex-direction: column;
+    }
+}
+
+/* === TABLE === */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.05);
+    margin-top: 1rem;
+}
+
+thead {
+    background-color: #f1f3f5;
+}
+
+th, td {
+    padding: 14px 16px;
+    text-align: left;
+    border-bottom: 1px solid #eaeaea;
+    font-size: 15px;
+}
+
+td a {
+    color: #007bff;
+    font-weight: 500;
+    text-decoration: none;
+    margin-right: 0.6rem;
+}
+
+td a:hover {
+    text-decoration: underline;
+}
+
+/* Responsive TABLE */
+@media (max-width: 768px) {
+    table, thead, tbody, th, td, tr {
+        display: block;
+        width: 100%;
+    }
+
+    thead {
+        display: none;
+    }
+
+    tr {
+        margin-bottom: 1rem;
+        background: #fff;
+        border-radius: 8px;
+        box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+        padding: 1rem;
+    }
+
+    td {
+        padding: 8px 0;
+        border: none;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    td::before {
+        content: attr(data-label);
+        font-weight: bold;
+        flex: 0 0 40%;
+        color: #555;
+    }
+}
+
+.export-buttons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.export-buttons button {
+    background-color: #50a4ff;
+    color: white;
+    border: none;
+    padding: 0.6rem 1.2rem;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.export-buttons button:hover {
+    background-color: #005ec4;
+}
+
+
+/* === Responsive amélioration basique === */
+@media (max-width: 768px) {
+    .stats {
+        flex-direction: column;
+    }
+
+    table, thead, tbody, th, td, tr {
+        display: block;
+    }
+
+    thead {
+        display: none;
+    }
+
+    td {
+        position: relative;
+        padding-left: 50%;
+        text-align: left;
+    }
+
+    td::before {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 45%;
+        padding-left: 0.75rem;
+        font-weight: bold;
+        white-space: nowrap;
+    }
+
+    tr td:nth-child(1)::before { content: "Nom"; }
+    tr td:nth-child(2)::before { content: "SIRET"; }
+    tr td:nth-child(3)::before { content: "Ville"; }
+    tr td:nth-child(4)::before { content: "Actions"; }
 }

@@ -1,113 +1,94 @@
-<!-- Bouton mobile (affiché uniquement sur petits écrans) -->
+<!-- Bouton mobile -->
 <div class="sidebar-toggle" onclick="toggleSidebar()">☰</div>
 
-<!-- Barre latérale -->
+<!-- Sidebar -->
 <aside class="sidebar" id="sidebar">
     <div class="logo">
-        <h2>StAlHub</h2>
+        <h2><span>St</span>AlHub</h2>
     </div>
 
     <nav class="nav-links">
-        <a href="/stalhub/dashboard">
-            <span>🏠</span>
-            Tableau de bord
-        </a>
-        <a href="/stalhub/profile">
-            <span>👤</span>
-            Profil
-        </a>
-        <a href="/stalhub">
-            <span>⏻</span>
-            Déconnexion
-        </a>
-        <?php if (isset($_SESSION['user']) && $_SESSION['user']['is_admin']): ?>
-        <a class="nav-link text-warning fw-bold" href="/stalhub/admin/dashboard">
-            <span>⚙️</span>
-            Administration
-        </a>
-        <a class="nav-link text-warning fw-bold" href="/stalhub/admin/stats">
-            <span>📊</span>
-            Statistiques
-        </a>
-<?php endif; ?>
-
-
+        <a href="/stalhub/dashboard"><span>🏠</span> Tableau de bord</a>
+        <a href="/stalhub/profile"><span>👤</span> Profil</a>
+        <?php if (!empty($_SESSION['user']) && !empty($_SESSION['user']['is_admin'])): ?>
+            <a href="/stalhub/admin/dashboard"><span>⚙️</span> Administration</a>
+            <a href="/stalhub/admin/stats"><span>📊</span> Statistiques</a>
+        <?php endif; ?>
+        <a href="/stalhub/logout"><span>⏻</span> Déconnexion</a>
     </nav>
 </aside>
 
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500&display=swap" rel="stylesheet">
 <style>
     .sidebar {
         position: fixed;
         top: 0;
         left: 0;
         height: 100vh;
-        width: 220px;
-        background-color: #074f76;
+        width: 240px;
+        background: linear-gradient(180deg, #001F3F, #003a70);
         color: white;
-        padding: 20px;
+        padding: 25px;
         box-sizing: border-box;
         transition: transform 0.3s ease;
         z-index: 998;
+        box-shadow: 3px 0 15px rgba(0, 204, 255, 0.2);
+    }
+    .sidebar .logo h2 {
+    font-family: 'Orbitron', sans-serif !important;
+    font-size: 22px !important;
+    margin-bottom: 40px !important;
+    text-transform: uppercase !important;
+    letter-spacing: 1px !important;
+    color: white !important;
     }
 
-    .sidebar .logo {
-        font-size: 20px;
-        font-weight: bold;
-        margin-bottom: 30px;
+    .sidebar .logo h2 span {
+        color: #00cfff !important;
     }
 
     .nav-links a {
-        display: block;
+        display: flex;
+        align-items: center;
         color: white;
         text-decoration: none;
-        padding: 10px 0;
-        font-size: 16px;
+        padding: 12px 16px;
+        margin-bottom: 10px;
+        border-radius: 8px;
+        background: rgba(255,255,255,0.05);
         transition: 0.3s;
     }
-
     .nav-links a:hover {
-        background-color: rgba(255, 255, 255, 0.1);
-        border-radius: 5px;
-        padding-left: 10px;
+        background-color: rgba(0, 204, 255, 0.2);
+        padding-left: 20px;
+        color: #00cfff;
     }
-
     .nav-links span {
-        margin-right: 8px;
+        margin-right: 12px;
     }
-
-    /* Bouton hamburger pour mobile */
     .sidebar-toggle {
         display: none;
         position: fixed;
-        top: 10px;
-        left: 10px;
-        font-size: 28px;
-        background-color: #074f76;
+        top: 15px;
+        left: 15px;
+        font-size: 26px;
+        background: #003a70;
         color: white;
-        padding: 5px 10px;
-        border-radius: 5px;
+        padding: 8px 12px;
+        border-radius: 8px;
         cursor: pointer;
         z-index: 999;
+        box-shadow: 0 0 10px rgba(0, 204, 255, 0.4);
     }
-
     @media screen and (max-width: 768px) {
-        .sidebar {
-            transform: translateX(-100%);
-        }
-
-        .sidebar.visible {
-            transform: translateX(0);
-        }
-
-        .sidebar-toggle {
-            display: block;
-        }
+        .sidebar { transform: translateX(-100%); }
+        .sidebar.visible { transform: translateX(0); }
+        .sidebar-toggle { display: block; }
     }
 </style>
 
 <script>
     function toggleSidebar() {
-        const sidebar = document.getElementById('sidebar');
-        sidebar.classList.toggle('visible');
+        document.getElementById('sidebar').classList.toggle('visible');
     }
 </script>

@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
-  <title>Vérification du code OTP – StalHub</title>
+  <title>Mot de passe oublié – StalHub</title>
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500&family=Open+Sans&display=swap" rel="stylesheet">
   <style>
     body {
@@ -17,7 +17,7 @@
       overflow: hidden;
     }
 
-    .otp-container {
+    .reset-container {
       background: rgba(0, 31, 63, 0.75);
       backdrop-filter: blur(14px);
       border: 1px solid rgba(255, 255, 255, 0.08);
@@ -27,32 +27,18 @@
       width: 100%;
       max-width: 440px;
       box-sizing: border-box;
-      text-align: center;
       animation: fadeIn 1.2s ease-out;
     }
 
-    .otp-container img {
-      width: 160px;
-      margin-bottom: 20px;
-      filter: drop-shadow(0 0 10px #00cfff);
-    }
-
-    .otp-container h2 {
+    .reset-container h2 {
       font-family: 'Orbitron', sans-serif;
       font-size: 22px;
       color: #00cfff;
+      text-align: center;
       margin-bottom: 25px;
     }
 
-    .otp-container label {
-      display: block;
-      font-size: 14px;
-      text-align: left;
-      margin-bottom: 8px;
-      color: #ccc;
-    }
-
-    .otp-container input[type="text"] {
+    .reset-container input[type="email"] {
       width: 100%;
       padding: 14px;
       margin-bottom: 20px;
@@ -65,16 +51,16 @@
       transition: 0.3s ease;
     }
 
-    .otp-container input::placeholder {
+    .reset-container input::placeholder {
       color: #ccc;
     }
 
-    .otp-container input:focus {
+    .reset-container input:focus {
       background: rgba(255, 255, 255, 0.15);
       box-shadow: 0 0 8px rgba(0, 204, 255, 0.4);
     }
 
-    .otp-container button {
+    .reset-container button {
       width: 100%;
       padding: 14px;
       border: none;
@@ -88,18 +74,41 @@
       box-shadow: 0 0 15px rgba(0, 204, 255, 0.4);
     }
 
-    .otp-container button:hover {
+    .reset-container button:hover {
       background: linear-gradient(135deg, #00e6ff, #0074d9);
       box-shadow: 0 0 25px rgba(0, 204, 255, 0.8);
     }
 
-    .error {
+    .message {
+      font-size: 14px;
+      padding: 10px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+
+    .message.error {
       background-color: #ff4b4b;
       color: white;
-      padding: 10px;
-      margin-bottom: 20px;
-      border-radius: 8px;
+    }
+
+    .message.success {
+      background-color: #28a745;
+      color: white;
+    }
+
+    .back-link {
+      display: block;
+      text-align: center;
+      margin-top: 20px;
       font-size: 14px;
+      color: #add8ff;
+      text-decoration: none;
+    }
+
+    .back-link:hover {
+      color: #ffffff;
+      text-decoration: underline;
     }
 
     @keyframes fadeIn {
@@ -114,12 +123,12 @@
     }
 
     @media (max-width: 480px) {
-      .otp-container {
+      .reset-container {
         padding: 40px 20px;
         width: 90%;
       }
 
-      .otp-container h2 {
+      .reset-container h2 {
         font-size: 20px;
       }
     }
@@ -127,19 +136,23 @@
 </head>
 <body>
 
-  <div class="otp-container">
-    <img src="/stalhub/assets/img/stalhub-logo.png" alt="Logo Université de Bordeaux">
-    <h2>🔐 Vérification du code OTP</h2>
+  <div class="reset-container">
+    <h2>🔑 Mot de passe oublié</h2>
 
     <?php if (!empty($error)): ?>
-      <div class="error"><?= htmlspecialchars($error) ?></div>
+      <div class="message error"><?= htmlspecialchars($error) ?></div>
     <?php endif; ?>
 
-    <form method="POST" action="/stalhub/otp/verify">
-      <label for="code">Code OTP</label>
-      <input type="text" id="code" name="code" placeholder="Entrez le code reçu" required>
-      <button type="submit">Valider</button>
+    <?php if (!empty($success)): ?>
+      <div class="message success"><?= htmlspecialchars($success) ?></div>
+    <?php endif; ?>
+
+    <form method="POST" action="/stalhub/forgot-password/post">
+      <input type="email" name="email" placeholder="Adresse e-mail" required>
+      <button type="submit">📩 Envoyer le lien de réinitialisation</button>
     </form>
+
+    <a class="back-link" href="/stalhub/login">← Retour à la connexion</a>
   </div>
 
 </body>

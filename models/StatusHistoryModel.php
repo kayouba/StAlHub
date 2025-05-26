@@ -28,4 +28,18 @@ class StatusHistoryModel
             'changed_at'      => date('Y-m-d H:i:s'),
         ]);
     }
+
+    public function getHistoryForRequest(int $requestId): array
+    {
+        $stmt = $this->pdo->prepare("
+            SELECT previous_status AS label, changed_at AS updated_at, comment
+            FROM status_history
+            WHERE request_id = :request_id
+            ORDER BY changed_at ASC
+        ");
+
+        $stmt->execute(['request_id' => $requestId]);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
 }
