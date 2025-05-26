@@ -12,7 +12,7 @@ function statusToCssClass($status) {
 
 function formatStatus($status) {
   return match ($status) {
-    'REFUSEE_SECRETAIRE' => 'refusé',
+    'REFUSEE_SECRETAIRE' => 'incomplet',
     'VALID_SECRETAIRE' => 'validé',
     'EN_ATTENTE_SECRETAIRE' => 'en attente',
     'SOUMISE' => 'soumise',
@@ -25,7 +25,7 @@ function getDisplayStatus($demande) {
   if (isset($demande['etat'])) {
     return match ($demande['etat']) {
       'validee' => 'validé',
-      'refusee' => 'refusé',
+      'refusee' => 'incomplet',
       'attente' => 'en attente',
       default => 'en attente'
     };
@@ -80,7 +80,7 @@ function getDisplayStatusClass($demande) {
     <select id="filter-etat">
       <option value="">Tous les états</option>
       <option value="validé">Validée</option>
-      <option value="refusé">Refusée</option>
+      <option value="incomplet">Incomplet</option>
       <option value="en attente">En attente</option>
       <option value="soumise">Soumise</option>
     </select>
