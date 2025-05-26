@@ -29,7 +29,7 @@ class SecretaryController {
 
         // Charger l'utilisateur depuis la base via UserModel
         $userModel = new UserModel();
-        $user = $userModel->findRequestInfoById($userId);
+        $user = $userModel->findById($userId);
 
         if (!$user) {
             session_destroy();
