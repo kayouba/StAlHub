@@ -50,17 +50,13 @@ return [
     '/responsable/requestList'      => ['App\Controller\ResponsablePedaController', 'listeDemandes'],
     '/responsable/detailRequest'    => ['App\Controller\ResponsablePedaController', 'detailDemande'],
     '/responsable/traiter'          => ['App\Controller\ResponsablePedaController', 'traiter'],
+    '/responsable/switchTutor' => ['\App\Controller\ResponsablePedaController' ,'switchTutor'],
 
-    // Secrétariat
-    '/secretary/dashboard'               => ['App\Controller\SecretaryController', 'dashboard'],
-    '/secretary/details'                => ['App\Controller\SecretaryController', 'detailsFile'],
-    '/secretary/update-document-status' => ['App\Controller\SecretaryController', 'updateDocumentStatus'],
-    '/secretary/validate-all-documents' => ['App\Controller\SecretaryController', 'validateAllDocuments'],
-    '/secretary/save-comment'           => ['App\Controller\SecretaryController', 'saveComment'],
 
-    // Mot de passe oublié
-    '/forgot-password'         => ['App\Controller\AuthController', 'showForgotForm'],
-    '/forgot-password/post'    => ['App\Controller\AuthController', 'sendResetLink'],
-    '/reset-password'          => ['App\Controller\AuthController', 'showResetForm'],
-    '/reset-password/post'     => ['App\Controller\AuthController', 'resetPassword'],
+   /*  '/responsable/valider' => ['App\Controller\ResponsablePedaController', 'valider'],
+    '/responsable/refuser' => ['App\Controller\ResponsablePedaController', 'refuser'], */
+   
+
+
 ];
+

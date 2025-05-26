@@ -167,7 +167,7 @@
                             <div class="selected-tutor-info">
                                 <span class="selected-icon"><i class="fas fa-check-circle"></i></span>
                                 <span id="tuteurNomSelectionne"></span>
-                                <button type="button" class="btn-change" onclick="changerTuteur()">
+                                <button type="button" class="btn-change" onclick="switchTutor()">
                                     <i class="fas fa-exchange-alt"></i> Changer
                                 </button>
                             </div>
@@ -205,7 +205,7 @@
 
         
             
-        <?php else: ?>
+       <?php else: ?>
             <p>
                 <strong><i class="fas fa-flag"></i> Statut actuel :</strong> 
                 <span class="etat <?= $demande['status'] === 'VALID_PEDAGO' ? 'validee' : 'refusee' ?>">
@@ -223,9 +223,171 @@
             <?php if (!empty($demande['comment'])): ?>
                 <p><strong><i class="fas fa-comment"></i> Commentaire :</strong> <?= nl2br(htmlspecialchars($demande['comment'])) ?></p>
             <?php endif; ?>
+
+            <!-- Section de communication avec l'étudiant -->
+            <div class="email-actions" style="margin-top: 2rem; padding: 1.5rem; background-color: #f8f9fa; border-radius: 8px; border-left: 4px solid #007bff;">
+                <h4><i class="fas fa-envelope"></i> Communication avec l'étudiant</h4>
+                <p style="margin-bottom: 1rem; color: #6c757d; font-size: 0.9rem;">
+                    Informer l'étudiant de l'état de sa demande par email
+                </p>
+                
+                <?php if ($demande['status'] === 'VALID_PEDAGO'): ?>
+                    <?php
+                    // Préparer le contenu email pour validation
+                    $sujet_validation = rawurlencode("✅ Votre demande de " . $demande['type'] . " a été validée - " . $demande['entreprise']);
+                    $corps_validation = rawurlencode(
+                        "Bonjour " . $demande['etudiant'] . ",\n\n" .
+                        "Votre demande de " . $demande['type'] . " chez " . $demande['entreprise'] . " a été validée par le responsable pédagogique.\n\n" .
+                        (!empty($demande['tutor_name']) ? "Tuteur pédagogique assigné : " . $demande['tutor_name'] . "\n" .
+                        "Votre tuteur vous contactera prochainement pour organiser le suivi de votre " . $demande['type'] . ".\n\n" : "") .
+                        (!empty($demande['comment']) ? "📝 Commentaire du responsable : " . $demande['comment'] . "\n\n" : "") .
+                        " Prochaine étape :\n" .
+                        "Connectez-vous à votre espace étudiant pour télécharger les documents officiels\n" .
+                        "Félicitations et bonne réussite dans votre " . $demande['type'] . " !\n\n" .
+
+                        "Cordialement,\nL'équipe pédagogique StaHub"
+                    );
+                    ?>
+                    <a href="mailto:<?= htmlspecialchars($demande['email']) ?>?subject=<?= $sujet_validation ?>&body=<?= $corps_validation ?>" 
+                       class="btn btn-success" style="background-color: #28a745; border-color: #28a745;">
+                        <i class="fas fa-check-circle"></i> Informer de la validation
+                    </a>
+                    
+                <?php elseif ($demande['status'] === 'REFUSEE_PEDAGO'): ?>
+                    <?php
+                    // Préparer le contenu email pour refus
+                    $sujet_refus = rawurlencode("Information sur votre demande de " . $demande['type'] . " - " . $demande['entreprise']);
+                    $corps_refus = rawurlencode(
+                        "Bonjour " . $demande['etudiant'] . ",\n\n" .
+                        "Nous avons examiné votre demande de " . $demande['type'] . " chez " . $demande['entreprise'] . ".\n\n" .
+                        "Malheureusement, cette demande ne peut pas être validée en l'état.\n\n" .
+                        (!empty($demande['comment']) ? "- Motif du refus : " . $demande['comment'] . "\n\n" : "") .
+                       
+                        "N'hésitez pas à contacter le responsable pédagogique pour des clarifications\n\n" .
+
+                        "Cordialement,\nL'équipe pédagogique StaHub"
+                    );
+                    ?>
+                    <a href="mailto:<?= htmlspecialchars($demande['email']) ?>?subject=<?= $sujet_refus ?>&body=<?= $corps_refus ?>" 
+                       class="btn btn-reject" style="background-color: #dc3545; border-color: #dc3545;">
+                        <i class="fas fa-times-circle"></i> Informer du refus
+                    </a>
+                    
+                <?php else: ?>
+                    <?php
+                    // Email générique pour autres statuts
+                    $sujet_general = rawurlencode("Information sur votre demande de " . $demande['type'] . " - " . $demande['entreprise']);
+                    $corps_general = rawurlencode(
+                        "Bonjour " . $demande['etudiant'] . ",\n\n" .
+                        "Concernant votre demande de " . $demande['type'] . " chez " . $demande['entreprise'] . "...\n\n" .
+                        (!empty($demande['comment']) ? "Commentaire :\n" . $demande['comment'] . "\n\n" : "") .
+                        "Cordialement,\nL'équipe pédagogique StaHub"
+                    );
+                    ?>
+                    <a href="mailto:<?= htmlspecialchars($demande['email']) ?>?subject=<?= $sujet_general ?>&body=<?= $corps_general ?>" 
+                       class="btn btn-secondary" style="background-color: #6c757d; border-color: #6c757d;">
+                        <i class="fas fa-envelope"></i> Contacter l'étudiant
+                    </a>
+                <?php endif; ?>
+
+                
+            </div>
+            
+             <!-- Modifation de l'affectation du tuteur apres validation -->
+            <?php if ($demande['status'] === 'VALID_PEDAGO' && !empty($demande['tutor_id'])): ?>
+                <div class="post-validation-actions" style="margin-top: 2rem; padding: 1.5rem; background-color: #fff3cd; border-radius: 8px; border-left: 4px solid #ffc107;">
+                    <h4><i class="fas fa-edit"></i> Gestion du tuteur pédagogique</h4>
+                    <p style="color: #856404; margin-bottom: 1rem; font-size: 0.9rem;">
+                        Modifier l'affectation du tuteur pour cette demande validée
+                    </p>
+                    
+                    <div class="action-buttons" style="display: flex; gap: 1rem; margin-bottom: 1rem;">
+                        <button class="btn btn-warning" onclick="ouvrirModalChangementTuteur()" style="background-color: #ffc107; border-color: #ffc107; color: #212529;">
+                            <i class="fas fa-user-edit"></i> Changer le tuteur
+                        </button>
+                    </div>
+                    
+                    <!-- Tuteur actuel -->
+                    <div class="tuteur-actuel" style="background-color: #d4edda; padding: 1rem; border-radius: 4px; margin-bottom: 1rem; border-left: 4px solid #28a745;">
+                        <h5><i class="fas fa-user-tie"></i> Tuteur pédagogique actuel :</h5>
+                        <p style="margin: 0; font-size: 1.1rem; font-weight: bold; color: #155724;">
+                            <?= htmlspecialchars($demande['tutor_name'] ?? 'Non assigné') ?>
+                        </p>
+                    </div>
+                    
+                    <!-- Historique des changements -->
+                    <?php 
+                    $changements = $model->getChangementsTuteur($demande['id']);
+                    if (!empty($changements)): 
+                    ?>
+                        <div class="changements-tuteur" style="background-color: #e9ecef; padding: 1rem; border-radius: 4px;">
+                            <h5><i class="fas fa-history"></i> Historique des changements :</h5>
+                            <ul style="margin: 0; padding-left: 1.5rem;">
+                                <?php foreach ($changements as $changement): ?>
+                                    <li style="margin-bottom: 0.5rem; font-size: 0.9rem;">
+                                        <strong><?= htmlspecialchars($changement['date_formatee']) ?> :</strong> 
+                                        <?= htmlspecialchars($changement['comment']) ?>
+                                    </li>
+                                <?php endforeach; ?>
+                            </ul>
+                        </div>
+                    <?php endif; ?>
+                </div>
+
+                <!-- Modal de changement de tuteur -->
+                <div id="modalChangementTuteur" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000;">
+                    <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 2rem; border-radius: 8px; max-width: 500px; width: 90%;">
+                        <h4><i class="fas fa-user-edit"></i> Changer le tuteur pédagogique</h4>
+                        
+                        <form method="post" action="/stalhub/responsable/switchTutor">
+                            <input type="hidden" name="demande_id" value="<?= $demande['id'] ?>">
+                            
+                            <div style="margin-bottom: 1rem;">
+                                <label><strong>Tuteur actuel :</strong></label>
+                                <p style="background: #f8f9fa; padding: 0.5rem; border-radius: 4px; margin: 0.5rem 0; color: #495057;">
+                                    <i class="fas fa-user"></i> <?= htmlspecialchars($demande['tutor_name'] ?? 'Aucun') ?>
+                                </p>
+                            </div>
+                            
+                            <div style="margin-bottom: 1rem;">
+                                <label for="nouveau_tuteur"><strong>Nouveau tuteur :</strong></label>
+                                <select name="nouveau_tuteur" id="nouveau_tuteur" class="form-control" required>
+                                    <option value="">-- Sélectionner un nouveau tuteur --</option>
+                                    <?php foreach ($tuteurs as $tuteur): ?>
+                                        <?php if ($tuteur['id'] != $demande['tutor_id']): ?>
+                                            <option value="<?= $tuteur['id'] ?>" 
+                                                    <?= $tuteur['quota_actuel'] >= $tuteur['quota_max'] ? 'disabled' : '' ?>>
+                                                <?= htmlspecialchars($tuteur['nom_complet']) ?> 
+                                                (<?= $tuteur['quota_actuel'] ?>/<?= $tuteur['quota_max'] ?>)
+                                                <?= $tuteur['quota_actuel'] >= $tuteur['quota_max'] ? ' - COMPLET' : '' ?>
+                                            </option>
+                                        <?php endif; ?>
+                                    <?php endforeach; ?>
+                                </select>
+                            </div>
+                            
+                            <div style="margin-bottom: 1rem;">
+                                <label for="motif_changement"><strong>Motif du changement :</strong></label>
+                                <textarea name="motif" id="motif_changement" class="form-control" rows="3" required 
+                                          placeholder="Ex: Tuteur précédent indisponible, réorganisation pédagogique..."></textarea>
+                            </div>
+                            
+                            <div style="text-align: right;">
+                                <button type="button" onclick="fermerModal()" class="btn btn-secondary" style="margin-right: 1rem;">
+                                    Annuler
+                                </button>
+                                <button type="submit" class="btn btn-warning">
+                                    <i class="fas fa-check"></i> Confirmer le changement
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            
         <?php endif; ?>
     </div>
 </div>
+<?php endif; ?>
 <div style="text-align: center; padding: 1rem;">
     <a href="/stalhub/responsable/requestList" class="btn-retour">← Retour</a>
 </div>
