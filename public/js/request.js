@@ -3,9 +3,9 @@ document.addEventListener("DOMContentLoaded", function () {
     const siretGroup = document.getElementById("siret-group");
     const siretInput = document.getElementById("siret");
     // Supprimer les espaces dès que l'utilisateur tape
-siretInput.addEventListener('input', () => {
-    siretInput.value = siretInput.value.replace(/\s+/g, '');
-});
+    siretInput.addEventListener('input', () => {
+        siretInput.value = siretInput.value.replace(/\s+/g, '');
+    });
 
     const manualNote = document.getElementById("manual-entry-note");
 
