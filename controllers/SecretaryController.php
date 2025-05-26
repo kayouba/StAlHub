@@ -7,6 +7,16 @@ use App\Model\SecretaryModel;
 use App\Model\RequestModel;
 
 class SecretaryController {
+    /**
+     * Affiche le tableau de bord de la secrétaire académique.
+     * 
+     * Cette méthode :
+     * - Vérifie si l'utilisateur connecté est bien une secrétaire académique.
+     * - Redirige vers la page de connexion en cas d'accès non autorisé.
+     * - Récupère les informations de l'utilisateur via le UserModel.
+     * - Charge la liste de toutes les demandes via le SecretaryModel.
+     * - Rend la vue du tableau de bord de la secrétaire.
+    **/
     public function dashboard(): void
     {
         $userId = $_SESSION['user_id'] ?? null;
@@ -19,7 +29,7 @@ class SecretaryController {
 
         // Charger l'utilisateur depuis la base via UserModel
         $userModel = new UserModel();
-        $user = $userModel->findRequestInfoById($userId);
+        $user = $userModel->findById($userId);
 
         if (!$user) {
             session_destroy();
@@ -33,6 +43,16 @@ class SecretaryController {
         require_once $_SERVER['DOCUMENT_ROOT'] . '/stalhub/views/dashboard/secretary.php';
     }
 
+    /**
+     * Affiche les détails d'une demande spécifique pour la secrétaire académique.
+     * 
+     * Cette méthode :
+     * - Vérifie si l'utilisateur est une secrétaire académique, sinon redirige vers la page de connexion.
+     * - Récupère l'ID de la demande depuis les paramètres GET.
+     * - Charge les informations détaillées de la demande (étudiant, poste, etc.) via le RequestModel.
+     * - Récupère les documents associés à la demande via le SecretaryModel.
+     * - Affiche la vue correspondante contenant les détails de la demande et les pièces jointes.
+    **/
     public function detailsFile(): void
     {
         $userId = $_SESSION['user_id'] ?? null;
@@ -58,6 +78,17 @@ class SecretaryController {
         require_once $_SERVER['DOCUMENT_ROOT'] . '/stalhub/views/secretary/detailsfile.php';
     }
 
+    /**
+     * Met à jour le statut d’un document et son commentaire associé.
+     *
+     * Cette méthode :
+     * - Lit les données JSON reçues depuis une requête POST (via fetch).
+     * - Vérifie la validité du JSON et des champs essentiels (`document_id`, `status`, `comment`).
+     * - Appelle le modèle `SecretaryModel` pour mettre à jour le statut et le commentaire du document.
+     * - Retourne une réponse JSON indiquant le succès ou l’échec de l’opération.
+     * - Log les actions et les erreurs pour le debug.
+     *
+    **/
     public function updateDocumentStatus(): void {
         // Définir le type de contenu pour JSON
         header('Content-Type: application/json');
@@ -102,8 +133,17 @@ class SecretaryController {
         }
     }
 
+    /**
+     * Valide en masse plusieurs documents à partir de leurs IDs.
+     *
+     * Cette méthode :
+     * - Reçoit une liste d'identifiants de documents via une requête POST en JSON.
+     * - Vérifie que les données reçues sont valides.
+     * - Parcourt les identifiants et utilise le modèle `SecretaryModel` pour mettre à jour chaque document avec le statut "validée".
+     * - Retourne une réponse JSON indiquant le succès global de l'opération et les éventuelles erreurs individuelles.
+     * - Log chaque erreur de mise à jour pour faciliter le débogage.
+    **/
     public function validateAllDocuments(): void {
-        // Définir le type de contenu pour JSON
         header('Content-Type: application/json');
         
         try {
@@ -143,9 +183,17 @@ class SecretaryController {
         }
     }
 
-    // NOUVELLE MÉTHODE : Rejeter tous les documents
+    /**
+     * Rejette en masse plusieurs documents à partir de leurs identifiants.
+     *
+     * Cette méthode :
+     * - Reçoit une requête JSON contenant une liste d'IDs de documents à rejeter et un commentaire optionnel.
+     * - Valide les données reçues.
+     * - Utilise le modèle `SecretaryModel` pour mettre à jour chaque document avec le statut "refusée" et le commentaire fourni.
+     * - Enregistre les erreurs individuelles et les loggue si une mise à jour échoue.
+     * - Retourne une réponse JSON avec le statut global de l'opération et les éventuelles erreurs.
+    **/
     public function rejectAllDocuments(): void {
-        // Définir le type de contenu pour JSON
         header('Content-Type: application/json');
         
         try {
@@ -186,9 +234,17 @@ class SecretaryController {
         }
     }
 
+    
     /**
-     * NOUVELLE MÉTHODE : Sauvegarder uniquement le commentaire d'un document
-     */
+     * Sauvegarde le commentaire d'un document spécifique.
+     *
+     * Cette méthode :
+     * - Reçoit une requête JSON contenant l'ID d'un document et un commentaire à enregistrer.
+     * - Valide l'entrée (vérifie la validité du JSON et de l'ID du document).
+     * - Utilise le modèle `SecretaryModel` pour mettre à jour le commentaire dans la base de données.
+     * - Journalise les étapes pour faciliter le débogage.
+     * - Retourne une réponse JSON indiquant le succès ou l'échec de l'opération.
+    **/
     public function saveComment(): void {
         // Définir le type de contenu pour JSON
         header('Content-Type: application/json');
