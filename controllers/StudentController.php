@@ -154,14 +154,14 @@ class StudentController
 
         // === GESTION UPLOAD AVEC CHIFFREMENT ===
         if (!empty($_FILES)) {
-    var_dump($_FILES); die();
-
+            // var_dump($_FILES);die();
             $errors = [];
 
             // Liste des fichiers obligatoires (toujours requis)
             $requiredFiles = [
                 'cv' => 'CV',
-                'insurance' => "Attestation d'assurance"
+                'insurance' => "Attestation d'assurance",
+                'recap_pstage' => "Récapitulatif PStage"
             ];
 
             // Ajouter les fichiers spécifiques si stage à l'étranger
@@ -204,10 +204,26 @@ class StudentController
                     $_SESSION['step4']['insurance'] = $userPublicPath . '/assurance.pdf.enc';
                 }
             }
+            // ➤ Récapitulatif PStage (stocké en temporaire pour être déplacé au submit)
+            if (!empty($_FILES['recap_pstage']['tmp_name'])) {
+                $recapDir = __DIR__ . "/../public/uploads/users/$userId/temp/";
+                $recapPublic = "/stalhub/uploads/users/$userId/temp";
+
+                if (!file_exists($recapDir)) mkdir($recapDir, 0777, true);
+
+                $filename = 'recap_pstage.pdf.enc';
+                $tempPath = $recapDir . $filename;
+
+                if (FileCrypto::encrypt($_FILES['recap_pstage']['tmp_name'], $tempPath)) {
+                    $_SESSION['step4']['recap_pstage'] = $recapPublic . '/' . $filename;
+                }
+            }
 
             // ➤ Docs pour l’étranger (stockés temporairement)
-            $tmpDir = sys_get_temp_dir() . "/stalhub_user_$userId/";
+            $tmpDir = __DIR__ . "/../public/uploads/users/$userId/temp/";
+            $tmpPublic = "/stalhub/uploads/users/$userId/temp";
             if (!file_exists($tmpDir)) mkdir($tmpDir, 0777, true);
+
 
             if ($country === 'Étranger') {
                 $foreignDocs = [
@@ -219,10 +235,12 @@ class StudentController
 
                 foreach ($foreignDocs as $field) {
                     if (!empty($_FILES[$field]['tmp_name'])) {
-                        $tmpPath = $tmpDir . $field . '.pdf.enc';
+                        $filename = $field . '.pdf.enc';
+                        $tmpPath = $tmpDir . $filename;
                         if (FileCrypto::encrypt($_FILES[$field]['tmp_name'], $tmpPath)) {
-                            $_SESSION['step4'][$field . '.pdf.enc'] = $tmpPath;
+                            $_SESSION['step4'][$field] = $tmpPublic . '/' . $filename;
                         }
+
                     }
                 }
             }
@@ -263,7 +281,6 @@ class StudentController
     public function step5(): void
     {
         StepGuard::requireAll(['step1', 'step2', 'step3', 'step4'], '/stalhub/student/new-request');
-        var_dump($_SESSION);
 
         View::render('student/step5', [
             'step1' => $_SESSION['step1'] ?? [],
@@ -318,36 +335,39 @@ class StudentController
         }
 
         // 3. Documents obligatoires (CV + assurance)
-        $documentsToSave = [
-            'cv.pdf.enc' => 'CV',
-            'assurance.pdf.enc' => 'Assurance'
+        $documentFields = [
+            'cv' => 'CV',
+            'insurance' => 'Assurance',
+            'recap_pstage' => 'Récapitulatif PStage'
         ];
 
-        // 4. Ajouter documents étrangers si nécessaire
         if (($step2['country'] ?? '') === 'Étranger') {
-            $documentsToSave += [
-                'social_security.pdf.enc' => 'Attestation sécurité sociale',
-                'cpam.pdf.enc' => 'Attestation CPAM',
-                'data_collection_form.pdf.enc' => 'Personal Data Collection Form',
-                'accident_protection.pdf.enc' => 'Formulaire protection accidents du travail'
+            $documentFields += [
+                'social_security' => 'Attestation sécurité sociale',
+                'cpam' => 'Attestation CPAM',
+                'data_collection_form' => 'Personal Data Collection Form',
+                'accident_protection' => 'Formulaire protection accidents du travail'
             ];
         }
 
-
-        foreach ($documentsToSave as $filename => $label) {
-            $sessionPath = $_SESSION['step4'][$filename] ?? null;
+        foreach ($documentFields as $field => $label) {
+            $sessionPath = $_SESSION['step4'][$field] ?? null;
 
             if ($sessionPath) {
-                if (str_contains($sessionPath, "stalhub_user_$userId")) {
-                    $srcPath = $sessionPath; // Document temporaire (étranger)
-                } else {
-                    $srcPath = realpath(__DIR__ . '/../public' . str_replace('/stalhub', '', $sessionPath)); // Document du profil
-                }
-                if ($srcPath && file_exists($srcPath)) {
-                    $destPath = $uploadDir . basename($srcPath);
-                    rename($srcPath, $destPath);
+                $srcPath = realpath(__DIR__ . '/../public' . str_replace('/stalhub', '', $sessionPath));
 
-                    $publicPath = "/stalhub/uploads/users/$userId/demandes/$requestFolder/" . basename($srcPath);
+                if ($srcPath && file_exists($srcPath)) {
+                    $filename = $field . '.pdf.enc';
+                    $destPath = $uploadDir . $filename;
+
+                    // CV et Assurance doivent être copiés, les autres déplacés
+                    if (in_array($field, ['cv', 'insurance'])) {
+                        copy($srcPath, $destPath);
+                    } else {
+                        rename($srcPath, $destPath);
+                    }
+
+                    $publicPath = "/stalhub/uploads/users/$userId/demandes/$requestFolder/" . $filename;
                     $documentModel->saveDocument($requestId, $publicPath, $label);
                 }
             }
@@ -359,12 +379,12 @@ class StudentController
 
                 
         // Nettoyer les fichiers temporaires
-        $tmpDir = sys_get_temp_dir() . "/stalhub_user_$userId/";
-        if (file_exists($tmpDir)) {
-            foreach (glob("$tmpDir/*.pdf.enc") as $tmpFile) {
-                unlink($tmpFile);
+        $tempDir = __DIR__ . "/../public/uploads/users/$userId/temp/";
+        if (file_exists($tempDir)) {
+            foreach (glob($tempDir . '*.pdf.enc') as $file) {
+                unlink($file);
             }
-            rmdir($tmpDir);
+            rmdir($tempDir);
         }
 
 
