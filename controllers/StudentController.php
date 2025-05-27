@@ -154,8 +154,7 @@ class StudentController
 
         // === GESTION UPLOAD AVEC CHIFFREMENT ===
         if (!empty($_FILES)) {
-    var_dump($_FILES); die();
-
+            // var_dump($_FILES);die();
             $errors = [];
 
             // Liste des fichiers obligatoires (toujours requis)
@@ -263,7 +262,6 @@ class StudentController
     public function step5(): void
     {
         StepGuard::requireAll(['step1', 'step2', 'step3', 'step4'], '/stalhub/student/new-request');
-        var_dump($_SESSION);
 
         View::render('student/step5', [
             'step1' => $_SESSION['step1'] ?? [],
@@ -338,7 +336,7 @@ class StudentController
             $sessionPath = $_SESSION['step4'][$filename] ?? null;
 
             if ($sessionPath) {
-                if (str_contains($sessionPath, "stalhub_user_$userId")) {
+                if (str_starts_with($sessionPath, '/tmp')) {
                     $srcPath = $sessionPath; // Document temporaire (étranger)
                 } else {
                     $srcPath = realpath(__DIR__ . '/../public' . str_replace('/stalhub', '', $sessionPath)); // Document du profil
@@ -355,7 +353,7 @@ class StudentController
 
 
         // 5. Nettoyage session
-        unset($_SESSION['step1'], $_SESSION['step2'], $_SESSION['step3'], $_SESSION['step4']);
+        // unset($_SESSION['step1'], $_SESSION['step2'], $_SESSION['step3'], $_SESSION['step4']);
 
                 
         // Nettoyer les fichiers temporaires
