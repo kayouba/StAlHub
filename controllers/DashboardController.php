@@ -41,8 +41,12 @@ public function index(): void
         exit;
     }
 
+    if ($role === 'cfa') {
+        header('Location: /stalhub/cfa/dashboard');
+        exit;
+    }
 
-        if ($role === 'tutor') {
+    if ($role === 'tutor') {
         header('Location: /stalhub/tutor/dashboard');
         exit;
     }
