@@ -93,6 +93,7 @@
                     <th>Programme</th>
                     <th>Niveau</th>
                     <th>Statut</th>
+                    <th>Actions</th>
                 </tr>
             </thead>
             <tbody>
@@ -107,6 +108,11 @@
                             <td><?= htmlspecialchars($req['program']) ?></td>
                             <td><?= htmlspecialchars($req['track']) ?></td>
                             <td><?= htmlspecialchars(StatusTranslator::translate($req['status'])) ?></td>
+                            <td class="actions">
+                                <button onclick='openRequestModal(<?= json_encode($req, JSON_HEX_APOS | JSON_HEX_QUOT) ?>)' class="pdf-btn">👁 Voir</button>
+                                <a href="/stalhub/request/pdf?id=<?= $req['id'] ?>" target="_blank" class="pdf-btn">📄 PDF</a>
+                                <a href="/stalhub/document/zip?user_id=<?= $req['student_id'] ?>" class="pdf-btn">🗜 ZIP</a>
+                            </td>
                         </tr>
                     <?php endif; ?>
                 <?php endforeach; ?>
