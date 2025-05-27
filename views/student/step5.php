@@ -75,15 +75,6 @@
                         <?php endif; ?>
                     <?php endforeach; ?>
 
-                    <?php if (!empty($_SESSION['step4']['pstage_summary'])): ?>
-                        <p>
-                            <strong>Récapitulatif PStage :</strong>
-                            <a href="/stalhub/document/view?file=<?= urlencode($_SESSION['step4']['pstage_summary']) ?>" target="_blank">
-                                Voir le document
-                            </a>
-                        </p>
-                    <?php endif; ?>
-
                     <?php if (($_SESSION['step3']['country'] ?? '') === 'Étranger'): ?>
                         <?php foreach ([
                             'social_security' => 'Attestation sécurité sociale',
