@@ -103,12 +103,18 @@
                 <span class="save-indicator" style="color: green; font-size: 12px; display: none;">💾 Sauvegardé</span>
               </td>
               <td>
-                <?php if (!empty($doc['file_path'])): ?>
-                  <a class="btn-action" href="<?= htmlspecialchars($doc['file_path']) ?>" target="_blank" rel="noopener noreferrer">📄 Voir</a>
-                <?php else: ?>
-                  <span style="color: #aaa;">Aucun</span>
-                <?php endif; ?>
-              </td>
+              <?php if (!empty($doc['file_path'])): ?>
+                <a
+                  class="btn-action"
+                  href="/stalhub/document/view?file=<?= urlencode($doc['file_path']) ?>"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >📄 Voir</a>
+              <?php else: ?>
+                <span style="color: #aaa;">Aucun</span>
+              <?php endif; ?>
+            </td>
+
             </tr>
           <?php endforeach; ?>
         </tbody>
