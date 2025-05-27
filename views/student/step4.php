@@ -42,15 +42,7 @@
             </p>
         <?php endif; ?>
         <input type="file" name="insurance" accept=".pdf,.jpg,.jpeg,.png" <?= empty($step4['insurance']) ? 'required' : '' ?>>
-        <label class="required">Récapitulatif PStage <small>(PDF)</small></label>
-        <?php if (!empty($step4['pstage_summary'])): ?>
-            <p>
-                <a href="/stalhub/document/view?file=<?= urlencode($step4['pstage_summary']) ?>" target="_blank">Voir le fichier actuel</a><br>
-                <em class="note">Vous pouvez téléverser un nouveau fichier pour le remplacer.</em>
-            </p>
-        <?php endif; ?>
-        <input type="file" name="pstage_summary" accept=".pdf" <?= empty($step4['pstage_summary']) ? 'required' : '' ?>>
-
+        
         <?php if (($step3['country'] ?? '') === 'Étranger'): ?>
             <hr>
             <h3>Documents supplémentaires pour un stage à l’étranger</h3>
