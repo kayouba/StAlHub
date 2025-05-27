@@ -65,7 +65,7 @@ function getDisplayStatusClass($demande) {
 
 <main>
   <h1>Bienvenue, <?= htmlspecialchars($user['first_name']) . ' ' . htmlspecialchars($user['last_name']) ?></h1>
-  <p class="bienvenue">Vous êtes connecté en tant que secrétaire.</p>
+  <p class="bienvenue">Vous êtes connecté en tant que secrétariat pédagogique.</p>
   
   <h1>Demandes de Stage</h1>
   
@@ -102,6 +102,12 @@ function getDisplayStatusClass($demande) {
       </tr>
     </thead>
     <tbody id="table-body">
+      <?php
+        $demandes = array_filter($demandes, function ($demande) {
+          return strtolower($demande['type'] ?? '') === 'stage';
+        });
+      ?>
+
       <?php foreach ($demandes as $demande): ?>
         <?php
           $statusLabel = getDisplayStatus($demande);
