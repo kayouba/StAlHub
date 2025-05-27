@@ -82,4 +82,24 @@ document.addEventListener("DOMContentLoaded", function () {
                 });
         }
     });
+
+    // === Gestion du champ pays étranger ===
+    const foreignCountryGroup = document.getElementById("foreign-country-group");
+
+    function toggleForeignCountryField() {
+        if (countrySelect.value === "Étranger") {
+            foreignCountryGroup.style.display = "block";
+        } else {
+            foreignCountryGroup.style.display = "none";
+            const input = foreignCountryGroup.querySelector('input[name="foreign_country"]');
+            if (input) {
+                input.value = '';
+            }
+        }
+    }
+
+    countrySelect.addEventListener("change", toggleForeignCountryField);
+    toggleForeignCountryField(); // Initialisation
+
+    
 });

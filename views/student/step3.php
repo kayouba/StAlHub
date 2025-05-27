@@ -20,7 +20,12 @@
             <option value="France" <?= ($step3['country'] ?? '') === 'France' ? 'selected' : '' ?>>France</option>
             <option value="Étranger" <?= ($step3['country'] ?? '') === 'Étranger' ? 'selected' : '' ?>>Étranger</option>
         </select>
-
+        <div id="foreign-country-group" style="<?= ($step3['country'] ?? '') === 'Étranger' ? '' : 'display: none;' ?>">
+            <label>Pays de l’entreprise</label>
+            <input type="text" name="foreign_country" value="<?= htmlspecialchars($step3['foreign_country'] ?? '') ?>">
+        </div>
+        <label>Ville</label>
+        <input type="text" name="city" value="<?= htmlspecialchars($step3['city'] ?? '') ?>" required>
         <div id="siret-group">
             <label>SIRET de l'entreprise</label>
             <input type="text" name="siret" id="siret" value="<?= htmlspecialchars($step3['siret'] ?? '') ?>">
@@ -32,8 +37,6 @@
         <label>Nom de l'entreprise</label>
         <input type="text" name="company_name" value="<?= htmlspecialchars($step3['company_name'] ?? '') ?>" required>
 
-        <label>Ville</label>
-        <input type="text" name="city" value="<?= htmlspecialchars($step3['city'] ?? '') ?>" required>
 
         <label>Code Postal</label>
         <input type="text" name="postal_code" value="<?= htmlspecialchars($step3['postal_code'] ?? '') ?>" required>
@@ -47,6 +50,9 @@
         <label>Mail du tuteur de stage en entreprise</label>
         <input type="email" name="supervisor_email" value="<?= htmlspecialchars($step3['supervisor_email'] ?? '') ?>" required
             placeholder="tuteur@entreprise.com">
+
+        <label>Numéro du tuteur <small>avec indicatif international (ex : +33...)</small></label>
+        <input type="tel" name="supervisor_num" value="<?= htmlspecialchars($step3['supervisor_num'] ?? '') ?>" required pattern="^\+[0-9]{7,15}$" title="Numéro au format international requis, ex : +33612345678">
 
         <label>Rôle du tuteur (Chef de projet, Consultant...)</label>
         <input type="text" name="supervisor_position" value="<?= htmlspecialchars($step3['supervisor_position'] ?? '') ?>" required>

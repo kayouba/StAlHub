@@ -78,6 +78,8 @@ $statusClass = match($request['status']) {
         <p><strong>Rémunération :</strong> <?= safe($request['salary']) ?> €/<?= safe($request['salary_duration']) ?></p>
         <p><strong>Missions :</strong> <?= nl2br(safe($request['mission'])) ?></p>
         <p><strong>Tuteur :</strong> <?= safe($request['supervisor_last_name'] . ' ' . $request['supervisor_first_name']) ?></p>
+        <p><strong>Téléphone du tuteur :</strong> <?= htmlspecialchars($request['supervisor_num'] ?? '') ?></p>
+
     </section>
 
     <section>

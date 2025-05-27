@@ -85,3 +85,8 @@ h1 {
 .form-actions button[type="button"]:hover {
     background-color: #495057;
 }
+
+.required {
+    color: red;
+    margin-left: 0.2em;
+}
