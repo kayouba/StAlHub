@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Controller;
 
 use App\View;
@@ -8,25 +9,50 @@ use App\Model\UserModel;
 class CfaController
 {
     public function dashboard(): void
-    {
-        $model = new RequestModel();
-        $userModel = new UserModel();
+{
+    $model = new RequestModel();
+    $userModel = new UserModel();
 
-        $pendingRequests = $model->getAllWithStatus('VALID_PEDAGO');
-        $validatedRequests = $model->getAllWithStatus('VALID_CFA');
+    $pendingRequests = $model->getAllWithStatus('VALID_PEDAGO');
+    $validatedRequests = $model->getAllWithStatus('VALID_CFA');
 
-        $programs = $userModel->getDistinctValues('program');
-        $tracks = $userModel->getDistinctValues('track');
-        $levels   = $userModel->getDistinctValues('level');
+    $programs = $userModel->getDistinctValues('program');
+    $tracks = $userModel->getDistinctValues('track');
+    $levels = $userModel->getDistinctValues('level');
 
-        View::render('/dashboard/cfa', [
-            'pendingRequests' => $pendingRequests,
-            'validatedRequests' => $validatedRequests,
-            'programs' => $programs,
-            'tracks' => $tracks,
-            'levels' => $levels
-        ]);
+    // Charger les fichiers du profil pour chaque demande
+    foreach ($pendingRequests as &$req) {
+        $userId = $req['student_id']; // <- assure-toi que ce champ existe
+        $userPath = "/uploads/users/$userId/";
+        $absolute = __DIR__ . "/../public" . $userPath;
+
+        $req['documents'] = [];
+
+        $files = [
+            'cv.pdf.enc' => 'CV',
+            'assurance.pdf.enc' => "Attestation d'assurance",
+            'pstage_summary.pdf.enc' => 'Résumé de stage',
+        ];
+
+        foreach ($files as $filename => $label) {
+            if (file_exists($absolute . $filename)) {
+                $req['documents'][] = [
+                    'label' => $label,
+                    'file_path' => "/stalhub{$userPath}{$filename}"
+                ];
+            }
+        }
     }
+
+    View::render('/dashboard/cfa', [
+        'pendingRequests' => $pendingRequests,
+        'validatedRequests' => $validatedRequests,
+        'programs' => $programs,
+        'tracks' => $tracks,
+        'levels' => $levels
+    ]);
+}
+
 
     public function validate(): void
     {
