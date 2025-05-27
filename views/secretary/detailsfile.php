@@ -72,21 +72,28 @@
                 <?= !empty($doc['file_path']) ? '<span class="icon-check">✔️</span>' : '<span class="icon-cross">⭕</span>' ?>
               </td>
               <td class="doc-status" data-status="<?= strtolower($doc['status']) ?>">
-                <span class="status-text" style="font-weight: bold; color: <?= 
-                  strtolower($doc['status']) === 'validée' ? 'green' : 
-                  (strtolower($doc['status']) === 'refusée' ? 'red' : 'orange') 
-                ?>;">
-                  <?php
-                  $status = strtolower($doc['status']);
-                  $statusMap = [
-                    'validated' => 'validé',
-                    'rejected'  => 'refusé',
-                  ];
-                  $displayStatus = $statusMap[$status] ?? $status;
-                ?>
+              <?php
+                $status = strtolower($doc['status']);
+                $statusColor = match ($status) {
+                  'validé', 'validated' => 'green',
+                  'refusé', 'rejected'  => 'red',
+                  'soumis', 'submitted' => 'orange',
+                  default => '#888'
+                };
+
+                $statusMap = [
+                  'validated' => 'validé',
+                  'rejected'  => 'refusé',
+                  'submitted' => 'soumis',
+                ];
+
+                $displayStatus = $statusMap[$status] ?? $status;
+              ?>
+              <span class="status-text" style="font-weight: bold; color: <?= $statusColor ?>;">
                 <?= ucfirst($displayStatus) ?>
-                </span>
-              </td>
+              </span>
+            </td>
+
               <td>
                 <button class="btn-action validate-btn" data-id="<?= htmlspecialchars($doc['id'] ?? '') ?>">✅ Valider</button>
                 <button class="btn-action refuse-btn" data-id="<?= htmlspecialchars($doc['id'] ?? '') ?>">❌ Refuser</button>
@@ -124,7 +131,7 @@
       <?php
       $refusedDocs = array_filter($documents, function($doc) {
         $status = strtolower($doc['status']);
-        return in_array($status, ['rejected', 'refusée', 'refusee', 'refusé']);
+        return in_array($status, ['rejected', 'refusé', 'refusee', 'refusé']);
       });
 
       $emailBody = "Bonjour " . ($requestDetails['first_name'] ?? '') . ",\n\n";
