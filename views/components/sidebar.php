@@ -34,14 +34,23 @@
         z-index: 998;
         box-shadow: 3px 0 15px rgba(0, 204, 255, 0.2);
     }
-    .sidebar .logo h2 {
-    font-family: 'Orbitron', sans-serif !important;
-    font-size: 22px !important;
-    margin-bottom: 40px !important;
-    text-transform: uppercase !important;
-    letter-spacing: 1px !important;
-    color: white !important;
-    }
+    .sidebar .logo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 10px;
+    height: 60px;
+}
+
+.sidebar .logo h2 {
+    margin: 0;
+    padding: 0;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 22px;
+    color: white;
+    letter-spacing: 2px;
+}
+
 
     .sidebar .logo h2 span {
         color: #00cfff !important;

@@ -320,6 +320,29 @@ public function getAllWithTutors(): array
 }
 
 
+public function getAllWithStatus(string $status): array
+{
+    $stmt = $this->pdo->prepare("
+        SELECT r.*, 
+               CONCAT(u.first_name, ' ', u.last_name) AS student,
+               u.level, u.program, u.track
+        FROM requests r
+        JOIN users u ON u.id = r.student_id
+        WHERE r.status = :status
+        ORDER BY r.created_on DESC
+    ");
+    $stmt->execute(['status' => $status]);
+    return $stmt->fetchAll(\PDO::FETCH_ASSOC);
+}
+
+public function updateStatus(int $id, string $status): bool
+{
+    $stmt = $this->pdo->prepare("UPDATE requests SET status = :status WHERE id = :id");
+    return $stmt->execute([
+        'status' => $status,
+        'id' => $id
+    ]);
+}
 
     public function findById(int $id): ?array
     {

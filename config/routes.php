@@ -59,6 +59,8 @@ return [
    '/secretary/validate-all-documents' => ['App\Controller\SecretaryController', 'validateAllDocuments'],
    '/secretary/save-comment' => ['App\Controller\SecretaryController', 'saveComment'],
 
+   '/cfa/dashboard' => ['App\Controller\CFAController', 'dashboard'],
+   '/cfa/validate' => ['App\Controller\CFAController', 'validate'],
 
    /*  '/responsable/valider' => ['App\Controller\ResponsablePedaController', 'valider'],
     '/responsable/refuser' => ['App\Controller\ResponsablePedaController', 'refuser'], */

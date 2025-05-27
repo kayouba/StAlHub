@@ -118,4 +118,12 @@ public function findByRole(string $role): array
     return $stmt->fetchAll(\PDO::FETCH_ASSOC);
 }
 
+public function getDistinctValues(string $column): array
+{
+    $stmt = $this->pdo->prepare("SELECT DISTINCT $column FROM users WHERE $column IS NOT NULL AND $column != '' ORDER BY $column");
+    $stmt->execute();
+
+    return array_column($stmt->fetchAll(\PDO::FETCH_ASSOC), $column);
+}
+
 }

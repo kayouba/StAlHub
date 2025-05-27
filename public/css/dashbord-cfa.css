@@ -1,0 +1,181 @@
+body {
+    font-family: 'Open Sans', sans-serif;
+    background: #f4f6f8;
+    margin: 0;
+    color: #333;
+}
+
+.cfa-main {
+    margin-left: 250px;
+    padding: 2rem;
+    box-sizing: border-box;
+}
+
+h1 {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 2.2rem;
+    color: #003a70;
+    margin-bottom: 1.5rem;
+}
+
+.filters {
+    background: #fff;
+    padding: 1rem;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.filters label {
+    font-weight: bold;
+    color: #003a70;
+}
+
+.filters select,
+.filters button {
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    font-size: 14px;
+    margin-right: 2rem;
+}
+
+.tabs {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.tab-button {
+    background: #eee;
+    color: #003a70;
+    border: none;
+    padding: 0.6rem 1.2rem;
+    border-radius: 20px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.2s ease;
+}
+
+.tab-button.active {
+    background: #00cfff;
+    color: white;
+    box-shadow: 0 2px 6px rgba(0, 204, 255, 0.4);
+}
+
+.tab-content {
+    display: none;
+    background: white;
+    padding: 1.5rem;
+    border-radius: 12px;
+    box-shadow: 0 1px 8px rgba(0, 0, 0, 0.05);
+}
+
+.tab-content.active {
+    display: block;
+}
+
+.search-input {
+    width: 100%;
+    padding: 0.6rem;
+    margin-bottom: 1rem;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem;
+}
+
+th, td {
+    padding: 0.75rem;
+    border-bottom: 1px solid #eee;
+    text-align: left;
+}
+
+th {
+    background: #004A7C;
+    color: white;
+}
+
+.actions {
+    display: flex;
+    gap: 0.4rem;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.actions .view-btn,
+.actions .pdf-btn,
+.actions .validate-btn {
+    border: none;
+    padding: 0.4rem 0.8rem;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+    transition: background-color 0.2s ease;
+    display: inline-block;
+    font-size: 14px;
+}
+
+.view-btn {
+    background-color: #d8f0ff;
+    color: #004a7c;
+}
+
+.view-btn:hover {
+    background-color: #b6e7ff;
+}
+
+.pdf-btn {
+    background-color: #f0f0f0;
+    color: #003a70;
+}
+
+.pdf-btn:hover {
+    background-color: #e0e0e0;
+}
+
+.validate-btn {
+    background-color: #00cfff;
+    color: white;
+}
+
+.validate-btn:hover {
+    background-color: #007aad;
+}
+
+.modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.6);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.modal-content {
+    background: white;
+    padding: 2rem;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 600px;
+    position: relative;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+}
+
+.modal .close {
+    position: absolute;
+    top: 12px;
+    right: 16px;
+    font-size: 22px;
+    color: #333;
+    cursor: pointer;
+}
