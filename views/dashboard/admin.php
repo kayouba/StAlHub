@@ -18,7 +18,6 @@ $rejectedCount = $rejectedCount ?? 0;
 <main class="admin-dashboard">
     <h1>Tableau de bord administrateur</h1>
 
-
     <div class="tabs">
         <button class="tab active" data-tab="users">Utilisateurs</button>
         <button class="tab" data-tab="requests">Demandes</button>

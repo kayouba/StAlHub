@@ -37,4 +37,57 @@ class DocumentController
         unlink($tmpPath);
         exit;
     }
+    public function zip(): void
+    {
+        if (!isset($_SESSION['user_id'])) {
+            http_response_code(403);
+            exit("Non autorisé");
+        }
+
+        $userId = $_GET['user_id'] ?? null;
+        if (!$userId || !is_numeric($userId)) {
+            http_response_code(400);
+            exit("Paramètre invalide.");
+        }
+
+        $userDir = __DIR__ . "/../public/uploads/users/" . intval($userId);
+        if (!file_exists($userDir)) {
+            http_response_code(404);
+            exit("Aucun document trouvé.");
+        }
+
+        $zipPath = tempnam(sys_get_temp_dir(), 'docs_') . '.zip';
+        $zip = new \ZipArchive();
+
+        if ($zip->open($zipPath, \ZipArchive::CREATE) !== true) {
+            http_response_code(500);
+            exit("Impossible de créer l'archive.");
+        }
+
+        $files = glob("$userDir/*.enc");
+        if (!$files) {
+            $zip->close();
+            unlink($zipPath);
+            http_response_code(404);
+            exit("Aucun document à compresser.");
+        }
+
+        foreach ($files as $file) {
+            $filename = basename($file, '.enc');
+            $decryptedPath = tempnam(sys_get_temp_dir(), 'dec_');
+
+            if (FileCrypto::decrypt($file, $decryptedPath)) {
+                $zip->addFile($decryptedPath, $filename . '.pdf');
+            }
+        }
+
+        $zip->close();
+
+        header('Content-Type: application/zip');
+        header('Content-Disposition: attachment; filename="documents_user_' . $userId . '.zip"');
+        header('Content-Length: ' . filesize($zipPath));
+        readfile($zipPath);
+        unlink($zipPath);
+        exit;
+    }
 }

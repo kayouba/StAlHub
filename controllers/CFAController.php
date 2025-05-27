@@ -13,8 +13,8 @@ class CfaController
     $model = new RequestModel();
     $userModel = new UserModel();
 
-    $pendingRequests = $model->getAllWithStatus('VALID_PEDAGO');
-    $validatedRequests = $model->getAllWithStatus('VALID_CFA');
+    $pendingRequests = $model->getAllWithStatusAndContract('VALID_PEDAGO','apprenticeship');
+    $validatedRequests = $model->getAllWithStatusAndContract('VALID_CFA','apprenticeship');
 
     $programs = $userModel->getDistinctValues('program');
     $tracks = $userModel->getDistinctValues('track');

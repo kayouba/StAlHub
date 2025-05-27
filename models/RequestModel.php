@@ -335,6 +335,28 @@ public function getAllWithStatus(string $status): array
     return $stmt->fetchAll(\PDO::FETCH_ASSOC);
 }
 
+public function getAllWithStatusAndContract(string $status, string $contract_type): array
+{
+    $stmt = $this->pdo->prepare("
+        SELECT r.*, 
+               CONCAT(u.first_name, ' ', u.last_name) AS student,
+               u.level, u.program, u.track
+        FROM requests r
+        JOIN users u ON u.id = r.student_id
+        WHERE r.status = :status AND r.contract_type = :contract_type
+        ORDER BY r.created_on DESC
+    ");
+
+    // ✅ Combine les paramètres dans un seul tableau associatif
+    $stmt->execute([
+        'status' => $status,
+        'contract_type' => $contract_type
+    ]);
+
+    return $stmt->fetchAll(\PDO::FETCH_ASSOC);
+}
+
+
 public function updateStatus(int $id, string $status): bool
 {
     $stmt = $this->pdo->prepare("UPDATE requests SET status = :status WHERE id = :id");

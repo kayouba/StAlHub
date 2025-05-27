@@ -61,6 +61,7 @@ return [
 
    '/cfa/dashboard' => ['App\Controller\CFAController', 'dashboard'],
    '/cfa/validate' => ['App\Controller\CFAController', 'validate'],
+   '/document/zip' => ['App\Controller\DocumentController', 'zip'],
 
    /*  '/responsable/valider' => ['App\Controller\ResponsablePedaController', 'valider'],
     '/responsable/refuser' => ['App\Controller\ResponsablePedaController', 'refuser'], */
