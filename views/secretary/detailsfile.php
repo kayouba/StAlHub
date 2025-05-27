@@ -103,6 +103,7 @@
                 <span class="save-indicator" style="color: green; font-size: 12px; display: none;">💾 Sauvegardé</span>
               </td>
               <td>
+              
               <?php if (!empty($doc['file_path'])): ?>
                 <a
                   class="btn-action"
