@@ -42,7 +42,9 @@
             </p>
         <?php endif; ?>
         <input type="file" name="insurance" accept=".pdf,.jpg,.jpeg,.png" <?= empty($step4['insurance']) ? 'required' : '' ?>>
-        
+        <label class="required">Récapitulatif PStage</label>
+        <input type="file" name="recap_pstage" accept=".pdf" required>
+
         <?php if (($step3['country'] ?? '') === 'Étranger'): ?>
             <hr>
             <h3>Documents supplémentaires pour un stage à l’étranger</h3>
