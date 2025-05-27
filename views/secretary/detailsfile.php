@@ -23,8 +23,32 @@
       <p><span class="label">Mission :</span> <span class="value"><?= htmlspecialchars($requestDetails['mission']) ?></span></p>
       <p><span class="label">Volume Horaire :</span> <span class="value"><?= htmlspecialchars($requestDetails['weekly_hours'] ?? 'Non précisé') ?></span></p>
       <p><span class="label">Tuteur :</span> <span class="value"><?= htmlspecialchars($requestDetails['supervisor'] ?? 'Non renseigné') ?></span></p>
-      <p><span class="label">Numéro e-sup :</span> <span class="value"><?= htmlspecialchars($requestDetails['student_number']) ?></span></p>
-      <p><span class="label">Durée :</span> <span class="value">3 mois</span></p>
+      <p><span class="label">Numéro e-sup :</p>
+      <?php
+      $durationText = 'Non renseignée';
+      if (!empty($requestDetails['start_date']) && !empty($requestDetails['end_date'])) {
+        try {
+          $start = new DateTime($requestDetails['start_date']);
+          $end = new DateTime($requestDetails['end_date']);
+          $interval = $start->diff($end);
+
+          // Formattage : X mois Y jours
+          $months = $interval->m + ($interval->y * 12);
+          $days = $interval->d;
+
+          $durationParts = [];
+          if ($months > 0) $durationParts[] = "$months mois";
+          if ($days > 0) $durationParts[] = "$days jours";
+
+          $durationText = implode(' ', $durationParts);
+        } catch (Exception $e) {
+          $durationText = 'Erreur de date';
+        }
+      }
+    ?>
+
+<p><span class="label">Durée :</span> <span class="value"><?= htmlspecialchars($durationText) ?></span></p>
+
     </div>
 
     <div class="section">
@@ -52,7 +76,15 @@
                   strtolower($doc['status']) === 'validée' ? 'green' : 
                   (strtolower($doc['status']) === 'refusée' ? 'red' : 'orange') 
                 ?>;">
-                  <?= ucfirst(htmlspecialchars($doc['status'])) ?>
+                  <?php
+                  $status = strtolower($doc['status']);
+                  $statusMap = [
+                    'validated' => 'validé',
+                    'rejected'  => 'refusé',
+                  ];
+                  $displayStatus = $statusMap[$status] ?? $status;
+                ?>
+                <?= ucfirst($displayStatus) ?>
                 </span>
               </td>
               <td>
@@ -82,17 +114,37 @@
         </tbody>
       </table>
 
-      <div class="actions-section">
-        <a
-          class="btn-relancer"
-          href="mailto:<?= htmlspecialchars($requestDetails['email'] ?? ''); ?>?subject=Relance%20documents%20stage&body=Bonjour%20<?= rawurlencode($requestDetails['first_name'] ?? ''); ?>%2C%0A%0AVos%20documents%20ne%20sont%20pas%20valides.%20Veuillez%20consulter%20votre%20espace%20en%20ligne%20et%20fournir%20les%20documents%20necessaires.%0A%0ACordialement."
-        >
-          📧 Relancer l'étudiant par mail
-        </a>
-      </div>
+      <?php
+      $refusedDocs = array_filter($documents, function($doc) {
+        $status = strtolower($doc['status']);
+        return in_array($status, ['rejected', 'refusée', 'refusee', 'refusé']);
+      });
 
-      <div class="global-message" id="globalMessage"></div>
+      $emailBody = "Bonjour " . ($requestDetails['first_name'] ?? '') . ",\n\n";
+      $emailBody .= "Certains de vos documents ont été refusés. Veuillez consulter les motifs ci-dessous et fournir une version corrigée :\n\n";
+
+      foreach ($refusedDocs as $doc) {
+        $label = htmlspecialchars($doc['label']);
+        $comment = htmlspecialchars($doc['comment'] ?? 'Aucun motif précisé');
+        $emailBody .= "- $label : $comment\n";
+      }
+
+      $emailBody .= "\nConsultez votre espace en ligne pour soumettre à nouveau les documents.\n\nCordialement.";
+
+      $mailtoLink = "mailto:" . rawurlencode($requestDetails['email'] ?? '') .
+                    "?subject=" . rawurlencode("StAlHub - Relance documents stage") .
+                    "&body=" . rawurlencode($emailBody);
+    ?>
+
+    <div class="actions-section">
+      <a
+        class="btn-relancer"
+        href="<?= $mailtoLink ?>"
+      >
+        📧 Relancer l'étudiant par mail
+      </a>
     </div>
+
 
   <?php endif; ?>
 </div>
