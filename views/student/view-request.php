@@ -1,17 +1,9 @@
-<?php
+comme ceci ? <?php
 use App\Lib\StatusTranslator;
 
 $request = $request ?? [];
 $documents = $documents ?? [];
 $statusHistory = $statusHistory ?? [];
-
-$hasRejected = false;
-foreach ($documents as $doc) {
-    if ($doc['status'] === 'rejected') {
-        $hasRejected = true;
-        break;
-    }
-}
 
 function safe($value): string {
     return htmlspecialchars($value ?? '');
@@ -32,8 +24,59 @@ $statusClass = match($request['status']) {
     <meta charset="UTF-8">
     <title>StalHub - Détail de la demande</title>
     <link rel="stylesheet" href="/stalhub/public/css/request-view.css">
+    <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.1.6/dist/signature_pad.umd.min.js"></script>
+
 </head>
 <body>
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+    const canvas = document.getElementById("signature-pad");
+    const signaturePad = new SignaturePad(canvas);
+
+    // Mise à l’échelle du canvas pour les écrans HDPI
+    const ratio = window.devicePixelRatio || 1;
+    canvas.width = canvas.offsetWidth * ratio;
+    canvas.height = canvas.offsetHeight * ratio;
+    canvas.getContext("2d").scale(ratio, ratio);
+
+    const clearButton = document.getElementById("clear-signature");
+    const saveButton = document.getElementById("save-signature");
+    const message = document.getElementById("signature-message");
+
+    clearButton.addEventListener("click", () => {
+        signaturePad.clear();
+    });
+
+    saveButton.addEventListener("click", () => {
+        if (signaturePad.isEmpty()) {
+            alert("Veuillez signer avant d’enregistrer !");
+            return;
+        }
+
+        const dataURL = signaturePad.toDataURL("image/png");
+
+        fetch("/stalhub/signature/upload", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                request_id: <?= (int) $request['id'] ?>,
+                image: dataURL
+            })
+        })
+        .then(res => res.text())
+        .then(msg => {
+            message.textContent = msg;
+            message.style.color = "green";
+        })
+        .catch(() => {
+            message.style.color = "red";
+            message.textContent = "Erreur lors de l'enregistrement.";
+        });
+    });
+});
+</script>
+
+
 
 <?php include __DIR__ . '/../components/sidebar.php'; ?>
 
@@ -78,8 +121,6 @@ $statusClass = match($request['status']) {
         <p><strong>Rémunération :</strong> <?= safe($request['salary']) ?> €/<?= safe($request['salary_duration']) ?></p>
         <p><strong>Missions :</strong> <?= nl2br(safe($request['mission'])) ?></p>
         <p><strong>Tuteur :</strong> <?= safe($request['supervisor_last_name'] . ' ' . $request['supervisor_first_name']) ?></p>
-        <p><strong>Téléphone du tuteur :</strong> <?= htmlspecialchars($request['supervisor_num'] ?? '') ?></p>
-
     </section>
 
     <section>
@@ -87,28 +128,24 @@ $statusClass = match($request['status']) {
         <form action="/stalhub/student/upload-correction" method="POST" enctype="multipart/form-data">
             <input type="hidden" name="request_id" value="<?= $request['id'] ?>">
             <ul>
-            <?php foreach ($documents as $doc): ?>
-                <li>
-                    <strong><?= safe($doc['label']) ?> :</strong>
-                    <a href="/stalhub/document/view?file=<?= urlencode($doc['file_path']) ?>" target="_blank">Voir</a>
+                <?php foreach ($documents as $doc): ?>
+                    <li>
+                        <strong><?= safe($doc['label']) ?> :</strong>
+                        <a href="/stalhub/document/view?file=<?= urlencode($doc['file_path']) ?>" target="_blank">Voir</a>
 
-                    <?php if ($doc['status'] === 'rejected'): ?>
-                        <span style="color: red;">(Rejeté)</span><br>
-                        <label>Remplacer le document :</label>
-                        <input type="file" name="documents[<?= $doc['id'] ?>]" accept=".pdf,.jpg,.jpeg,.png">
-                    <?php elseif ($doc['status'] === 'validated'): ?>
-                        <span style="color: green;">(Validé)</span>
-                    <?php elseif ($doc['status'] === 'submitted'): ?>
-                        <span style="color: orange;">(En attente de validation)</span>
-                    <?php endif; ?>
-                </li>
-            <?php endforeach; ?>
-
+                        <?php if ($doc['status'] === 'rejected'): ?>
+                            <br>
+                            <label>Remplacer le document :</label>
+                            <input type="file" name="documents[<?= $doc['id'] ?>]" accept=".pdf,.jpg,.jpeg,.png">
+                        <?php elseif ($doc['status'] === 'validated'): ?>
+                            <span style="color: green;">(Validé)</span>
+                        <?php elseif ($doc['status'] === 'submitted'): ?>
+                            <span style="color: orange;">(En attente de validation)</span>
+                        <?php endif; ?>
+                    </li>
+                <?php endforeach; ?>
             </ul>
-            <?php if ($hasRejected): ?>
-                <button type="submit">Envoyer les documents corrigés</button>
-            <?php endif; ?>
-
+            <button type="submit">Envoyer les documents corrigés</button>
         </form>
     </section>
 
@@ -119,6 +156,19 @@ $statusClass = match($request['status']) {
             <a href="/stalhub/student/convention/download?id=<?= $request['id'] ?>" class="button">📄 Télécharger la convention signée</a>
         </section>
     <?php endif; ?>
+
+
+    <section>
+    <h2>Signature manuscrite</h2>
+        <p>Signez ici pour valider cette demande :</p>
+
+        <canvas id="signature-pad" width="400" height="150" style="border:1px solid #ccc;"></canvas><br>
+        <button type="button" id="clear-signature">🧽 Effacer</button>
+        <button type="button" id="save-signature">✅ Enregistrer la signature</button>
+
+        <p id="signature-message" style="color: green;"></p>
+    </section>
+
 
     <div class="form-actions">
         <a href="/stalhub/dashboard" class="button">← Retour au tableau de bord</a>
