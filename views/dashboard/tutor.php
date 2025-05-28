@@ -62,7 +62,7 @@ $requests = $requests ?? [];
                         <td><?= StatusTranslator::translate(($req['status'])) ?></td>
                         <td>
                             <button class="action-link" onclick='openRequestModal(<?= json_encode($req, JSON_HEX_APOS | JSON_HEX_QUOT) ?>)'>👁 Voir</button>
-                            <?php if (!empty($req['convention_fully_signed'])): ?> 
+                            <?php if ($req['can_sign_convention'] ?? false): ?>                                
                                 <a href="/stalhub/tutor/sign-convention?id=<?= $req['id'] ?>" title="Signer la convention">✍️</a>
                             <?php endif; ?>
 

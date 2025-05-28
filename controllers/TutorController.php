@@ -69,12 +69,14 @@ class TutorController
                     strtolower($doc['label']) === 'convention de stage' &&
                     strtolower($doc['status']) === 'validated' &&
                     ($doc['signed_by_student'] ?? 0) == 1 &&
-                    ($doc['signed_by_direction'] ?? 0) == 1
+                    ($doc['signed_by_direction'] ?? 0) == 1 &&
+                    (empty($doc['signed_by_tutor']) || $doc['signed_by_tutor'] == 0)
                 ) {
-                    $req['convention_fully_signed'] = true;
+                    $req['can_sign_convention'] = true;
                     $req['signed_convention_path'] = $doc['file_path'] ?? null;
                     break;
                 }
+
             }
         }
 
