@@ -73,8 +73,19 @@ return [
 
 
 
-    /*  '/responsable/valider' => ['App\Controller\ResponsablePedaController', 'valider'],
-    '/responsable/refuser' => ['App\Controller\ResponsablePedaController', 'refuser'], */
+    // pour la signature entreprise
+    '/signature/{token}'        => ['App\Controller\SignController', 'show'],
+    '/signature/process'        => ['App\Controller\SignController', 'process'],
+    '/signature/send/{id}'      => ['App\Controller\SignController', 'send'],
+    '/signature/status/{id}'    => ['App\Controller\SignController', 'status'],
+    '/signature/download/{id}'  => ['App\Controller\SignController', 'download'],
+    '/responsable/generer-lien-entreprise' => ['App\Controller\ResponsablePedaController', 'genererLienSignatureEntreprise'],
+    
+    '/signature/convention' => ['App\Controller\SignController', 'afficherFormulaire'],
+   '/signature/convention/valider' => ['App\Controller\SignController', 'enregistrerSignature'],
+
+
+
 
 
 

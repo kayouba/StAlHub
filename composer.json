@@ -9,6 +9,8 @@
     "spomky-labs/otphp": "^11.0",
     "twilio/sdk": "^8.6",
     "symfony/filesystem": "6.0",
+    "setasign/fpdf": "1.8",
+    "setasign/fpdi": "2.3",
     "tecnickcom/tcpdf": "^6.10"
   },
   "require-dev": {
