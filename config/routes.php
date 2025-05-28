@@ -19,7 +19,7 @@ return [
     '/student/request/step5'    => ['App\Controller\StudentController', 'step5'],
     '/student/request/view'     => ['App\Controller\StudentController', 'viewRequest'],
     '/student/request/submit'   => ['App\Controller\StudentController', 'submitRequest'],
-    '/student/upload-correction'=> ['App\Controller\StudentController', 'uploadCorrection'],
+    '/student/upload-correction' => ['App\Controller\StudentController', 'uploadCorrection'],
 
     // Tuteur
     '/tutor/dashboard'          => ['App\Controller\TutorController', 'index'],
@@ -50,23 +50,30 @@ return [
     '/responsable/requestList'      => ['App\Controller\ResponsablePedaController', 'listeDemandes'],
     '/responsable/detailRequest'    => ['App\Controller\ResponsablePedaController', 'detailDemande'],
     '/responsable/traiter'          => ['App\Controller\ResponsablePedaController', 'traiter'],
-    '/responsable/switchTutor' => ['\App\Controller\ResponsablePedaController' ,'switchTutor'],
+    '/responsable/switchTutor' => ['\App\Controller\ResponsablePedaController', 'switchTutor'],
 
     //Secretary
-   '/secretary/dashboard' => ['App\Controller\SecretaryController', 'dashboard'],
-   '/secretary/details' => ['App\Controller\SecretaryController', 'detailsFile'],
-   '/secretary/update-document-status' => ['App\Controller\SecretaryController', 'updateDocumentStatus'],
-   '/secretary/validate-all-documents' => ['App\Controller\SecretaryController', 'validateAllDocuments'],
-   '/secretary/save-comment' => ['App\Controller\SecretaryController', 'saveComment'],
+    '/secretary/dashboard' => ['App\Controller\SecretaryController', 'dashboard'],
+    '/secretary/details' => ['App\Controller\SecretaryController', 'detailsFile'],
+    '/secretary/update-document-status' => ['App\Controller\SecretaryController', 'updateDocumentStatus'],
+    '/secretary/validate-all-documents' => ['App\Controller\SecretaryController', 'validateAllDocuments'],
+    '/secretary/save-comment' => ['App\Controller\SecretaryController', 'saveComment'],
 
-   '/cfa/dashboard' => ['App\Controller\CFAController', 'dashboard'],
-   '/cfa/validate' => ['App\Controller\CFAController', 'validate'],
-   '/document/zip' => ['App\Controller\DocumentController', 'zip'],
+    '/cfa/dashboard' => ['App\Controller\CFAController', 'dashboard'],
+    '/cfa/validate' => ['App\Controller\CFAController', 'validate'],
+    '/document/zip' => ['App\Controller\DocumentController', 'zip'],
 
-   /*  '/responsable/valider' => ['App\Controller\ResponsablePedaController', 'valider'],
+    '/direction/dashboard' => ['App\Controller\DirectionController', 'dashboard'],
+    '/direction/request' => ['App\Controller\DirectionController', 'validateView'],
+    '/direction/view'     => ['App\Controller\DirectionController', 'validateView'],
+    '/direction/validate' => ['App\Controller\DirectionController', 'validate'],
+    '/document/zip-by-request' => ['App\Controller\DocumentController', 'zipByRequest'],
+    '/direction/upload-signed' => ['App\Controller\DirectionController', 'uploadSigned'],
+
+
+    /*  '/responsable/valider' => ['App\Controller\ResponsablePedaController', 'valider'],
     '/responsable/refuser' => ['App\Controller\ResponsablePedaController', 'refuser'], */
-   
+
 
 
 ];
-

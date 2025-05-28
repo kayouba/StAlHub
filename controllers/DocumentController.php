@@ -1,7 +1,9 @@
 <?php
+
 namespace App\Controller;
 
 use App\Lib\FileCrypto;
+use App\Model\RequestModel;
 
 class DocumentController
 {
@@ -85,6 +87,57 @@ class DocumentController
 
         header('Content-Type: application/zip');
         header('Content-Disposition: attachment; filename="documents_user_' . $userId . '.zip"');
+        header('Content-Length: ' . filesize($zipPath));
+        readfile($zipPath);
+        unlink($zipPath);
+        exit;
+    }
+
+
+    public function zipByRequest(): void
+    {
+        if (!isset($_SESSION['user_id'])) {
+            http_response_code(403);
+            exit("Non autorisé");
+        }
+
+        $requestId = $_GET['request_id'] ?? null;
+        if (!$requestId || !is_numeric($requestId)) {
+            http_response_code(400);
+            exit("Paramètre 'request_id' invalide.");
+        }
+
+        $requestModel = new RequestModel();
+        $documents = $requestModel->getDocumentsForRequest((int)$requestId);
+
+        if (empty($documents)) {
+            http_response_code(404);
+            exit("Aucun document trouvé pour cette demande.");
+        }
+
+        $zipPath = tempnam(sys_get_temp_dir(), 'docs_') . '.zip';
+        $zip = new \ZipArchive();
+
+        if ($zip->open($zipPath, \ZipArchive::CREATE) !== true) {
+            http_response_code(500);
+            exit("Impossible de créer l'archive.");
+        }
+
+        foreach ($documents as $doc) {
+            $filePath = __DIR__ . '/../../public' . str_replace('/stalhub', '', $doc['file_path']);
+            if (!file_exists($filePath)) continue;
+
+            $decryptedPath = tempnam(sys_get_temp_dir(), 'dec_');
+            if (FileCrypto::decrypt($filePath, $decryptedPath)) {
+                $safeName = preg_replace('/[^a-zA-Z0-9_\-]/', '_', $doc['label'] ?? basename($filePath));
+                $zip->addFile($decryptedPath, $safeName . '.pdf');
+            }
+        }
+
+        $zip->close();
+
+        header('Content-Type: application/zip');
+        header('Content-Disposition: attachment; filename="request_' . $requestId . '_documents.zip"');
         header('Content-Length: ' . filesize($zipPath));
         readfile($zipPath);
         unlink($zipPath);

@@ -1,5 +1,7 @@
 <?php
+
 namespace App\Model;
+
 use App\Model\StatusHistoryModel;
 use App\Lib\Database;
 
@@ -9,8 +11,8 @@ use PDO;
 class RequestModel
 {
     protected PDO $pdo;
-    
-    
+
+
     public function __construct()
     {
         $this->pdo = Database::getConnection();
@@ -107,8 +109,8 @@ class RequestModel
             'supervisor_position'   => $step2['supervisor_position'] ?? null,
             'is_remote'             => isset($step3['is_remote']) && $step3['is_remote'] === '1' ? 1 : 0,
             'remote_days_per_week'  => isset($step3['remote_days_per_week']) && $step3['remote_days_per_week'] !== ''
-                                        ? (int)$step3['remote_days_per_week']
-                                        : null,
+                ? (int)$step3['remote_days_per_week']
+                : null,
             'is_abroad'             => ($step2['country'] ?? 'France') !== 'France' ? 1 : 0,
             'country'               => $step2['country'] ?? 'France',
             'country_name' => ($step2['country'] ?? 'France') === 'France'
@@ -174,6 +176,61 @@ class RequestModel
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
+    public function getById(int $id): ?array
+    {
+        $stmt = $this->pdo->prepare("SELECT * FROM requests WHERE id = :id");
+        $stmt->execute(['id' => $id]);
+        return $stmt->fetch(\PDO::FETCH_ASSOC) ?: null;
+    }
+
+    public function getByIdWithDetails(int $id): ?array
+    {
+        $stmt = $this->pdo->prepare("
+        SELECT r.*, 
+               CONCAT(u.first_name, ' ', u.last_name) AS student,
+               u.email AS student_email,
+               u.student_number,
+               u.level, u.program, u.track,
+               c.name AS company_name,
+               c.city AS company_city,
+               c.email AS company_email,
+               c.siret AS company_siret,
+               tut.first_name AS tutor_first_name,
+               tut.last_name AS tutor_last_name,
+               tut.email AS tutor_email
+        FROM requests r
+        JOIN users u ON u.id = r.student_id
+        LEFT JOIN users tut ON tut.id = r.tutor_id
+        LEFT JOIN companies c ON c.id = r.company_id
+        WHERE r.id = :id
+    ");
+        $stmt->execute(['id' => $id]);
+        $data = $stmt->fetch(\PDO::FETCH_ASSOC);
+
+        if (!$data) {
+            return null;
+        }
+
+        // 🔄 Documents liés
+        $docStmt = $this->pdo->prepare("SELECT * FROM request_documents WHERE request_id = :id");
+        $docStmt->execute(['id' => $id]);
+        $data['documents'] = $docStmt->fetchAll(\PDO::FETCH_ASSOC);
+
+        return $data;
+    }
+
+
+    public function getDocumentsForRequest(int $requestId): array
+    {
+        $stmt = $this->pdo->prepare("
+        SELECT label, file_path 
+        FROM request_documents 
+        WHERE request_id = :request_id
+    ");
+        $stmt->execute(['request_id' => $requestId]);
+        return $stmt->fetchAll(\PDO::FETCH_ASSOC);
+    }
+
 
     public function countByStatus(string $status): int
     {
@@ -207,10 +264,10 @@ class RequestModel
 
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
-    
-public function getAllWithTutors(): array
-{
-    $stmt = $this->pdo->prepare("
+
+    public function getAllWithTutors(): array
+    {
+        $stmt = $this->pdo->prepare("
         SELECT 
             r.*, 
             tut.id AS tutor_id,
@@ -224,59 +281,59 @@ public function getAllWithTutors(): array
         LEFT JOIN users stu ON r.student_id = stu.id
         LEFT JOIN companies c ON r.company_id = c.id
     ");
-    $stmt->execute();
-    $requests = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+        $stmt->execute();
+        $requests = $stmt->fetchAll(\PDO::FETCH_ASSOC);
 
-    foreach ($requests as &$req) {
-        $req['tutor_name'] = trim(($req['tutor_first_name'] ?? '') . ' ' . ($req['tutor_last_name'] ?? ''));
-        $req['student_name'] = trim(($req['student_first_name'] ?? '') . ' ' . ($req['student_last_name'] ?? ''));
-        $req['company_name'] = $req['company_name'] ?? '—';
-    }
-
-    return $requests;
-}
-
-    public function updateTutor(int $requestId, int $newTutorId): bool
-{
-    $this->pdo->beginTransaction();
-
-    try {
-        // 🔍 1. Récupérer le tuteur actuel (avant changement)
-        $stmt = $this->pdo->prepare("SELECT tutor_id FROM requests WHERE id = :id");
-        $stmt->execute(['id' => $requestId]);
-        $oldTutorId = $stmt->fetchColumn();
-
-        // 🧭 2. Mettre à jour la demande avec le nouveau tuteur
-        $stmt = $this->pdo->prepare("UPDATE requests SET tutor_id = :tutor WHERE id = :id");
-        $stmt->execute([
-            'tutor' => $newTutorId,
-            'id' => $requestId
-        ]);
-
-        // ✅ 3. Incrémenter le compteur du nouveau tuteur
-        $stmt = $this->pdo->prepare("UPDATE users SET students_assigned = students_assigned + 1 WHERE id = :id");
-        $stmt->execute(['id' => $newTutorId]);
-
-        // 🚫 4. Décrémenter le compteur de l'ancien tuteur (s'il existe et est différent)
-        if ($oldTutorId && $oldTutorId != $newTutorId) {
-            $stmt = $this->pdo->prepare("UPDATE users SET students_assigned = students_assigned - 1 WHERE id = :id");
-            $stmt->execute(['id' => $oldTutorId]);
+        foreach ($requests as &$req) {
+            $req['tutor_name'] = trim(($req['tutor_first_name'] ?? '') . ' ' . ($req['tutor_last_name'] ?? ''));
+            $req['student_name'] = trim(($req['student_first_name'] ?? '') . ' ' . ($req['student_last_name'] ?? ''));
+            $req['company_name'] = $req['company_name'] ?? '—';
         }
 
-        $this->pdo->commit();
-        return true;
-
-    } catch (\PDOException $e) {
-        $this->pdo->rollBack();
-        error_log("Erreur lors de la mise à jour du tuteur : " . $e->getMessage());
-        return false;
+        return $requests;
     }
-}
+
+    public function updateTutor(int $requestId, int $newTutorId): bool
+    {
+        $this->pdo->beginTransaction();
+
+        try {
+            // 🔍 1. Récupérer le tuteur actuel (avant changement)
+            $stmt = $this->pdo->prepare("SELECT tutor_id FROM requests WHERE id = :id");
+            $stmt->execute(['id' => $requestId]);
+            $oldTutorId = $stmt->fetchColumn();
+
+            // 🧭 2. Mettre à jour la demande avec le nouveau tuteur
+            $stmt = $this->pdo->prepare("UPDATE requests SET tutor_id = :tutor WHERE id = :id");
+            $stmt->execute([
+                'tutor' => $newTutorId,
+                'id' => $requestId
+            ]);
+
+            // ✅ 3. Incrémenter le compteur du nouveau tuteur
+            $stmt = $this->pdo->prepare("UPDATE users SET students_assigned = students_assigned + 1 WHERE id = :id");
+            $stmt->execute(['id' => $newTutorId]);
+
+            // 🚫 4. Décrémenter le compteur de l'ancien tuteur (s'il existe et est différent)
+            if ($oldTutorId && $oldTutorId != $newTutorId) {
+                $stmt = $this->pdo->prepare("UPDATE users SET students_assigned = students_assigned - 1 WHERE id = :id");
+                $stmt->execute(['id' => $oldTutorId]);
+            }
+
+            $this->pdo->commit();
+            return true;
+        } catch (\PDOException $e) {
+            $this->pdo->rollBack();
+            error_log("Erreur lors de la mise à jour du tuteur : " . $e->getMessage());
+            return false;
+        }
+    }
 
 
 
-    public function findRequestInfoById(int $requestId): ?array{
-    $sql = "SELECT 
+    public function findRequestInfoById(int $requestId): ?array
+    {
+        $sql = "SELECT 
                 r.*, 
                 c.name AS company_name, 
                 c.siret, 
@@ -296,16 +353,16 @@ public function getAllWithTutors(): array
             JOIN users u ON r.student_id = u.id
             WHERE r.id = :requestId";
 
-    $stmt = $this->pdo->prepare($sql);
-    $stmt->execute(['requestId' => $requestId]);
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute(['requestId' => $requestId]);
 
-    $result = $stmt->fetch(\PDO::FETCH_ASSOC);
-    return $result ?: null;
+        $result = $stmt->fetch(\PDO::FETCH_ASSOC);
+        return $result ?: null;
     }
 
     public function findAllRequests(): array
-{
-    $stmt = $this->pdo->prepare("
+    {
+        $stmt = $this->pdo->prepare("
         SELECT 
             r.id,
             r.status,
@@ -322,16 +379,16 @@ public function getAllWithTutors(): array
         JOIN companies c ON r.company_id = c.id
         ORDER BY r.created_on DESC
     ");
-    
-    $stmt->execute();
 
-    return $stmt->fetchAll(\PDO::FETCH_ASSOC);
-}
+        $stmt->execute();
+
+        return $stmt->fetchAll(\PDO::FETCH_ASSOC);
+    }
 
 
-public function getAllWithStatus(string $status): array
-{
-    $stmt = $this->pdo->prepare("
+    public function getAllWithStatus(string $status): array
+    {
+        $stmt = $this->pdo->prepare("
         SELECT r.*, 
                CONCAT(u.first_name, ' ', u.last_name) AS student,
                u.level, u.program, u.track
@@ -340,13 +397,31 @@ public function getAllWithStatus(string $status): array
         WHERE r.status = :status
         ORDER BY r.created_on DESC
     ");
-    $stmt->execute(['status' => $status]);
-    return $stmt->fetchAll(\PDO::FETCH_ASSOC);
-}
+        $stmt->execute(['status' => $status]);
+        return $stmt->fetchAll(\PDO::FETCH_ASSOC);
+    }
 
-public function getAllWithStatusAndContract(string $status, string $contract_type): array
-{
-    $stmt = $this->pdo->prepare("
+    public function getAllWithStatuses(array $statuses): array
+    {
+        $placeholders = implode(',', array_fill(0, count($statuses), '?'));
+
+        $stmt = $this->pdo->prepare("
+        SELECT r.*, 
+               CONCAT(u.first_name, ' ', u.last_name) AS student,
+               u.level, u.program, u.track, u.id AS student_id
+        FROM requests r
+        JOIN users u ON u.id = r.student_id
+        WHERE r.status IN ($placeholders)
+        ORDER BY r.created_on DESC
+    ");
+        $stmt->execute($statuses);
+
+        return $stmt->fetchAll(\PDO::FETCH_ASSOC);
+    }
+
+    public function getAllWithStatusAndContract(string $status, string $contract_type): array
+    {
+        $stmt = $this->pdo->prepare("
         SELECT r.*, 
                CONCAT(u.first_name, ' ', u.last_name) AS student,
                u.level, u.program, u.track
@@ -356,24 +431,24 @@ public function getAllWithStatusAndContract(string $status, string $contract_typ
         ORDER BY r.created_on DESC
     ");
 
-    // ✅ Combine les paramètres dans un seul tableau associatif
-    $stmt->execute([
-        'status' => $status,
-        'contract_type' => $contract_type
-    ]);
+        // ✅ Combine les paramètres dans un seul tableau associatif
+        $stmt->execute([
+            'status' => $status,
+            'contract_type' => $contract_type
+        ]);
 
-    return $stmt->fetchAll(\PDO::FETCH_ASSOC);
-}
+        return $stmt->fetchAll(\PDO::FETCH_ASSOC);
+    }
 
 
-public function updateStatus(int $id, string $status): bool
-{
-    $stmt = $this->pdo->prepare("UPDATE requests SET status = :status WHERE id = :id");
-    return $stmt->execute([
-        'status' => $status,
-        'id' => $id
-    ]);
-}
+    public function updateStatus(int $id, string $status): bool
+    {
+        $stmt = $this->pdo->prepare("UPDATE requests SET status = :status WHERE id = :id");
+        return $stmt->execute([
+            'status' => $status,
+            'id' => $id
+        ]);
+    }
 
     public function findById(int $id): ?array
     {
@@ -419,5 +494,9 @@ public function updateStatus(int $id, string $status): bool
         $stmt->execute(['company_id' => $companyId]);
         return $stmt->fetchAll(\PDO::FETCH_ASSOC);
     }
-
+    public function saveDocument(int $requestId, string $filePath, string $label): void
+    {
+        $stmt = $this->pdo->prepare("INSERT INTO request_documents (request_id, file_path, label, status, uploaded_at) VALUES (?, ?, ?, 'submitted', NOW())");
+        $stmt->execute([$requestId, $filePath, $label]);
+    }
 }
