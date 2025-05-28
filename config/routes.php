@@ -96,6 +96,10 @@ return [
 
     '/direction/sign-convention' => ['App\Controller\DirectionController', 'signConvention'],
     '/direction/signature/upload' => ['App\Controller\DirectionController', 'uploadDirectionSignature'],
+    // Tuteur - Signature de la convention
+    '/tutor/sign-convention' => ['App\Controller\TutorController', 'signConvention'],
+    '/tutor/signature/upload' => ['App\Controller\TutorController', 'uploadSignature'],
+
 
 
 
