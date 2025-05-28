@@ -194,13 +194,19 @@ class DirectionController
     }
 
     $data = json_decode(file_get_contents('php://input'), true);
-    if (!isset($data['request_id'], $data['image']) || !is_numeric($data['request_id'])) {
+
+    if (
+        !isset($data['request_id'], $data['image'], $data['signatory_name']) ||
+        !is_numeric($data['request_id']) ||
+        empty(trim($data['signatory_name']))
+    ) {
         http_response_code(400);
         echo "Données invalides.";
         return;
     }
 
     $requestId = (int)$data['request_id'];
+    $signatoryName = trim($data['signatory_name']);
 
     $model = new RequestModel();
     $request = $model->getRequestWithDocumentsForDirection($requestId);
@@ -232,41 +238,55 @@ class DirectionController
         return;
     }
 
-    $imageData = explode(',', $data['image'])[1];
-    $decoded = base64_decode($imageData);
+    // Signature image base64
+    $imageData = explode(',', $data['image'])[1] ?? null;
+    if (!$imageData) {
+        http_response_code(400);
+        echo "Image de signature invalide.";
+        return;
+    }
 
+    $decoded = base64_decode($imageData);
     $signaturePath = __DIR__ . "/../temp/signature_direction_{$requestId}.png";
     if (!file_exists(dirname($signaturePath))) {
         mkdir(dirname($signaturePath), 0777, true);
     }
     file_put_contents($signaturePath, $decoded);
 
+    // Déchiffrer PDF
     $pdfPath = __DIR__ . '/../public' . str_replace('/stalhub', '', $convention['file_path']);
     $decryptedPdf = str_replace('.enc', '_temp.pdf', $pdfPath);
+    $signedPdf = str_replace('.enc', '_signed.pdf', $pdfPath);
+
     if (!FileCrypto::decrypt($pdfPath, $decryptedPdf)) {
         echo "Échec de déchiffrement.";
         return;
     }
 
-    $signedPdf = str_replace('.enc', '_signed.pdf', $pdfPath);
-    if (!PdfSigner::addSignatureToPdf($decryptedPdf, $signedPdf, $signaturePath)) {
+    // Ajouter la signature + nom dans le PDF
+    if (!PdfSigner::addSignatureToPdf($decryptedPdf, $signedPdf, $signaturePath, $signatoryName, true)) {
         echo "Échec ajout signature.";
         return;
     }
 
+    // Re-chiffrer le PDF signé
     if (!FileCrypto::encrypt($signedPdf, $pdfPath)) {
         echo "Erreur de chiffrement.";
         return;
     }
 
+    // Nettoyage temporaire
     @unlink($signaturePath);
     @unlink($decryptedPdf);
     @unlink($signedPdf);
 
-    // ✅ Mise à jour de la signature en base
-    $documentModel->markAsSignedByDirection($convention['id']);
+    // ✅ Mise à jour de la base
+    $documentModel->markAsSignedByDirection(
+        $convention['id'],
+        $signatoryName,
+        date('Y-m-d H:i:s') // timestamp actuel
+    );
 
-    // ✅ Mise à jour du statut de la requête
     $model->updateStatus($requestId, 'VALID_DIRECTION');
 
     echo "Signature direction ajoutée avec succès.";
