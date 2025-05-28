@@ -120,23 +120,6 @@ class SecretaryModel  {
         return $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
     }
 
-    /*public function traiterDemande(int $id, string $action, ?string $commentaire = null): void {
-        if ($action === 'refuser') {
-            $stmt = $this->pdo->prepare("
-                UPDATE requests 
-                SET status = 'REFUSEE_PEDAGO', comment = ?, updated_at = NOW() 
-                WHERE id = ?
-            ");
-            $stmt->execute([$commentaire, $id]);
-        } else {
-            $stmt = $this->pdo->prepare("
-                UPDATE requests 
-                SET status = 'VALID_PEDAGO', comment = ?, updated_at = NOW() 
-                WHERE id = ?
-            ");
-            $stmt->execute([$commentaire, $id]);
-        }
-    }*/
 
     /**
      * Récupère la liste des documents associés à une demande spécifique.

@@ -133,7 +133,6 @@ class SecretaryController {
                 throw new \Exception('Statut requis');
             }
             
-            // Log pour debug
             error_log("Mise à jour document ID: $id vers statut: $status");
             
             $model = new SecretaryModel();
@@ -284,7 +283,6 @@ class SecretaryController {
                 throw new \Exception('ID du document invalide');
             }
             
-            // Log pour debug
             error_log("Sauvegarde commentaire pour document ID: $documentId");
             
             $model = new SecretaryModel();
@@ -312,6 +310,21 @@ class SecretaryController {
             ]);
         }
     }
+
+    /**
+     * Téléverse et chiffre la convention de stage pour une demande spécifique.
+     *
+     * Cette méthode :
+     * - Vérifie si l'utilisateur est authentifié via la session.
+     * - Valide que la requête HTTP est bien de type POST.
+     * - Récupère le fichier de convention et l'ID de la demande depuis le formulaire.
+     * - Vérifie la validité du fichier et de l'identifiant.
+     * - Génère un nom de fichier chiffré unique pour éviter les conflits.
+     * - Crée le répertoire de destination si nécessaire.
+     * - Chiffre le fichier avec `FileCrypto` et le sauvegarde dans un dossier sécurisé.
+     * - Utilise `RequestDocumentModel` pour enregistrer le chemin du fichier dans la base de données.
+     * - Retourne une réponse JSON indiquant le succès ou l’échec de l'opération.
+     */
     public function uploadConvention(): void
     {
         if (!isset($_SESSION['user_id'])) {

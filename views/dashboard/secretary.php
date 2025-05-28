@@ -42,7 +42,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
         $extension = pathinfo($file['name'], PATHINFO_EXTENSION);
         $filename = "convention_" . $demandeId . "_" . uniqid() . "." . $extension;
         
-        // Définir le dossier de destination (modifié)
+        // Définir le dossier de destination
         $uploadDir = __DIR__ . '/../public/uploads/users/demandes/';
         if (!is_dir($uploadDir)) {
             mkdir($uploadDir, 0755, true);
@@ -55,22 +55,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
             throw new Exception('Impossible de sauvegarder le fichier');
         }
         
-        // Connexion à la base de données (adaptez selon votre configuration)
-        // require_once __DIR__ . '/../config/database.php';
         
-        // Mettre à jour la base de données
-        /*
-        $stmt = $pdo->prepare("
-            UPDATE demandes 
-            SET convention_path = ?, 
-                status = 'convention_envoyee',
-                updated_at = NOW() 
-            WHERE id = ?
-        ");
-        $stmt->execute([$filename, $demandeId]);
-        */
-        
-        // Réponse de succès
         echo json_encode([
             'success' => true,
             'message' => 'Convention uploadée et envoyée avec succès',
@@ -88,7 +73,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     }
 }
 
-// Le reste de votre code PHP pour afficher la page
 function statusToCssClass($status) {
   $status = strtolower($status);
   return match ($status) {
@@ -96,7 +80,7 @@ function statusToCssClass($status) {
     'soumise', 'transmise', 'en_attente_secretaire' => 'transmise',
     'refusee', 'refusé', 'incomplete', 'refusee_secretaire' => 'incomplete',
     'attente' => 'transmise',
-    'convention_envoyee', 'convention envoyée' => 'convention-sent', // Nouvelle classe
+    'convention_envoyee', 'convention envoyée' => 'convention-sent', 
     default => 'transmise'
   };
 }

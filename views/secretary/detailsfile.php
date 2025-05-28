@@ -32,7 +32,7 @@
           $end = new DateTime($requestDetails['end_date']);
           $interval = $start->diff($end);
 
-          // Formattage : X mois Y jours
+          // Formattage de la durée : X mois Y jours
           $months = $interval->m + ($interval->y * 12);
           $days = $interval->d;
 
