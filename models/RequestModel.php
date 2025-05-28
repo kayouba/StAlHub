@@ -231,15 +231,16 @@ class RequestModel
 
 
     public function getDocumentsForRequest(int $requestId): array
-    {
-        $stmt = $this->pdo->prepare("
-        SELECT label, file_path 
-        FROM request_documents 
-        WHERE request_id = :request_id
+{
+    $stmt = $this->pdo->prepare("
+        SELECT id, label, file_path, status, signed_by_student, signed_by_direction
+        FROM request_documents
+        WHERE request_id = :requestId
     ");
-        $stmt->execute(['request_id' => $requestId]);
-        return $stmt->fetchAll(\PDO::FETCH_ASSOC);
-    }
+    $stmt->execute(['requestId' => $requestId]);
+    return $stmt->fetchAll(\PDO::FETCH_ASSOC);
+}
+
 
 
     public function countByStatus(string $status): int
@@ -511,11 +512,11 @@ class RequestModel
     }
 
     /**
- * Récupère une demande spécifique avec ses documents, si elle appartient à l'étudiant.
- */
-public function getRequestWithDocumentsForStudent(int $requestId, int $studentId): ?array
-{
-    $stmt = $this->pdo->prepare("
+     * Récupère une demande spécifique avec ses documents, si elle appartient à l'étudiant.
+     */
+    public function getRequestWithDocumentsForStudent(int $requestId, int $studentId): ?array
+    {
+        $stmt = $this->pdo->prepare("
         SELECT r.*, 
                c.name AS company_name, 
                c.siret, 
@@ -525,25 +526,53 @@ public function getRequestWithDocumentsForStudent(int $requestId, int $studentId
         JOIN companies c ON r.company_id = c.id
         WHERE r.id = :requestId AND r.student_id = :studentId
     ");
-    $stmt->execute([
-        'requestId' => $requestId,
-        'studentId' => $studentId
-    ]);
+        $stmt->execute([
+            'requestId' => $requestId,
+            'studentId' => $studentId
+        ]);
 
-    $request = $stmt->fetch(PDO::FETCH_ASSOC);
+        $request = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    if (!$request) {
-        return null;
-    }
+        if (!$request) {
+            return null;
+        }
 
-    // Récupérer les documents liés
-    $docStmt = $this->pdo->prepare("
+        // Récupérer les documents liés
+        $docStmt = $this->pdo->prepare("
         SELECT * FROM request_documents WHERE request_id = :requestId
     ");
-    $docStmt->execute(['requestId' => $requestId]);
-    $request['documents'] = $docStmt->fetchAll(PDO::FETCH_ASSOC);
+        $docStmt->execute(['requestId' => $requestId]);
+        $request['documents'] = $docStmt->fetchAll(PDO::FETCH_ASSOC);
 
-    return $request;
-}
+        return $request;
+    }
+    public function getRequestWithDocumentsForDirection(int $requestId): ?array
+    {
+        $stmt = $this->pdo->prepare("
+        SELECT r.*, 
+               c.name AS company_name, 
+               c.siret, 
+               c.city, 
+               c.postal_code
+        FROM requests r
+        JOIN companies c ON r.company_id = c.id
+        WHERE r.id = :requestId
+    ");
+        $stmt->execute(['requestId' => $requestId]);
 
+        $request = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if (!$request) {
+            return null;
+        }
+
+        // Récupération des documents liés
+        $docStmt = $this->pdo->prepare("
+        SELECT * FROM request_documents WHERE request_id = :requestId
+    ");
+        $docStmt->execute(['requestId' => $requestId]);
+        $request['documents'] = $docStmt->fetchAll(PDO::FETCH_ASSOC);
+
+        return $request;
+    }
 }

@@ -90,9 +90,12 @@ return [
    '/signature/convention/valider' => ['App\Controller\SignController', 'enregistrerSignature'],
     // Student
     '/student/sign-convention' => ['App\Controller\StudentController', 'signConvention'],
+    
     '/signature/upload' => ['App\Controller\StudentController', 'uploadSignature'],
 
 
+    '/direction/sign-convention' => ['App\Controller\DirectionController', 'signConvention'],
+    '/direction/signature/upload' => ['App\Controller\DirectionController', 'uploadDirectionSignature'],
 
 
 
