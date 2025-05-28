@@ -43,9 +43,9 @@ class AuthController
         $_SESSION['role'] = $user['role'] ?? 'student';
         $_SESSION['user'] = [
             'id' => $user['id'],
-            'first_name' => $user['first_name'], // ou tout autre champ utile
+            'first_name' => $user['first_name'],
             'email' => $user['email'],
-            'is_admin' => (bool) $user['is_admin'], // assure que c’est bien un bool
+            'is_admin' => (bool) $user['is_admin'],
             'role' => $user['role'] ?? 'student',
         ];
 
@@ -132,7 +132,7 @@ class AuthController
         $token = bin2hex(random_bytes(32));
         $now = time();
         $createdAt = date('Y-m-d H:i:s', $now);
-        $expiresAt = date('Y-m-d H:i:s', $now + 3600); // +1h
+        $expiresAt = date('Y-m-d H:i:s', $now + 3600); 
 
         $stmt = $pdo->prepare("INSERT INTO password_resets (user_id, token, expires_at, created_at) VALUES (?, ?, ?, ?)");
         $stmt->execute([$user['id'], $token, $expiresAt, $createdAt]);

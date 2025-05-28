@@ -10,7 +10,7 @@ class AdminController
 {
     public function dashboard(): void
     {
-        $this->requireAdmin(); // ← centralise la logique
+        $this->requireAdmin();
 
         $userModel = new UserModel();
         $requestModel = new RequestModel();
@@ -44,7 +44,7 @@ class AdminController
         $this->requireAdmin();
 
         $userModel = new UserModel();
-        $users = $userModel->findAll(); // 🔁 Affiche tous les rôles
+        $users = $userModel->findAll();
 
         View::render('admin/tabs/users', [
             'users' => $users
@@ -57,7 +57,7 @@ class AdminController
         $this->requireAdmin();
 
         $requestModel = new RequestModel();
-        $requests = $requestModel->getAllWithTutors(); // ✅ Corrigé ici
+        $requests = $requestModel->getAllWithTutors();
 
         $userModel = new UserModel();
         $tutors = $userModel->findByRole('tutor');
@@ -111,171 +111,168 @@ class AdminController
     }
 
     public function deleteUser(): void
-{
-    $this->requireAdmin();
+    {
+        $this->requireAdmin();
 
-    $userId = $_GET['id'] ?? null;
+        $userId = $_GET['id'] ?? null;
 
-    if ($userId) {
-        $userModel = new \App\Model\UserModel();
-        $deleted = $userModel->deleteById((int)$userId);
+        if ($userId) {
+            $userModel = new \App\Model\UserModel();
+            $deleted = $userModel->deleteById((int)$userId);
 
-        if ($deleted) {
-            header('Location: /stalhub/admin/dashboard');
-            exit;
+            if ($deleted) {
+                header('Location: /stalhub/admin/dashboard');
+                exit;
+            } else {
+                echo "Échec de la suppression.";
+            }
         } else {
-            echo "Échec de la suppression.";
+            echo "ID invalide.";
         }
-    } else {
-        echo "ID invalide.";
     }
-}
 
-public function toggleActive(): void
-{
-    $this->requireAdmin();
+    public function toggleActive(): void
+    {
+        $this->requireAdmin();
 
-    $userId = $_GET['id'] ?? null;
+        $userId = $_GET['id'] ?? null;
 
-    if ($userId) {
-        $userModel = new \App\Model\UserModel();
-        $user = $userModel->findById((int)$userId);
+        if ($userId) {
+            $userModel = new \App\Model\UserModel();
+            $user = $userModel->findById((int)$userId);
 
-        if ($user) {
-            $newStatus = $user['is_active'] ? 0 : 1;
-            $userModel->update((int)$userId, ['is_active' => $newStatus]);
+            if ($user) {
+                $newStatus = $user['is_active'] ? 0 : 1;
+                $userModel->update((int)$userId, ['is_active' => $newStatus]);
 
-            header('Location: /stalhub/admin/dashboard');
+                header('Location: /stalhub/admin/dashboard');
+                exit;
+            }
+        }
+
+        echo "Utilisateur non trouvé.";
+    }
+
+    public function deleteCompany(): void
+    {
+        $this->requireAdmin();
+
+        $id = $_GET['id'] ?? null;
+
+        if ($id) {
+            $companyModel = new \App\Model\CompanyModel();
+            $deleted = $companyModel->deleteById((int)$id);
+
+            if ($deleted) {
+                header('Location: /stalhub/admin/dashboard');
+                exit;
+            } else {
+                echo "Échec de la suppression. L'entreprise est peut-être liée à une ou plusieurs demandes.";
+            }
+        } else {
+            echo "ID d'entreprise manquant.";
+        }
+    }
+    public function getCompanyRequests(): void
+    {
+        header('Content-Type: application/json');
+
+        $companyId = $_GET['company_id'] ?? null;
+
+        if (!$companyId) {
+            echo json_encode([]);
+            return;
+        }
+
+        $model = new \App\Model\RequestModel();
+        $requests = $model->findByCompanyId((int)$companyId);
+        echo json_encode($requests);
+    }
+
+
+
+    public function viewRequest(): void
+    {
+        $this->requireAdmin();
+
+        $id = $_GET['id'] ?? null;
+        if (!$id) {
+            echo "Demande introuvable.";
             exit;
         }
-    }
 
-    echo "Utilisateur non trouvé.";
-}
-
-public function deleteCompany(): void
-{
-    $this->requireAdmin();
-
-    $id = $_GET['id'] ?? null;
-
-    if ($id) {
+        $requestModel = new \App\Model\RequestModel();
+        
+        $userModel = new \App\Model\UserModel();
         $companyModel = new \App\Model\CompanyModel();
-        $deleted = $companyModel->deleteById((int)$id);
 
-        if ($deleted) {
-            header('Location: /stalhub/admin/dashboard');
+        $request = $requestModel->findById((int)$id);
+
+        if (!$request) {
+            echo "Demande non trouvée.";
             exit;
-        } else {
-            echo "Échec de la suppression. L'entreprise est peut-être liée à une ou plusieurs demandes.";
         }
-    } else {
-        echo "ID d'entreprise manquant.";
+
+        $student = $userModel->findById((int)$request['student_id']);
+        $company = $companyModel->findById((int)$request['company_id']);
+
+        \App\View::render('admin/requests/view', [
+            'request' => $request,
+            'student' => $student,
+            'company' => $company
+        ]);
     }
-}
-public function getCompanyRequests(): void
-{
-    header('Content-Type: application/json');
+    public function stats(): void
+    {
+        $this->requireAdmin();
 
-    $companyId = $_GET['company_id'] ?? null;
+        $requestModel = new \App\Model\RequestModel();
 
-    if (!$companyId) {
-        echo json_encode([]);
-        return;
-    }
+        $soumise    = $requestModel->countByStatus('SOUMISE');
+        $validPeda  = $requestModel->countByStatus('VALID_PEDAGO');  
+        $refusPeda   = $requestModel->countByStatus('REFUSEE_PEDAGO');
+        $attendSecret  = $requestModel->countByStatus('EN_ATTENTE_SECRETAIRE');  
+        $validSecret  = $requestModel->countByStatus('VALID_SECRETAIRE'); 
+        $refusSecret   = $requestModel->countByStatus('REFUSEE_SECRETAIRE');
+        $attendCFA  = $requestModel->countByStatus('EN_ATTENTE_CFA'); 
+        $validCFA  = $requestModel->countByStatus('VALID_CFA'); 
+        $refusCFA   = $requestModel->countByStatus('REFUSEE_CFA');
+        $validFinal  = $requestModel->countByStatus('VALIDE'); 
+        
 
-    $model = new \App\Model\RequestModel();
-    $requests = $model->findByCompanyId((int)$companyId);
-    echo json_encode($requests);
-}
-
-
-
-public function viewRequest(): void
-{
-    $this->requireAdmin();
-
-    $id = $_GET['id'] ?? null;
-    if (!$id) {
-        echo "Demande introuvable.";
-        exit;
-    }
-
-    $requestModel = new \App\Model\RequestModel();
-    
-    $userModel = new \App\Model\UserModel();
-    $companyModel = new \App\Model\CompanyModel();
-
-    $request = $requestModel->findById((int)$id);
-
-    if (!$request) {
-        echo "Demande non trouvée.";
-        exit;
+        \App\View::render('admin/stats', [
+            'soumise' => $soumise,
+            'validPeda' => $validPeda,
+            'refusPeda' => $refusPeda,
+            'attendSecret' => $attendSecret,
+            'validSecret' => $validSecret,
+            'refusSecret' => $refusSecret,
+            'attendCFA' => $attendCFA,
+            'validCFA' => $validCFA,
+            'refusCFA' => $refusCFA,
+            'validFinal' => $validFinal,
+        ]);
     }
 
-    $student = $userModel->findById((int)$request['student_id']);
-    $company = $companyModel->findById((int)$request['company_id']);
+    public function updateTutor(): void {
+        
+        $this->requireAdmin();
 
-    \App\View::render('admin/requests/view', [
-        'request' => $request,
-        'student' => $student,
-        'company' => $company
-    ]);
-}
-public function stats(): void
-{
-    $this->requireAdmin();
+        $requestId = $_POST['request_id'] ?? null;
+        $tutorId   = $_POST['tutor_id'] ?? null;
 
-    $requestModel = new \App\Model\RequestModel();
+        if (!$requestId || !$tutorId) {
+            echo json_encode(['status' => 'error', 'message' => 'Champs manquants']);
+            return;
+        }
 
-    $soumise    = $requestModel->countByStatus('SOUMISE');
-    $validPeda  = $requestModel->countByStatus('VALID_PEDAGO');  // adapte ici selon tes noms
-    $refusPeda   = $requestModel->countByStatus('REFUSEE_PEDAGO');
-    $attendSecret  = $requestModel->countByStatus('EN_ATTENTE_SECRETAIRE');  // adapte ici selon tes noms
-    $validSecret  = $requestModel->countByStatus('VALID_SECRETAIRE');  // adapte ici selon tes noms
-    $refusSecret   = $requestModel->countByStatus('REFUSEE_SECRETAIRE');
-    $attendCFA  = $requestModel->countByStatus('EN_ATTENTE_CFA');  // adapte ici selon tes noms
-    $validCFA  = $requestModel->countByStatus('VALID_CFA');  // adapte ici selon tes noms
-    $refusCFA   = $requestModel->countByStatus('REFUSEE_CFA');
-    $validFinal  = $requestModel->countByStatus('VALIDE'); 
-    
-    // Tu peux ajouter ici d'autres appels à countByStatus pour le secrétariat et CFA si tu veux les vrais chiffres.
+        $model = new \App\Model\RequestModel();
+        $success = $model->updateTutor((int)$requestId, (int)$tutorId);
 
-    \App\View::render('admin/stats', [
-        'soumise' => $soumise,
-        'validPeda' => $validPeda,
-        'refusPeda' => $refusPeda,
-        'attendSecret' => $attendSecret,
-        'validSecret' => $validSecret,
-        'refusSecret' => $refusSecret,
-        'attendCFA' => $attendCFA,
-        'validCFA' => $validCFA,
-        'refusCFA' => $refusCFA,
-        'validFinal' => $validFinal,
-    ]);
-}
-
-public function updateTutor(): void {
-    
-    $this->requireAdmin();
-
-    $requestId = $_POST['request_id'] ?? null;
-    $tutorId   = $_POST['tutor_id'] ?? null;
-
-    if (!$requestId || !$tutorId) {
-        echo json_encode(['status' => 'error', 'message' => 'Champs manquants']);
-        return;
+        echo json_encode([
+            'status' => $success ? 'success' : 'error',
+            'message' => $success ? null : 'Échec de mise à jour.'
+        ]);
     }
-
-    $model = new \App\Model\RequestModel();
-    $success = $model->updateTutor((int)$requestId, (int)$tutorId);
-
-    echo json_encode([
-        'status' => $success ? 'success' : 'error',
-        'message' => $success ? null : 'Échec de mise à jour.'
-    ]);
-}
-
-
 
 }
