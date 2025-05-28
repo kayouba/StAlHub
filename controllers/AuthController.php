@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Controller;
 
 use App\View;
@@ -63,8 +64,26 @@ class AuthController
         $mail->SMTPSecure = false;
         $mail->setFrom('no-reply@stalhub.local', 'StalHub');
         $mail->addAddress($user['email']);
-        $mail->Subject = 'Votre code OTP';
-        $mail->Body = "Voici votre code : $otp";
+        $mail->isHTML(true);
+        $mail->CharSet = 'UTF-8';
+        $mail->Subject = 'Votre code de connexion sécurisé - StalHub';
+        $mail->Body = '
+    <div style="font-family: Arial, sans-serif; background-color:#f4f4f4; padding: 20px;">
+        <div style="max-width: 600px; margin: auto; background: #ffffff; border-radius: 8px; padding: 30px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+            <h2 style="color: #0052cc; text-align:center;">🔐 Authentification à deux facteurs</h2>
+            <p>Bonjour <strong>' . htmlspecialchars($user['first_name'] ?? $user['email']) . '</strong>,</p>
+            <p>Voici votre code de vérification à usage unique :</p>
+            <div style="text-align: center; margin: 30px 0;">
+                <span style="display: inline-block; font-size: 28px; letter-spacing: 8px; color: #333; font-weight: bold; background: #f0f4ff; padding: 12px 24px; border-radius: 6px; border: 1px dashed #0052cc;">' . htmlspecialchars($otp) . '</span>
+            </div>
+            <p style="text-align:center;">⏳ Ce code est valable pendant <strong>5 minutes</strong>.</p>
+            <p>Si vous n\'êtes pas à l\'origine de cette tentative de connexion, merci de <a href="mailto:support@stalhub.local">nous contacter immédiatement</a>.</p>
+            <hr style="margin: 30px 0;">
+            <p style="font-size: 12px; color: #777;">Cet e-mail a été envoyé automatiquement par StalHub. Merci de ne pas y répondre directement.</p>
+        </div>
+    </div>
+';
+
         $mail->send();
 
         header('Location: /stalhub/otp');
@@ -110,7 +129,7 @@ class AuthController
         View::render('legal/mentions-legales');
     }
 
-        public function showForgotForm(): void
+    public function showForgotForm(): void
     {
         View::render('auth/forgot-password');
     }
@@ -132,7 +151,7 @@ class AuthController
         $token = bin2hex(random_bytes(32));
         $now = time();
         $createdAt = date('Y-m-d H:i:s', $now);
-        $expiresAt = date('Y-m-d H:i:s', $now + 3600); 
+        $expiresAt = date('Y-m-d H:i:s', $now + 3600);
 
         $stmt = $pdo->prepare("INSERT INTO password_resets (user_id, token, expires_at, created_at) VALUES (?, ?, ?, ?)");
         $stmt->execute([$user['id'], $token, $expiresAt, $createdAt]);

@@ -223,11 +223,7 @@
 
             <!-- Document UNIVERSITAIRE -->
             <section class="document-section">
-                <div class="section-header">
-                    <h3>📦 Documents liés à la demande</h3>
-                    <a href="/stalhub/document/zip-by-request?request_id=<?= $request['id'] ?>" class="pdf-btn" style="float:right;"> ⬇️ zip </a>
-                </div>
-
+                <h3>📦 Documents liés à la demande</h3>
                 <?php if (!empty($request['documents'])): ?>
                     <div class="document-grid">
                         <?php foreach ($request['documents'] as $doc): ?>
@@ -254,7 +250,7 @@
                         <h3>📥 Télécharger le document à signer</h3>
                         <p>
                             <a href="/stalhub/request/pdf?id=<?= $request['id'] ?>" class="pdf-btn" target="_blank">
-                                📄 Télécharger le PDF
+                                📄 Télécharger la convention
                             </a>
                         </p>
                     </div>
