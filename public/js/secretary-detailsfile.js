@@ -224,6 +224,5 @@ document.addEventListener('DOMContentLoaded', function () {
             });
         });
     }
-    
 });
 
