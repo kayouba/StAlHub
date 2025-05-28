@@ -83,6 +83,11 @@ return [
     
     '/signature/convention' => ['App\Controller\SignController', 'afficherFormulaire'],
    '/signature/convention/valider' => ['App\Controller\SignController', 'enregistrerSignature'],
+    // Student
+    '/student/sign-convention' => ['App\Controller\StudentController', 'signConvention'],
+    '/signature/upload' => ['App\Controller\StudentController', 'uploadSignature'],
+
+
 
 
 

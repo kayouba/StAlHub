@@ -117,6 +117,44 @@ ul li {
     font-size: 14px;
 }
 
+.convention-preview {
+    background: #f9fcff;
+    padding: 30px;
+    border: 1px solid #d0e7fb;
+    border-radius: 10px;
+    margin-top: 40px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.03);
+}
+
+.convention-preview h2 {
+    margin-top: 0;
+    font-size: 20px;
+    border-left: 4px solid #2980b9;
+    padding-left: 10px;
+    color: #2d3748;
+}
+
+.signature-section {
+    margin-top: 30px;
+    text-align: center;
+}
+
+.toggle-section {
+    background: none;
+    border: none;
+    color: #3498db;
+    font-weight: bold;
+    cursor: pointer;
+    margin-bottom: 10px;
+    font-size: 15px;
+}
+
+.collapsible.collapsed {
+    display: none;
+}
+
+
+
 @media screen and (max-width: 768px) {
     .request-container {
         padding: 20px;

@@ -9,6 +9,7 @@ use App\Model\CompanyModel;
 use App\Lib\StepGuard;
 use App\Lib\FileCrypto;
 use App\Lib\PdfGenerator;
+use App\Lib\PdfSigner;
 
 
 class StudentController
@@ -474,6 +475,144 @@ class StudentController
         exit;
     }
 
+
+
+    public function signConvention(): void
+    {
+        $requestId = $_GET['id'] ?? null;
+
+        if (!$requestId || !ctype_digit($requestId)) {
+            // Gérer erreur ici
+            http_response_code(400);
+            echo "ID invalide.";
+            return;
+        }
+
+        $studentId = $_SESSION['user']['id']; // adapt if needed
+        $requestModel = new RequestModel();
+        $request = $requestModel->getRequestWithDocumentsForStudent($requestId, $studentId);
+
+        if (!$request) {
+            http_response_code(404);
+            echo "Demande introuvable.";
+            return;
+        }
+
+        // Identifier la convention à signer
+        $convention = null;
+        foreach ($request['documents'] as $doc) {
+            if (
+                strtolower($doc['label']) === 'convention de stage' &&
+                strtolower($doc['status']) === 'validated' &&
+                (empty($doc['signed_by_student']) || $doc['signed_by_student'] == 0)
+            ) {
+                $convention = $doc;
+                break;
+            }
+        }
+
+        if (!$convention) {
+            http_response_code(403);
+            echo "Aucune convention à signer.";
+            return;
+        }
+
+    require __DIR__ . '/../views/student/sign-convention.php';
+    }
+
+    public function uploadSignature(): void
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            http_response_code(405);
+            echo "Méthode non autorisée.";
+            return;
+        }
+
+        $data = json_decode(file_get_contents('php://input'), true);
+        if (!isset($data['request_id'], $data['image']) || !is_numeric($data['request_id'])) {
+            http_response_code(400);
+            echo "Données invalides.";
+            return;
+        }
+
+        $studentId = $_SESSION['user']['id'] ?? null;
+        $requestId = (int) $data['request_id'];
+        if (!$studentId || !$requestId) {
+            http_response_code(403);
+            echo "Non autorisé.";
+            return;
+        }
+
+        $requestModel = new RequestModel();
+        $request = $requestModel->getRequestWithDocumentsForStudent($requestId, $studentId);
+        if (!$request) {
+            http_response_code(404);
+            echo "Demande non trouvée.";
+            return;
+        }
+
+        $documentModel = new RequestDocumentModel();
+        $convention = null;
+
+        foreach ($request['documents'] as $doc) {
+            if (
+                strtolower($doc['label']) === 'convention de stage' &&
+                strtolower($doc['status']) === 'validated' &&
+                (empty($doc['signed_by_student']) || $doc['signed_by_student'] == 0)
+            ) {
+                $convention = $doc;
+                break;
+            }
+        }
+
+        if (!$convention) {
+            http_response_code(403);
+            echo "Aucune convention valide à signer.";
+            return;
+        }
+
+        // Sauvegarde temporaire de la signature
+        $imageData = explode(',', $data['image'])[1];
+        $decoded = base64_decode($imageData);
+
+        $signaturePath = __DIR__ . "/../temp/signature_{$studentId}_{$requestId}.png";
+        $tempDir = __DIR__ . '/../temp/';
+            if (!file_exists($tempDir)) {
+                mkdir($tempDir, 0777, true);
+            }
+
+        file_put_contents($signaturePath, $decoded);
+
+        // Déchiffrer le PDF si crypté
+        $pdfPath = __DIR__ . '/../public' . str_replace('/stalhub', '', $convention['file_path']);
+        $decryptedPdf = str_replace('.enc', '_temp.pdf', $pdfPath);
+        if (!FileCrypto::decrypt($pdfPath, $decryptedPdf)) {
+            echo "Échec de déchiffrement.";
+            return;
+        }
+
+        // Ajouter la signature
+        $signedPdf = str_replace('.enc', '_signed.pdf', $pdfPath);
+        if (!PdfSigner::addSignatureToPdf($decryptedPdf, $signedPdf, $signaturePath)) {
+            echo "Échec ajout signature.";
+            return;
+        }
+
+        // Réencrypter et écraser l’ancien fichier
+        if (!FileCrypto::encrypt($signedPdf, $pdfPath)) {
+            echo "Erreur de chiffrement.";
+            return;
+        }
+
+        // Supprimer fichiers temporaires
+        @unlink($signaturePath);
+        @unlink($decryptedPdf);
+        @unlink($signedPdf);
+
+        $documentModel->markAsSignedByStudent($convention['id']);
+
+        echo "Signature ajoutée et convention mise à jour.";
+    }
 
 
 }
