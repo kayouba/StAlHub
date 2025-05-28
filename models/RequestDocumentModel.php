@@ -44,5 +44,12 @@ class RequestDocumentModel
         return $stmt->execute([$newPath, $status, $id]);
     }
 
+    public function markAsSignedByStudent(int $documentId): bool
+    {
+        $sql = "UPDATE request_documents SET signed_by_student = 1 WHERE id = :id";
+        $stmt = $this->pdo->prepare($sql);
+        return $stmt->execute(['id' => $documentId]);
+    }
+
 
 }

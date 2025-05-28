@@ -499,4 +499,41 @@ class RequestModel
         $stmt = $this->pdo->prepare("INSERT INTO request_documents (request_id, file_path, label, status, uploaded_at) VALUES (?, ?, ?, 'submitted', NOW())");
         $stmt->execute([$requestId, $filePath, $label]);
     }
+
+    /**
+ * Récupère une demande spécifique avec ses documents, si elle appartient à l'étudiant.
+ */
+public function getRequestWithDocumentsForStudent(int $requestId, int $studentId): ?array
+{
+    $stmt = $this->pdo->prepare("
+        SELECT r.*, 
+               c.name AS company_name, 
+               c.siret, 
+               c.city, 
+               c.postal_code
+        FROM requests r
+        JOIN companies c ON r.company_id = c.id
+        WHERE r.id = :requestId AND r.student_id = :studentId
+    ");
+    $stmt->execute([
+        'requestId' => $requestId,
+        'studentId' => $studentId
+    ]);
+
+    $request = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if (!$request) {
+        return null;
+    }
+
+    // Récupérer les documents liés
+    $docStmt = $this->pdo->prepare("
+        SELECT * FROM request_documents WHERE request_id = :requestId
+    ");
+    $docStmt->execute(['requestId' => $requestId]);
+    $request['documents'] = $docStmt->fetchAll(PDO::FETCH_ASSOC);
+
+    return $request;
+}
+
 }
