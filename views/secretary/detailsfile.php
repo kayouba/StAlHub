@@ -72,25 +72,39 @@
                 <?= !empty($doc['file_path']) ? '<span class="icon-check">✔️</span>' : '<span class="icon-cross">⭕</span>' ?>
               </td>
               <td class="doc-status" data-status="<?= strtolower($doc['status']) ?>">
-                <span class="status-text" style="font-weight: bold; color: <?= 
-                  strtolower($doc['status']) === 'validée' ? 'green' : 
-                  (strtolower($doc['status']) === 'refusée' ? 'red' : 'orange') 
-                ?>;">
-                  <?php
-                  $status = strtolower($doc['status']);
-                  $statusMap = [
-                    'validated' => 'validé',
-                    'rejected'  => 'refusé',
-                  ];
-                  $displayStatus = $statusMap[$status] ?? $status;
-                ?>
+              <?php
+                $status = strtolower($doc['status']);
+                $statusColor = match ($status) {
+                  'validé', 'validated' => 'green',
+                  'refusé', 'rejected'  => 'red',
+                  'soumis', 'submitted' => 'orange',
+                  default => '#888'
+                };
+
+                $statusMap = [
+                  'validated' => 'validé',
+                  'rejected'  => 'refusé',
+                  'submitted' => 'soumis',
+                ];
+
+                $displayStatus = $statusMap[$status] ?? $status;
+              ?>
+              <span class="status-text" style="font-weight: bold; color: <?= $statusColor ?>;">
                 <?= ucfirst($displayStatus) ?>
-                </span>
-              </td>
+              </span>
+            </td>
+
               <td>
+              <?php
+                $status = strtolower($doc['status']);
+                if (in_array($status, ['validated', 'validé', 'rejected', 'refusé'])):
+              ?>
+                <button class="btn-action cancel-btn" data-id="<?= htmlspecialchars($doc['id'] ?? '') ?>">↩️ Annuler la validation</button>
+              <?php else: ?>
                 <button class="btn-action validate-btn" data-id="<?= htmlspecialchars($doc['id'] ?? '') ?>">✅ Valider</button>
                 <button class="btn-action refuse-btn" data-id="<?= htmlspecialchars($doc['id'] ?? '') ?>">❌ Refuser</button>
-                <div class="message-container"></div>
+              <?php endif; ?>
+              <div class="message-container"></div>
               </td>
               <td>
                 <input 
@@ -103,12 +117,19 @@
                 <span class="save-indicator" style="color: green; font-size: 12px; display: none;">💾 Sauvegardé</span>
               </td>
               <td>
-                <?php if (!empty($doc['file_path'])): ?>
-                  <a class="btn-action" href="<?= htmlspecialchars($doc['file_path']) ?>" target="_blank" rel="noopener noreferrer">📄 Voir</a>
-                <?php else: ?>
-                  <span style="color: #aaa;">Aucun</span>
-                <?php endif; ?>
-              </td>
+              
+              <?php if (!empty($doc['file_path'])): ?>
+                <a
+                  class="btn-action"
+                  href="/stalhub/document/view?file=<?= urlencode($doc['file_path']) ?>"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >📄 Voir</a>
+              <?php else: ?>
+                <span style="color: #aaa;">Aucun</span>
+              <?php endif; ?>
+            </td>
+
             </tr>
           <?php endforeach; ?>
         </tbody>
@@ -117,7 +138,7 @@
       <?php
       $refusedDocs = array_filter($documents, function($doc) {
         $status = strtolower($doc['status']);
-        return in_array($status, ['rejected', 'refusée', 'refusee', 'refusé']);
+        return in_array($status, ['rejected', 'refusé', 'refusee', 'refusé']);
       });
 
       $emailBody = "Bonjour " . ($requestDetails['first_name'] ?? '') . ",\n\n";
@@ -142,6 +163,11 @@
         href="<?= $mailtoLink ?>"
       >
         📧 Relancer l'étudiant par mail
+      </a>
+      <a
+        class="btn-retour"
+        href="javascript:history.back();">
+        🔙 Retour
       </a>
     </div>
 

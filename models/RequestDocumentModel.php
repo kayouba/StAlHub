@@ -30,6 +30,23 @@ class RequestDocumentModel
         ]);
     }
 
+    public function saveConvention(int $requestId, string $filePath): void
+    {
+        $stmt = $this->pdo->prepare("INSERT INTO request_documents (
+            request_id, file_path, label, status, uploaded_at
+        ) VALUES (
+            :request_id, :file_path, :label, :status, NOW()
+        )");
+
+        $stmt->execute([
+            'request_id' => $requestId,
+            'file_path'  => $filePath,
+            'label'      => 'Convention de stage',
+            'status'     => 'validated'
+        ]);
+    }
+
+
     public function getDocumentsForRequest(int $requestId): array
     {
         $sql = "SELECT id, label, file_path, status FROM request_documents WHERE request_id = :requestId";

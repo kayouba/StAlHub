@@ -5,6 +5,10 @@ use App\View;
 use App\Model\UserModel;
 use App\Model\SecretaryModel;
 use App\Model\RequestModel;
+use App\Model\RequestDocumentModel;
+use App\Model\CompanyModel;
+use App\Lib\StepGuard;
+use App\Lib\FileCrypto;
 
 class SecretaryController {
     /**
@@ -18,30 +22,46 @@ class SecretaryController {
      * - Rend la vue du tableau de bord de la secrétaire.
     **/
     public function dashboard(): void
-    {
-        $userId = $_SESSION['user_id'] ?? null;
-        $role = $_SESSION['role'] ?? null;
+{
+    $userId = $_SESSION['user_id'] ?? null;
+    $role = $_SESSION['role'] ?? null;
 
-        if (!$userId || $role !== 'academic_secretary') {
-            header('Location: /stalhub/login');
-            exit;
-        }
-
-        // Charger l'utilisateur depuis la base via UserModel
-        $userModel = new UserModel();
-        $user = $userModel->findById($userId);
-
-        if (!$user) {
-            session_destroy();
-            header('Location: /stalhub/login');
-            exit;
-        }
-                
-        $model = new SecretaryModel();
-        $demandes = $model->getAll();
-
-        require_once $_SERVER['DOCUMENT_ROOT'] . '/stalhub/views/dashboard/secretary.php';
+    if (!$userId || $role !== 'academic_secretary') {
+        header('Location: /stalhub/login');
+        exit;
     }
+
+    // Charger l'utilisateur depuis la base via UserModel
+    $userModel = new UserModel();
+    $user = $userModel->findById($userId);
+
+    if (!$user) {
+        session_destroy();
+        header('Location: /stalhub/login');
+        exit;
+    }
+            
+    $model = new SecretaryModel();
+    $demandes = $model->getAll();
+
+    // Parcourir chaque demande pour savoir si elle a une convention déjà uploadée
+    foreach ($demandes as &$demande) {
+        $documents = $model->getDocumentsByRequestId((int)$demande['id']);
+        $hasConvention = false;
+
+        foreach ($documents as $doc) {
+            if (isset($doc['label']) && strtolower(trim($doc['label'])) === 'convention de stage') {
+                $hasConvention = true;
+                break;
+            }
+        }
+
+        $demande['hasConvention'] = $hasConvention;
+    }
+    unset($demande); // break reference
+
+    require_once $_SERVER['DOCUMENT_ROOT'] . '/stalhub/views/dashboard/secretary.php';
+}
 
     /**
      * Affiche les détails d'une demande spécifique pour la secrétaire académique.
@@ -291,5 +311,57 @@ class SecretaryController {
                 'message' => 'Erreur: ' . $e->getMessage()
             ]);
         }
+    }
+    public function uploadConvention(): void
+    {
+        if (!isset($_SESSION['user_id'])) {
+            http_response_code(403);
+            echo json_encode(['message' => 'Non autorisé']);
+            exit;
+        }
+
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            http_response_code(405);
+            echo json_encode(['message' => 'Méthode non autorisée']);
+            exit;
+        }
+
+        header('Content-Type: application/json');
+
+        $requestId = $_POST['request_id'] ?? null;
+        $file = $_FILES['convention'] ?? null;
+
+        if (!$requestId || !$file || $file['error'] !== UPLOAD_ERR_OK) {
+            http_response_code(400);
+            echo json_encode(['message' => 'Fichier ou identifiant manquant ou invalide']);
+            exit;
+        }
+
+
+        $requestModel = new RequestModel();
+        $userId = $requestModel->getUserIdByRequestId((int)$requestId);
+
+        $extension = pathinfo($file['name'], PATHINFO_EXTENSION);
+        $filename = "convention_{$requestId}_" . uniqid() . ".{$extension}.enc";
+
+        $uploadDir = __DIR__ . "/../public/uploads/users/{$userId}/demandes/";
+        if (!is_dir($uploadDir)) {
+            mkdir($uploadDir, 0777, true);
+        }
+
+        $absolutePath = $uploadDir . $filename;
+        $publicPath = "/stalhub/uploads/users/{$userId}/demandes/" . $filename;
+
+        if (!FileCrypto::encrypt($file['tmp_name'], $absolutePath)) {
+            http_response_code(500);
+            echo json_encode(['message' => 'Erreur lors du chiffrement du fichier']);
+            exit;
+        }
+
+        $documentModel = new RequestDocumentModel();
+        $documentModel->saveConvention($requestId, $publicPath, 'Convention de stage');
+
+        echo json_encode(['success' => true, 'message' => 'Convention envoyée avec succès']);
+        exit;
     }
 }
