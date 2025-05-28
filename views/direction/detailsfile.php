@@ -119,7 +119,6 @@ function safe($value, $default = 'Non précisé') {
                                	</button>
                            	</div>
 
-
                            	<div class="document-actions">
                                	<!-- Bouton pour voir le fichier PDF -->
                                	<div class="attachment-section">
