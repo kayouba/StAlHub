@@ -5,6 +5,8 @@ namespace App\Controller;
 use App\View;
 use App\Model\RequestModel;
 use App\Model\UserModel;
+use App\Model\RequestDocumentModel;
+
 
 class CfaController
 {
@@ -12,35 +14,36 @@ class CfaController
     {
         $model = new RequestModel();
         $userModel = new UserModel();
+        $documentModel = new RequestDocumentModel();
 
-        $pendingRequests = $model->getAllWithStatusAndContract('VALID_PEDAGO','apprenticeship');
-        $validatedRequests = $model->getAllWithStatusAndContract('VALID_CFA','apprenticeship');
+        $pendingRequests = $model->getAllWithStatusAndContract('VALID_PEDAGO', 'apprenticeship');
+        $validatedRequests = $model->getAllWithStatusAndContract('VALID_CFA', 'apprenticeship');
 
         $programs = $userModel->getDistinctValues('program');
         $tracks = $userModel->getDistinctValues('track');
         $levels = $userModel->getDistinctValues('level');
 
-        // Charger les fichiers du profil pour chaque demande
+        // Charger les documents pour les demandes en attente
         foreach ($pendingRequests as &$req) {
-            $userId = $req['student_id']; 
-            $userPath = "/uploads/users/$userId/";
-            $absolute = __DIR__ . "/../public" . $userPath;
-
             $req['documents'] = [];
+            $documents = $documentModel->getDocumentsForRequest((int)$req['id']);
+            foreach ($documents as $doc) {
+                $req['documents'][] = [
+                    'label' => $doc['label'] ?? basename($doc['file_path']),
+                    'file_path' => $doc['file_path']
+                ];
+            }
+        }
 
-            $files = [
-                'cv.pdf.enc' => 'CV',
-                'assurance.pdf.enc' => "Attestation d'assurance",
-                'pstage_summary.pdf.enc' => 'Résumé pstage',
-            ];
-
-            foreach ($files as $filename => $label) {
-                if (file_exists($absolute . $filename)) {
-                    $req['documents'][] = [
-                        'label' => $label,
-                        'file_path' => "/stalhub{$userPath}{$filename}"
-                    ];
-                }
+        // Charger les documents pour les demandes validées
+        foreach ($validatedRequests as &$req) {
+            $req['documents'] = [];
+            $documents = $documentModel->getDocumentsForRequest((int)$req['id']);
+            foreach ($documents as $doc) {
+                $req['documents'][] = [
+                    'label' => $doc['label'] ?? basename($doc['file_path']),
+                    'file_path' => $doc['file_path']
+                ];
             }
         }
 
@@ -52,6 +55,7 @@ class CfaController
             'levels' => $levels
         ]);
     }
+
 
 
     public function validate(): void

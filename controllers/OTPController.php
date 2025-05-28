@@ -2,10 +2,17 @@
 namespace App\Controller;
 
 use App\View;
+use App\Lib\Database;
 use PDO;
 
 class OTPController
 {
+    protected PDO $pdo;
+
+    public function __construct()
+    {
+        $this->pdo = Database::getConnection();
+    }
     public function show(): void
     {
         View::render('auth/otp');
@@ -25,9 +32,8 @@ class OTPController
             return;
         }
 
-        $pdo = new PDO('mysql:host=localhost;dbname=stalhub_dev', 'root', 'root');
 
-        $stmt = $pdo->prepare("
+        $stmt = $this->pdo->prepare("
             SELECT * FROM otp_codes 
             WHERE user_id = ? AND used = 0 AND expires_at > NOW()
             ORDER BY created_at DESC LIMIT 1
@@ -37,7 +43,7 @@ class OTPController
 
         if ($otp && password_verify($code, $otp['code_hash'])) {
             // Marquer comme utilisé
-            $stmt = $pdo->prepare("UPDATE otp_codes SET used = 1 WHERE id = ?");
+            $stmt = $this->pdo->prepare("UPDATE otp_codes SET used = 1 WHERE id = ?");
             $stmt->execute([$otp['id']]);
 
             $_SESSION['authenticated'] = true;

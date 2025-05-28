@@ -8,7 +8,7 @@ class OTPService
 {
     private \PDO $pdo;
     private int $length = 6;
-    private int $ttl    = 300; // 5 minutes
+    private int $ttl    = 300;
 
     public function __construct()
     {

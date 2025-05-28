@@ -8,12 +8,11 @@ use Config\Database;
 abstract class Model
 {
     protected \PDO $pdo;
-    protected string $table; // doit être défini dans chaque sous-classe
+    protected string $table;
 
     public function __construct()
     {
         $this->pdo   = Database::get();
-        // Le nom de la table est défini dans la propriété $table de la sous-classe
     }
 
     /**

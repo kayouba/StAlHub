@@ -43,42 +43,42 @@ class CompanyModel
     }
 
     public function findAll(): array
-{
-    $stmt = $this->pdo->query("
-        SELECT 
-            id,
-            name,
-            siret,
-            email,
-            address,
-            postal_code,
-            city,
-            details
-        FROM companies
-    ");
-
-    return $stmt->fetchAll(\PDO::FETCH_ASSOC);
-}
-
-
-    public function findById(int $id): ?array
     {
-        $stmt = $this->pdo->prepare("SELECT * FROM companies WHERE id = :id LIMIT 1");
-        $stmt->execute(['id' => $id]);
-        return $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
+        $stmt = $this->pdo->query("
+            SELECT 
+                id,
+                name,
+                siret,
+                email,
+                address,
+                postal_code,
+                city,
+                details
+            FROM companies
+        ");
+
+        return $stmt->fetchAll(\PDO::FETCH_ASSOC);
     }
 
-public function deleteById(int $id): bool
-{
-    try {
-        $stmt = $this->pdo->prepare("DELETE FROM companies WHERE id = :id");
-        return $stmt->execute(['id' => $id]);
-    } catch (\PDOException $e) {
-        // Facultatif : log en debug
-        file_put_contents('/tmp/delete_error.log', $e->getMessage());
-        return false;
+
+        public function findById(int $id): ?array
+        {
+            $stmt = $this->pdo->prepare("SELECT * FROM companies WHERE id = :id LIMIT 1");
+            $stmt->execute(['id' => $id]);
+            return $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
+        }
+
+    public function deleteById(int $id): bool
+    {
+        try {
+            $stmt = $this->pdo->prepare("DELETE FROM companies WHERE id = :id");
+            return $stmt->execute(['id' => $id]);
+        } catch (\PDOException $e) {
+            // log en debug
+            file_put_contents('/tmp/delete_error.log', $e->getMessage());
+            return false;
+        }
     }
-}
 
 
 }

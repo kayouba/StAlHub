@@ -73,8 +73,9 @@ use App\Lib\StatusTranslator; ?>
                                 <td><?= htmlspecialchars(StatusTranslator::translate($req['status'])) ?></td>
                                 <td class="actions">
                                     <button onclick='openRequestModal(<?= json_encode($req, JSON_HEX_APOS | JSON_HEX_QUOT) ?>)' class="pdf-btn">👁 Voir</button>
-                                    <a href="/stalhub/request/pdf?id=<?= $req['id'] ?>" target="_blank" class="pdf-btn">📄 PDF</a>
-                                    <a href="/stalhub/document/zip?user_id=<?= $req['student_id'] ?>" class="pdf-btn">🗜 ZIP</a>
+                                    <a href="/stalhub/document/summary?request_id=<?= $req['id'] ?>" target="_blank" class="pdf-btn">📄 PDF </a>
+                                    <a href="/stalhub/document/zip-by-request?request_id=<?= $req['id'] ?>" class="pdf-btn">🗜 ZIP</a>
+
 
                                     <form action="/stalhub/cfa/validate" method="POST" style="display:inline;">
                                         <input type="hidden" name="request_id" value="<?= $req['id'] ?>">
@@ -114,7 +115,7 @@ use App\Lib\StatusTranslator; ?>
                                 <td><?= htmlspecialchars(StatusTranslator::translate($req['status'])) ?></td>
                                 <td class="actions">
                                     <button onclick='openRequestModal(<?= json_encode($req, JSON_HEX_APOS | JSON_HEX_QUOT) ?>)' class="pdf-btn">👁 Voir</button>
-                                    <a href="/stalhub/request/pdf?id=<?= $req['id'] ?>" target="_blank" class="pdf-btn">📄 PDF</a>
+                                    <a href="/stalhub/document/summary?request_id=<?= $req['id'] ?>" target="_blank" class="pdf-btn">📄 PDF </a>
                                     <a href="/stalhub/document/zip?user_id=<?= $req['student_id'] ?>" class="pdf-btn">🗜 ZIP</a>
                                 </td>
                             </tr>

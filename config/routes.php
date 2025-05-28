@@ -69,6 +69,8 @@ return [
     '/direction/validate' => ['App\Controller\DirectionController', 'validate'],
     '/document/zip-by-request' => ['App\Controller\DocumentController', 'zipByRequest'],
     '/direction/upload-signed' => ['App\Controller\DirectionController', 'uploadSigned'],
+    '/document/summary' => ['App\Controller\DocumentController', 'viewSummaryByRequest'],
+
 
 
     /*  '/responsable/valider' => ['App\Controller\ResponsablePedaController', 'valider'],
