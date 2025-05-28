@@ -44,4 +44,5 @@ return [
 
     // Compatibilité / anciennes routes
     '/direction/save-comment'       => ['App\Controller\DirectionController', 'saveComment'],
+
 ];

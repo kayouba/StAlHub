@@ -158,6 +158,7 @@ class DirectionController
             $input = json_decode(file_get_contents('php://input'), true);
             $documentId = (int)($input['document_id'] ?? 0);
             $action = $input['action'] ?? '';
+            $signatureData = $input['signature_data'] ?? null;
 
             if ($documentId <= 0) {
                 throw new \Exception('ID du document invalide');
@@ -166,7 +167,7 @@ class DirectionController
             $model = new DirectionModel();
             
             if ($action === 'sign') {
-                $success = $model->updateDocumentStatus($documentId, 'validated');
+                $success = $model->updateDocumentStatus($documentId, 'validated', $signatureData); // MODIFICATION
                 $message = 'Document signé avec succès';
             } elseif ($action === 'refuse') {
                 $success = $model->updateDocumentStatus($documentId, 'rejected');
