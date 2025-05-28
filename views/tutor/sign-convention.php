@@ -135,10 +135,10 @@ document.addEventListener("DOMContentLoaded", () => {
             message.style.color = "green";
 
             // Masquer la zone de signature
-            // const signatureArea = document.getElementById("signature-area");
-            // if (signatureArea) {
-            //     signatureArea.style.display = "none";
-            // }
+            const signatureArea = document.getElementById("signature-area");
+            if (signatureArea) {
+                signatureArea.style.display = "none";
+            }
         })
 
         .catch(() => {
