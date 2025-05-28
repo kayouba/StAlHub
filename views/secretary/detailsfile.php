@@ -95,8 +95,15 @@
             </td>
 
               <td>
-              <button class="btn-action validate-btn" data-id="<?= htmlspecialchars($doc['id'] ?? '') ?>">✅ Valider</button>
-              <button class="btn-action refuse-btn" data-id="<?= htmlspecialchars($doc['id'] ?? '') ?>">❌ Refuser</button>
+              <?php
+                $status = strtolower($doc['status']);
+                if (in_array($status, ['validated', 'validé', 'rejected', 'refusé'])):
+              ?>
+                <button class="btn-action cancel-btn" data-id="<?= htmlspecialchars($doc['id'] ?? '') ?>">↩️ Annuler la validation</button>
+              <?php else: ?>
+                <button class="btn-action validate-btn" data-id="<?= htmlspecialchars($doc['id'] ?? '') ?>">✅ Valider</button>
+                <button class="btn-action refuse-btn" data-id="<?= htmlspecialchars($doc['id'] ?? '') ?>">❌ Refuser</button>
+              <?php endif; ?>
               <div class="message-container"></div>
               </td>
               <td>
@@ -162,3 +169,4 @@
 
   <?php endif; ?>
 </div>
+
