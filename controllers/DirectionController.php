@@ -2,9 +2,16 @@
 
 namespace App\Controller;
 
+
 use App\View;
-use App\Model\RequestModel;
 use App\Model\UserModel;
+use App\Model\RequestModel;
+use App\Model\RequestDocumentModel;
+use App\Model\CompanyModel;
+use App\Lib\StepGuard;
+use App\Lib\FileCrypto;
+use App\Lib\PdfGenerator;
+use App\Lib\PdfSigner;
 
 class DirectionController
 {
@@ -13,9 +20,31 @@ class DirectionController
         $model = new RequestModel();
         $userModel = new UserModel();
 
-        $pendingRequests = $model->getAllWithStatuses(['VALID_SECRETAIRE', 'VALID_CFA']);
-        $validatedRequests = $model->getAllWithStatuses(['VALID_DIRECTION']);
+        // 1. Demandes à signer par la direction
+        $requestsToCheck = $model->getAllWithStatus('VALID_SECRETAIRE');
+        $pendingRequests = [];
 
+        foreach ($requestsToCheck as $request) {
+            $documents = $model->getDocumentsForRequest($request['id']);
+
+            foreach ($documents as $doc) {
+                $label = $doc['label'] ?? '';
+                $signedByStudent = $doc['signed_by_student'] ?? 0;
+
+                if (
+                    $label == 'Convention de stage' &&
+                    $signedByStudent == 1
+                ) {
+                    $pendingRequests[] = $request;
+                    break;
+                }
+            }
+        }
+
+        // 2. Demandes déjà validées par la direction
+        $validatedRequests = $model->getAllWithStatus('VALID_DIRECTION');
+
+        // Filtres pour la vue
         $programs = $userModel->getDistinctValues('program');
         $tracks = $userModel->getDistinctValues('track');
         $levels = $userModel->getDistinctValues('level');
@@ -113,59 +142,134 @@ class DirectionController
         unlink($zipFile);
         exit;
     }
-    public function uploadSigned(): void
+
+    public function signConvention(): void
     {
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST' || empty($_FILES['signed_file']) || empty($_POST['request_id'])) {
+        $requestId = $_GET['id'] ?? null;
+
+        if (!$requestId || !ctype_digit($requestId)) {
             http_response_code(400);
-            exit("Paramètres manquants.");
+            echo "ID invalide.";
+            return;
         }
 
-        $requestId = (int)$_POST['request_id'];
+        $model = new RequestModel();
+        $request = $model->getRequestWithDocumentsForDirection((int)$requestId);
 
-        $tmpFile = $_FILES['signed_file']['tmp_name'];
-        $originalName = $_FILES['signed_file']['name'];
-
-        if (!is_uploaded_file($tmpFile)) {
-            http_response_code(400);
-            exit("Fichier non valide.");
-        }
-
-        // Récupérer le user_id via la demande
-        $requestModel = new \App\Model\RequestModel();
-        $request = $requestModel->findById($requestId);
-        $userId = $request['student_id'] ?? null;
-
-        if (!$userId) {
+        if (!$request) {
             http_response_code(404);
-            exit("Demande ou étudiant introuvable.");
+            echo "Demande introuvable.";
+            return;
         }
 
-        // Créer dossier
-        $folder = date('Y-m-d_His');
-        $uploadDir = __DIR__ . "/../public/uploads/users/$userId/signed/";
-        if (!file_exists($uploadDir)) mkdir($uploadDir, 0777, true);
-
-        // Encrypt & enregistrer
-        $filename = 'convention_signee_' . $folder . '.pdf.enc';
-        $encryptedPath = $uploadDir . $filename;
-
-        if (!\App\Lib\FileCrypto::encrypt($tmpFile, $encryptedPath)) {
-            http_response_code(500);
-            exit("Échec de chiffrement.");
+        $convention = null;
+        foreach ($request['documents'] as $doc) {
+            if (
+                strtolower($doc['label']) === 'convention de stage' &&
+                strtolower($doc['status']) === 'validated' &&
+                !empty($doc['signed_by_student']) &&           // ✅ signé par l'étudiant
+                empty($doc['signed_by_direction'])             // ❌ pas encore signé par la direction
+            ) {
+                $convention = $doc;
+                break;
+            }
         }
 
-        $publicPath = "/stalhub/uploads/users/$userId/signed/" . $filename;
+        if (!$convention) {
+            http_response_code(403);
+            echo "Aucune convention à signer.";
+            return;
+        }
 
-        // 1. Ajouter dans request_documents
-        $documentModel = new \App\Model\RequestDocumentModel();
-        $documentModel->saveDocument($requestId, $publicPath, 'Convention signée');
-
-        // 2. Valider la demande
-        $requestModel->updateStatus($requestId, 'VALID_DIRECTION');
-
-        // 3. Redirection
-        $_SESSION['success_message'] = "📤 Document signé enregistré et demande validée.";
-        header('Location: /stalhub/direction/dashboard');
-        exit;
+        $requestId = (int)$requestId;
+        require __DIR__ . '/../views/direction/sign-convention-direction.php';
     }
+
+    public function uploadDirectionSignature(): void
+{
+    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+        http_response_code(405);
+        echo "Méthode non autorisée.";
+        return;
+    }
+
+    $data = json_decode(file_get_contents('php://input'), true);
+    if (!isset($data['request_id'], $data['image']) || !is_numeric($data['request_id'])) {
+        http_response_code(400);
+        echo "Données invalides.";
+        return;
+    }
+
+    $requestId = (int)$data['request_id'];
+
+    $model = new RequestModel();
+    $request = $model->getRequestWithDocumentsForDirection($requestId);
+
+    if (!$request) {
+        http_response_code(404);
+        echo "Demande non trouvée.";
+        return;
+    }
+
+    $documentModel = new RequestDocumentModel();
+    $convention = null;
+
+    foreach ($request['documents'] as $doc) {
+        if (
+            strtolower($doc['label']) === 'convention de stage' &&
+            strtolower($doc['status']) === 'validated' &&
+            !empty($doc['signed_by_student']) &&
+            empty($doc['signed_by_direction'])
+        ) {
+            $convention = $doc;
+            break;
+        }
+    }
+
+    if (!$convention) {
+        http_response_code(403);
+        echo "Aucune convention valide à signer.";
+        return;
+    }
+
+    $imageData = explode(',', $data['image'])[1];
+    $decoded = base64_decode($imageData);
+
+    $signaturePath = __DIR__ . "/../temp/signature_direction_{$requestId}.png";
+    if (!file_exists(dirname($signaturePath))) {
+        mkdir(dirname($signaturePath), 0777, true);
+    }
+    file_put_contents($signaturePath, $decoded);
+
+    $pdfPath = __DIR__ . '/../public' . str_replace('/stalhub', '', $convention['file_path']);
+    $decryptedPdf = str_replace('.enc', '_temp.pdf', $pdfPath);
+    if (!FileCrypto::decrypt($pdfPath, $decryptedPdf)) {
+        echo "Échec de déchiffrement.";
+        return;
+    }
+
+    $signedPdf = str_replace('.enc', '_signed.pdf', $pdfPath);
+    if (!PdfSigner::addSignatureToPdf($decryptedPdf, $signedPdf, $signaturePath)) {
+        echo "Échec ajout signature.";
+        return;
+    }
+
+    if (!FileCrypto::encrypt($signedPdf, $pdfPath)) {
+        echo "Erreur de chiffrement.";
+        return;
+    }
+
+    @unlink($signaturePath);
+    @unlink($decryptedPdf);
+    @unlink($signedPdf);
+
+    // ✅ Mise à jour de la signature en base
+    $documentModel->markAsSignedByDirection($convention['id']);
+
+    // ✅ Mise à jour du statut de la requête
+    $model->updateStatus($requestId, 'VALID_DIRECTION');
+
+    echo "Signature direction ajoutée avec succès.";
+}
+
 }

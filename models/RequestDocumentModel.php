@@ -67,6 +67,12 @@ class RequestDocumentModel
         $stmt = $this->pdo->prepare($sql);
         return $stmt->execute(['id' => $documentId]);
     }
+public function markAsSignedByDirection(int $documentId): bool
+{
+    $sql = "UPDATE request_documents SET signed_by_direction = 1 WHERE id = :id";
+    $stmt = $this->pdo->prepare($sql);
+    return $stmt->execute(['id' => $documentId]);
+}
 
 
 }

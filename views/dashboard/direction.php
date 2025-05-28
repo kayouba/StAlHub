@@ -11,10 +11,9 @@ use App\Lib\StatusTranslator; ?>
     <link rel="stylesheet" href="/stalhub/public/css/dashbord-cfa.css">
 </head>
 
+<?php include __DIR__ . '/../components/sidebar.php'; ?>
+
 <body>
-
-    <?php include __DIR__ . '/../components/sidebar.php'; ?>
-
     <main class="cfa-main">
         <h1>🎓 Tableau de bord Direction</h1>
 
@@ -72,9 +71,8 @@ use App\Lib\StatusTranslator; ?>
                                 <td><?= htmlspecialchars($req['track'] ?? '—') ?></td>
                                 <td><?= htmlspecialchars(StatusTranslator::translate($req['status'])) ?></td>
                                 <td class="actions">
-                                    <button onclick='openRequestModal(<?= json_encode($req, JSON_HEX_APOS | JSON_HEX_QUOT) ?>)' class="pdf-btn">👁 Voir</button>
-                                    <a href="/stalhub/direction/request?id=<?= $req['id'] ?>" class="validate-btn">✅ Valider</a>
-
+                                    <a href="/stalhub/direction/request?id=<?= $req['id'] ?>" class="pdf-btn">👁 Voir</a>
+                                    <a href="/stalhub/direction/sign-convention?id=<?= $req['id'] ?>" class="validate-btn">📝 Signer</a>
                                 </td>
                             </tr>
                         <?php endif; ?>
