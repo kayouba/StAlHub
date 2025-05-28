@@ -7,7 +7,7 @@
 
 <div class="filter-bar">
     <div class="filter-group">
-        <label for="roleFilter">🎯  Filtrer par rôle</label>
+        <label for="roleFilter">🎯 Filtrer par rôle</label>
         <select id="roleFilter" onchange="filterUsers()">
             <option value="all">Tous</option>
             <?php
@@ -33,14 +33,10 @@
     </div>
 
     <div class="filter-group">
-        <label for="searchInput">🔍  Rechercher</label>
+        <label for="searchInput">🔍 Rechercher</label>
         <input type="text" id="searchInput" onkeyup="searchUsers()" placeholder="Nom, prénom ou email...">
     </div>
 </div>
-
-
-
-
 
 <table>
     <thead>
@@ -53,10 +49,9 @@
     </thead>
     <tbody id="userTable">
         <?php foreach ($users as $user): ?>
-            <tr 
-    data-role="<?= strtolower(htmlspecialchars($user['role'])) ?>"
-    data-user="<?= htmlspecialchars(json_encode($user), ENT_QUOTES, 'UTF-8') ?>"
->
+            <tr
+                data-role="<?= strtolower(htmlspecialchars($user['role'])) ?>"
+                data-user="<?= htmlspecialchars(json_encode($user), ENT_QUOTES, 'UTF-8') ?>">
 
                 <td data-label="Nom complet"><?= htmlspecialchars($user['last_name'] . ' ' . $user['first_name']) ?></td>
                 <td data-label="Email"><?= htmlspecialchars($user['email']) ?></td>
@@ -94,7 +89,6 @@
     </tbody>
 </table>
 
-
 <!-- MODAL HTML -->
 <div id="userModal" class="modal" style="display:none;">
     <div class="modal-content" style="background:#fff; padding:20px; border-radius:8px; width:400px; margin:100px auto; position:relative;">
@@ -125,16 +119,15 @@
     </div>
 </div>
 
-
 <script>
-function openModal(user) {
-    const modal = document.getElementById('userModal');
-    modal.style.display = 'block';
+    function openModal(user) {
+        const modal = document.getElementById('userModal');
+        modal.style.display = 'block';
 
-    const activeText = user.is_active == 1 ? '✅ Actif' : '❌ Inactif';
-    const rgpdText = user.consentement_rgpd == 1 ? '✅ Oui' : '❌ Non';
+        const activeText = user.is_active == 1 ? '✅ Actif' : '❌ Inactif';
+        const rgpdText = user.consentement_rgpd == 1 ? '✅ Oui' : '❌ Non';
 
-    document.getElementById('userInfo').innerHTML = `
+        document.getElementById('userInfo').innerHTML = `
         <p><strong>Nom :</strong> ${user.last_name} ${user.first_name}</p>
         <p><strong>Email :</strong> ${user.email}</p>
         <p><strong>Email secondaire :</strong> ${user.alternate_email || '-'}</p>
@@ -150,13 +143,11 @@ function openModal(user) {
         <p><strong>Dernière connexion :</strong> ${user.last_login_at || '-'}</p>
     `;
 
-    document.getElementById('user_id').value = user.id;
-    document.getElementById('role').value = user.role;
-}
+        document.getElementById('user_id').value = user.id;
+        document.getElementById('role').value = user.role;
+    }
 
-function closeModal() {
-    document.getElementById('userModal').style.display = 'none';
-}
-
-
+    function closeModal() {
+        document.getElementById('userModal').style.display = 'none';
+    }
 </script>

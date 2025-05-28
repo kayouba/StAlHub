@@ -8,7 +8,7 @@
 
 <div class="filter-bar">
     <div class="filter-group">
-         <label for="companySearch">🔍  Recherche :</label>
+        <label for="companySearch">🔍 Recherche :</label>
         <input type="text" id="companySearch" onkeyup="filterCompanies()" placeholder="Nom, ville, SIRET..." style="padding: 6px 10px; border-radius: 6px; border: 1px solid #ccc;">
     </div>
 </div>
@@ -31,13 +31,15 @@
                 <td><?= htmlspecialchars($company['city']) ?></td>
                 <td>
                     <a href="javascript:void(0);" onclick='openCompanyModal(<?= json_encode($company, JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_TAG) ?>)'>Voir</a>
-                    
+
                     <!-- <a href="/stalhub/admin/companies/delete?id=<?= $company['id'] ?>" onclick="return confirm('Confirmer la suppression de cette entreprise ?')">Supprimer</a>-->
                 </td>
             </tr>
         <?php endforeach; ?>
         <?php if (empty($companies)): ?>
-            <tr><td colspan="4">Aucune entreprise trouvée.</td></tr>
+            <tr>
+                <td colspan="4">Aucune entreprise trouvée.</td>
+            </tr>
         <?php endif; ?>
     </tbody>
 </table>
@@ -53,8 +55,3 @@
         <div id="companyRequests"></div>
     </div>
 </div>
-
-
-
-<script>
-</script>
