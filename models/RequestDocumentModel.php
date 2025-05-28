@@ -49,7 +49,7 @@ class RequestDocumentModel
 
     public function getDocumentsForRequest(int $requestId): array
     {
-        $sql = "SELECT id, label, file_path, status FROM request_documents WHERE request_id = :requestId";
+        $sql = "SELECT * FROM request_documents WHERE request_id = :requestId";
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute(['requestId' => $requestId]);
         return $stmt->fetchAll(\PDO::FETCH_ASSOC);

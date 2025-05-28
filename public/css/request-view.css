@@ -12,6 +12,7 @@ body {
     background: #fff;
     border-radius: 12px;
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
+    position: relative;
 }
 
 h1 {
@@ -64,6 +65,29 @@ ul li {
     background: linear-gradient(to right, #2c3e50, #3498db);
 }
 
+/* Signature en haut à droite */
+.signature-callout {
+    position: absolute;
+    top: 30px;
+    right: 30px;
+    max-width: 300px;
+    background-color: #eaf4ff;
+    border-left: 6px solid #007bff;
+    padding: 16px;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+}
+.signature-callout h2 {
+    font-size: 18px;
+    margin-top: 0;
+    margin-bottom: 8px;
+    color: #074f76;
+}
+.signature-callout p {
+    font-size: 15px;
+    margin-bottom: 12px;
+}
+
 /* Badge statut */
 .badge {
     display: inline-block;
@@ -86,13 +110,11 @@ ul li {
     padding-left: 30px;
     border-left: 2px solid #dce1e7;
 }
-
 .timeline li {
     position: relative;
     margin-bottom: 25px;
     padding-left: 20px;
 }
-
 .timeline li::before {
     content: "";
     position: absolute;
@@ -105,40 +127,17 @@ ul li {
     border: 3px solid white;
     box-shadow: 0 0 0 2px #3498db;
 }
-
 .timeline li strong {
     font-weight: 600;
     color: #2d3748;
 }
-
 .timeline li em {
     color: #6c757d;
     font-style: italic;
     font-size: 14px;
 }
 
-.convention-preview {
-    background: #f9fcff;
-    padding: 30px;
-    border: 1px solid #d0e7fb;
-    border-radius: 10px;
-    margin-top: 40px;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.03);
-}
-
-.convention-preview h2 {
-    margin-top: 0;
-    font-size: 20px;
-    border-left: 4px solid #2980b9;
-    padding-left: 10px;
-    color: #2d3748;
-}
-
-.signature-section {
-    margin-top: 30px;
-    text-align: center;
-}
-
+/* Section accordéon */
 .toggle-section {
     background: none;
     border: none;
@@ -153,8 +152,7 @@ ul li {
     display: none;
 }
 
-
-
+/* Responsive */
 @media screen and (max-width: 768px) {
     .request-container {
         padding: 20px;
@@ -209,5 +207,11 @@ ul li {
 
     .form-actions {
         margin-top: 20px;
+    }
+
+    .signature-callout {
+        position: static;
+        margin-bottom: 20px;
+        max-width: 100%;
     }
 }

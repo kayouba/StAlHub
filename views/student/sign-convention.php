@@ -133,7 +133,14 @@ document.addEventListener("DOMContentLoaded", () => {
             const message = document.getElementById("signature-message");
             message.textContent = msg;
             message.style.color = "green";
+
+            // Masquer la zone de signature
+            const signatureArea = document.getElementById("signature-area");
+            if (signatureArea) {
+                signatureArea.style.display = "none";
+            }
         })
+
         .catch(() => {
             const message = document.getElementById("signature-message");
             message.textContent = "Erreur lors de l'enregistrement.";
