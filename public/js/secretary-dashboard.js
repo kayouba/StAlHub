@@ -316,10 +316,19 @@ document.addEventListener('DOMContentLoaded', () => {
     })
       .then(response => response.json())
       .then(data => {
-        alert(data.message || 'Convention envoyée');
-        document.getElementById('upload-popup').style.display = 'none';
-        location.reload(); // ou updateRowStatus(...) si tu veux éviter le rechargement
-      })
+      alert(data.message || 'Convention envoyée');
+      document.getElementById('upload-popup').style.display = 'none';
+
+      // Récupérer l'id de la demande dans l'input caché
+      const demandeId = document.getElementById('request-id-hidden').value;
+
+      // Cacher le bouton upload lié à cette demande
+      const uploadBtn = document.querySelector(`button.upload-btn[data-id="${demandeId}"]`);
+      if (uploadBtn) {
+        uploadBtn.style.display = 'none';  // Fait disparaître le bouton
+      }
+    })
+
       .catch(error => {
         alert('Erreur : ' + error.message);
       });
