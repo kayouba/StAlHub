@@ -118,5 +118,16 @@
 
     <!-- Inclusion du fichier JavaScript externe -->
     <script src="/stalhub/public/js/responsable-requestList.js"></script>
+    <style>
+.sidebar .nav-links a {
+    display: flex !important;
+    align-items: center !important;
+    white-space: nowrap;
+}
+
+.sidebar .nav-links a span:first-child {
+    margin-right: 12px;
+}
+</style>
 </body>
 </html>
