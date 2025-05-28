@@ -8,6 +8,7 @@ use App\Model\RequestDocumentModel;
 use App\Model\CompanyModel;
 use App\Lib\StepGuard;
 use App\Lib\FileCrypto;
+use App\Lib\PdfGenerator;
 
 
 class StudentController
@@ -326,13 +327,17 @@ class StudentController
         // 1. Créer l'entreprise et la demande
         $companyId = $companyModel->findOrCreate($step2);
         $requestId = $requestModel->createRequest($step3, $userId, $companyId, $step2);
-
+        
         // 2. Créer un dossier spécifique pour cette demande
         $requestFolder = date('Y-m-d_His');
         $uploadDir = __DIR__ . "/../public/uploads/users/$userId/demandes/$requestFolder/";
         if (!file_exists($uploadDir)) {
             mkdir($uploadDir, 0777, true);
         }
+        $pdfPath = PdfGenerator::generateFromDatabase($requestId, $uploadDir);
+        $publicPdfPath = "/stalhub/uploads/users/$userId/demandes/$requestFolder/summary.pdf.enc";
+        $documentModel->saveDocument($requestId, $publicPdfPath, 'Résumé de la demande');
+
 
         // 3. Documents obligatoires (CV + assurance)
         $documentFields = [

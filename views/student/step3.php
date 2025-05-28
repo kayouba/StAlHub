@@ -24,8 +24,6 @@
             <label>Pays de l’entreprise</label>
             <input type="text" name="foreign_country" value="<?= htmlspecialchars($step3['foreign_country'] ?? '') ?>">
         </div>
-        <label>Ville</label>
-        <input type="text" name="city" value="<?= htmlspecialchars($step3['city'] ?? '') ?>" required>
         <div id="siret-group">
             <label>SIRET de l'entreprise</label>
             <input type="text" name="siret" id="siret" value="<?= htmlspecialchars($step3['siret'] ?? '') ?>">
@@ -36,7 +34,9 @@
         </div>
         <label>Nom de l'entreprise</label>
         <input type="text" name="company_name" value="<?= htmlspecialchars($step3['company_name'] ?? '') ?>" required>
-
+        
+        <label>Ville</label>
+        <input type="text" name="city" value="<?= htmlspecialchars($step3['city'] ?? '') ?>" required>
 
         <label>Code Postal</label>
         <input type="text" name="postal_code" value="<?= htmlspecialchars($step3['postal_code'] ?? '') ?>" required>
