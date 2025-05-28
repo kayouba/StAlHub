@@ -1,45 +1,33 @@
 document.addEventListener('DOMContentLoaded', function () {
-    const validateButtons = document.querySelectorAll('.validate-btn');
-    const refuseButtons = document.querySelectorAll('.refuse-btn');
     const validateAllBtn = document.getElementById('validateAllBtn');
     const commentInputs = document.querySelectorAll('.comment-input');
 
     // 💾 Sauvegarde automatique des commentaires
     commentInputs.forEach(input => {
         let saveTimeout;
-        
+
         input.addEventListener('input', function () {
             const documentId = this.dataset.id;
             const comment = this.value;
             const saveIndicator = this.nextElementSibling;
-            
-            // Debug
-            console.log(`Commentaire modifié pour le document ${documentId}: "${comment}"`);
-            
-            // Débouncing : attendre 1 seconde après la dernière frappe
+
             clearTimeout(saveTimeout);
             saveTimeout = setTimeout(() => {
                 saveComment(documentId, comment, saveIndicator);
             }, 1000);
         });
 
-        // Sauvegarde immédiate quand l'utilisateur quitte le champ
         input.addEventListener('blur', function () {
             const documentId = this.dataset.id;
             const comment = this.value;
             const saveIndicator = this.nextElementSibling;
-            
-            console.log(`Sauvegarde immédiate pour le document ${documentId}: "${comment}"`);
-            
+
             clearTimeout(saveTimeout);
             saveComment(documentId, comment, saveIndicator);
         });
     });
 
-    // Fonction pour sauvegarder le commentaire
     function saveComment(documentId, comment, saveIndicator) {
-        console.log(`Envoi de la requête de sauvegarde pour le document ${documentId}`);
-        
         fetch('/stalhub/secretary/save-comment', {
             method: 'POST',
             headers: {
@@ -50,23 +38,16 @@ document.addEventListener('DOMContentLoaded', function () {
                 comment: comment
             })
         })
-        .then(res => {
-            console.log('Réponse reçue:', res.status);
-            return res.json();
-        })
+        .then(res => res.json())
         .then(data => {
-            console.log('Données reçues:', data);
             if (data.success) {
-                // Afficher l'indicateur de sauvegarde
                 if (saveIndicator) {
                     saveIndicator.style.display = 'inline';
                     setTimeout(() => {
                         saveIndicator.style.display = 'none';
                     }, 2000);
                 }
-                console.log('Commentaire sauvegardé avec succès');
             } else {
-                console.error('Erreur lors de la sauvegarde du commentaire:', data.message || 'Erreur inconnue');
                 alert('Erreur lors de la sauvegarde du commentaire');
             }
         })
@@ -76,19 +57,19 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    // ✅ Validation d'un seul document
-    validateButtons.forEach(button => {
-        button.addEventListener('click', function () {
-            const row = this.closest('tr');
-            const documentId = this.dataset.id;
+    // 🎯 Gestion des boutons Valider / Refuser / Annuler
+    document.addEventListener('click', function (e) {
+        // ✅ VALIDER
+        if (e.target.classList.contains('validate-btn')) {
+            const button = e.target;
+            const row = button.closest('tr');
+            const documentId = button.dataset.id;
             const commentInput = row.querySelector('.comment-input');
             const comment = commentInput ? commentInput.value : '';
 
             fetch('/stalhub/secretary/update-document-status', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     document_id: documentId,
                     status: 'validated',
@@ -103,30 +84,33 @@ document.addEventListener('DOMContentLoaded', function () {
                     statusCell.dataset.status = 'validée';
                     statusText.textContent = 'Validée';
                     statusText.style.color = 'green';
+
+                    const actionsCell = row.querySelector('td:last-child');
+                    actionsCell.innerHTML = `
+                        <button class="btn-action cancel-btn" data-id="${documentId}">↩️ Annuler la validation</button>
+                        <div class="message-container"></div>
+                    `;
                 } else {
-                    alert("Erreur lors de la validation du document.");
+                    alert("Erreur lors de la validation.");
                 }
             })
             .catch(error => {
                 console.error('Erreur:', error);
                 alert("Erreur de connexion lors de la validation.");
             });
-        });
-    });
+        }
 
-    // ❌ Refus d'un seul document
-    refuseButtons.forEach(button => {
-        button.addEventListener('click', function () {
-            const row = this.closest('tr');
-            const documentId = this.dataset.id;
+        // ❌ REFUSER
+        else if (e.target.classList.contains('refuse-btn')) {
+            const button = e.target;
+            const row = button.closest('tr');
+            const documentId = button.dataset.id;
             const commentInput = row.querySelector('.comment-input');
             const comment = commentInput ? commentInput.value : '';
 
             fetch('/stalhub/secretary/update-document-status', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     document_id: documentId,
                     status: 'rejected',
@@ -141,18 +125,66 @@ document.addEventListener('DOMContentLoaded', function () {
                     statusCell.dataset.status = 'refusée';
                     statusText.textContent = 'Refusée';
                     statusText.style.color = 'red';
+
+                    const actionsCell = row.querySelector('td:last-child');
+                    actionsCell.innerHTML = `
+                        <button class="btn-action cancel-btn" data-id="${documentId}">↩️ Annuler la validation</button>
+                        <div class="message-container"></div>
+                    `;
                 } else {
-                    alert("Erreur lors du refus du document.");
+                    alert("Erreur lors du refus.");
                 }
             })
             .catch(error => {
                 console.error('Erreur:', error);
                 alert("Erreur de connexion lors du refus.");
             });
-        });
+        }
+
+        // ↩️ ANNULER
+        else if (e.target.classList.contains('cancel-btn')) {
+            const button = e.target;
+            const row = button.closest('tr');
+            const documentId = button.dataset.id;
+            const commentInput = row.querySelector('.comment-input');
+            const comment = commentInput ? commentInput.value : '';
+
+            fetch('/stalhub/secretary/update-document-status', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    document_id: documentId,
+                    status: 'submitted',
+                    comment: comment
+                })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    const statusCell = row.querySelector('.doc-status');
+                    const statusText = statusCell.querySelector('.status-text');
+                    statusCell.dataset.status = 'soumis';
+                    statusText.textContent = 'Soumis';
+                    statusText.style.color = 'orange';
+
+                    const actionsCell = row.querySelector('td:last-child');
+                    actionsCell.innerHTML = `
+                        <button class="btn-action validate-btn" data-id="${documentId}">✅ Valider</button>
+                        <button class="btn-action refuse-btn" data-id="${documentId}">❌ Refuser</button>
+                        <div class="message-container"></div>
+                    `;
+                } else {
+                    alert("Erreur lors de l'annulation.");
+                }
+            })
+            .catch(error => {
+                console.error('Erreur:', error);
+                alert("Erreur de connexion lors de l'annulation.");
+            });
+        }
     });
 
-    // ✅ Valider tous les documents (mise à jour UI + base de données)
+    // ✅ Valider tous les documents
     if (validateAllBtn) {
         validateAllBtn.addEventListener('click', function () {
             const allRows = document.querySelectorAll('tbody tr');
@@ -165,29 +197,30 @@ document.addEventListener('DOMContentLoaded', function () {
                 statusText.textContent = 'Validée';
                 statusText.style.color = 'green';
 
-                const documentId = row.dataset.id;
+                const documentId = row.querySelector('[data-id]').dataset.id;
+                const actionsCell = row.querySelector('td:last-child');
+                actionsCell.innerHTML = `
+                    <button class="btn-action cancel-btn" data-id="${documentId}">↩️ Annuler la validation</button>
+                    <div class="message-container"></div>
+                `;
+
                 allDocumentIds.push(documentId);
             });
 
-            // ⚠️ Mise à jour de la base de données pour tous les documents
             fetch('/stalhub/secretary/validate-all-documents', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    document_ids: allDocumentIds
-                })
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ document_ids: allDocumentIds })
             })
             .then(res => res.json())
             .then(data => {
                 if (!data.success) {
-                    alert("Une erreur est survenue lors de la validation en masse.");
+                    alert("Erreur lors de la validation en masse.");
                 }
             })
             .catch(error => {
                 console.error('Erreur:', error);
-                alert("Erreur de connexion lors de la validation en masse.");
+                alert("Erreur de connexion.");
             });
         });
     }
