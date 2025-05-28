@@ -293,299 +293,67 @@ class SecretaryController {
         }
     }
 
-    public function uploadConvention(): void
+    public function uploadConvention()
 {
-    // Vérification de la session secretary
-    $secretaryId = $_SESSION['secretary_id'] ?? null;
-    if (!$secretaryId) {
-        $this->jsonResponse(['success' => false, 'message' => 'Session expirée']);
+    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+        http_response_code(405);
+        echo json_encode(['message' => 'Méthode non autorisée']);
         return;
     }
 
-    // Vérification de la méthode POST et présence du fichier et demande_id
-    if ($_SERVER['REQUEST_METHOD'] !== 'POST' || empty($_FILES['convention']) || empty($_POST['demande_id'])) {
-        $this->jsonResponse(['success' => false, 'message' => 'Données manquantes']);
+    // Récupérer l'ID de la demande
+    $requestId = $_POST['request_id'] ?? null;
+    if (!$requestId || !isset($_FILES['convention'])) {
+        http_response_code(400);
+        echo json_encode(['message' => 'Données manquantes']);
         return;
     }
 
-    try {
-        $demandeId = (int)$_POST['demande_id'];
-        $file = $_FILES['convention'];
-        
-        // Récupérer les informations de la demande pour obtenir l'user_id
-        $demande = $this->getDemandeById($demandeId);
-        if (!$demande) {
-            $this->jsonResponse(['success' => false, 'message' => 'Demande non trouvée']);
-            return;
-        }
+    $file = $_FILES['convention'];
 
-        $userId = $demande['user_id'];
-        
-        // Validation du fichier
-        $errors = $this->validateFile($file);
-        if (!empty($errors)) {
-            $this->jsonResponse(['success' => false, 'message' => implode(', ', $errors)]);
-            return;
-        }
+    // ⚠️ Tu dois récupérer l'user_id à partir de la demande :
+    $db = Database::getInstance();
+    $stmt = $db->prepare("SELECT user_id FROM requests WHERE id = ?");
+    $stmt->execute([$requestId]);
+    $userId = $stmt->fetchColumn();
 
-        // Création du répertoire utilisateur
-        $userDir = __DIR__ . "/../public/uploads/users/$userId/";
-        $userPublicPath = "/stalhub/uploads/users/$userId";
-
-        if (!file_exists($userDir)) {
-            mkdir($userDir, 0777, true);
-        }
-
-        // Nom du fichier avec l'ID de la demande
-        $conventionPath = $userDir . "convention_demande_{$demandeId}.pdf.enc";
-        
-        if (FileCrypto::encrypt($file['tmp_name'], $conventionPath)) {
-            // Sauvegarder dans la table request_documents
-            $this->saveConventionToDatabase($demandeId, $userId, $userPublicPath . "/convention_demande_{$demandeId}.pdf.enc");
-            
-            $this->jsonResponse([
-                'success' => true, 
-                'message' => 'Convention téléchargée avec succès',
-                'demande_id' => $demandeId
-            ]);
-        } else {
-            $this->jsonResponse(['success' => false, 'message' => 'Erreur lors du chiffrement du fichier']);
-        }
-
-    } catch (Exception $e) {
-        error_log("Erreur upload convention: " . $e->getMessage());
-        $this->jsonResponse(['success' => false, 'message' => 'Erreur serveur lors de l\'upload']);
-    }
-}
-
-// Méthode pour récupérer une demande par ID
-private function getDemandeById(int $demandeId): ?array
-{
-    try {
-        $stmt = $this->db->prepare("SELECT * FROM demandes WHERE id = ?");
-        $stmt->execute([$demandeId]);
-        return $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
-    } catch (Exception $e) {
-        error_log("Erreur récupération demande: " . $e->getMessage());
-        return null;
-    }
-}
-
-// Méthode pour sauvegarder la convention dans request_documents
-private function saveConventionToDatabase(int $demandeId, int $userId, string $conventionPath): void
-{
-    try {
-        // Vérifier si une convention existe déjà pour cette demande
-        $stmt = $this->db->prepare("
-            SELECT id FROM request_documents 
-            WHERE demande_id = ? AND document_type = 'convention'
-        ");
-        $stmt->execute([$demandeId]);
-        $existing = $stmt->fetch();
-
-        if ($existing) {
-            // Mettre à jour l'existant
-            $stmt = $this->db->prepare("
-                UPDATE request_documents 
-                SET file_path = ?, updated_at = NOW() 
-                WHERE demande_id = ? AND document_type = 'convention'
-            ");
-            $stmt->execute([$conventionPath, $demandeId]);
-        } else {
-            // Créer un nouveau record
-            $stmt = $this->db->prepare("
-                INSERT INTO request_documents (demande_id, user_id, document_type, file_path, created_at, updated_at) 
-                VALUES (?, ?, 'convention', ?, NOW(), NOW())
-            ");
-            $stmt->execute([$demandeId, $userId, $conventionPath]);
-        }
-    } catch (Exception $e) {
-        error_log("Erreur sauvegarde convention en base: " . $e->getMessage());
-        throw $e;
-    }
-}
-
-// Méthode pour "envoyer" la convention à l'étudiant
-public function sendConventionToStudent(): void
-{
-    $secretaryId = $_SESSION['secretary_id'] ?? null;
-    if (!$secretaryId) {
-        $this->jsonResponse(['success' => false, 'message' => 'Session expirée']);
-        return;
-    }
-
-    if ($_SERVER['REQUEST_METHOD'] !== 'POST' || empty($_POST['demande_id'])) {
-        $this->jsonResponse(['success' => false, 'message' => 'ID de demande manquant']);
-        return;
-    }
-
-    try {
-        $demandeId = (int)$_POST['demande_id'];
-        
-        // Vérifier que la convention existe
-        $stmt = $this->db->prepare("
-            SELECT * FROM request_documents 
-            WHERE demande_id = ? AND document_type = 'convention'
-        ");
-        $stmt->execute([$demandeId]);
-        $convention = $stmt->fetch();
-
-        if (!$convention) {
-            $this->jsonResponse(['success' => false, 'message' => 'Aucune convention trouvée pour cette demande']);
-            return;
-        }
-
-        // Marquer la convention comme envoyée
-        $stmt = $this->db->prepare("
-            UPDATE request_documents 
-            SET status = 'sent', sent_at = NOW(), updated_at = NOW() 
-            WHERE demande_id = ? AND document_type = 'convention'
-        ");
-        $stmt->execute([$demandeId]);
-
-        // Optionnel : mettre à jour le statut de la demande
-        $stmt = $this->db->prepare("
-            UPDATE demandes 
-            SET status = 'convention_sent', updated_at = NOW() 
-            WHERE id = ?
-        ");
-        $stmt->execute([$demandeId]);
-
-        $this->jsonResponse([
-            'success' => true, 
-            'message' => 'Convention envoyée à l\'étudiant avec succès'
-        ]);
-
-    } catch (Exception $e) {
-        error_log("Erreur envoi convention: " . $e->getMessage());
-        $this->jsonResponse(['success' => false, 'message' => 'Erreur lors de l\'envoi']);
-    }
-}
-
-// Fonction de validation du fichier
-private function validateFile($file): array
-{
-    $errors = [];
-    
-    if ($file['error'] !== UPLOAD_ERR_OK) {
-        switch ($file['error']) {
-            case UPLOAD_ERR_INI_SIZE:
-            case UPLOAD_ERR_FORM_SIZE:
-                $errors[] = 'Le fichier est trop volumineux (max 2 Mo)';
-                break;
-            case UPLOAD_ERR_PARTIAL:
-                $errors[] = 'Le fichier n\'a été que partiellement téléchargé';
-                break;
-            case UPLOAD_ERR_NO_FILE:
-                $errors[] = 'Aucun fichier n\'a été téléchargé';
-                break;
-            default:
-                $errors[] = 'Erreur lors du téléchargement du fichier';
-        }
-        return $errors;
-    }
-
-    if ($file['size'] > 2 * 1024 * 1024) {
-        $errors[] = 'Le fichier ne doit pas dépasser 2 Mo';
-    }
-
-    $allowedTypes = ['application/pdf'];
-    $finfo = finfo_open(FILEINFO_MIME_TYPE);
-    $mimeType = finfo_file($finfo, $file['tmp_name']);
-    finfo_close($finfo);
-
-    if (!in_array($mimeType, $allowedTypes)) {
-        $errors[] = 'Seuls les fichiers PDF sont autorisés';
-    }
-
-    return $errors;
-}
-
-// Fonction pour envoyer une réponse JSON
-private function jsonResponse($data): void
-{
-    header('Content-Type: application/json');
-    echo json_encode($data);
-    exit;
-}
-
-// Fonction de validation du fichier
-/*private function validateFile($file): array
-{
-    $errors = [];
-    
-    // Vérification des erreurs d'upload
-    if ($file['error'] !== UPLOAD_ERR_OK) {
-        switch ($file['error']) {
-            case UPLOAD_ERR_INI_SIZE:
-            case UPLOAD_ERR_FORM_SIZE:
-                $errors[] = 'Le fichier est trop volumineux (max 2 Mo)';
-                break;
-            case UPLOAD_ERR_PARTIAL:
-                $errors[] = 'Le fichier n\'a été que partiellement téléchargé';
-                break;
-            case UPLOAD_ERR_NO_FILE:
-                $errors[] = 'Aucun fichier n\'a été téléchargé';
-                break;
-            default:
-                $errors[] = 'Erreur lors du téléchargement du fichier';
-        }
-        return $errors;
-    }
-
-    // Vérification de la taille (2 Mo max)
-    if ($file['size'] > 2 * 1024 * 1024) {
-        $errors[] = 'Le fichier ne doit pas dépasser 2 Mo';
-    }
-
-    // Vérification du type MIME
-    $allowedTypes = ['application/pdf'];
-    $finfo = finfo_open(FILEINFO_MIME_TYPE);
-    $mimeType = finfo_file($finfo, $file['tmp_name']);
-    finfo_close($finfo);
-
-    if (!in_array($mimeType, $allowedTypes)) {
-        $errors[] = 'Seuls les fichiers PDF sont autorisés';
-    }
-
-    return $errors;
-}*/
-
-// Fonction pour envoyer une réponse JSON
-/*private function jsonResponse($data): void
-{
-    header('Content-Type: application/json');
-    echo json_encode($data);
-    exit;
-}*/
-
-// Fonction pour télécharger/voir la convention
-public function downloadConvention(): void
-{
-    $userId = $_SESSION['user_id'] ?? null;
     if (!$userId) {
-        header('HTTP/1.0 403 Forbidden');
-        exit('Accès non autorisé');
+        http_response_code(404);
+        echo json_encode(['message' => 'Demande introuvable']);
+        return;
     }
 
-    $conventionPath = __DIR__ . "/../public/uploads/users/$userId/convention.pdf.enc";
-    
-    if (!file_exists($conventionPath)) {
-        header('HTTP/1.0 404 Not Found');
-        exit('Convention non trouvée');
+    // Construction du chemin
+    $dateFolder = date('Y-m-d_His');
+    $originalName = pathinfo($file['name'], PATHINFO_FILENAME);
+    $newFileName = $originalName . '.pdf.enc'; // ou génère un nom unique si besoin
+
+    $relativePath = "/stalhub/uploads/users/$userId/demandes/$dateFolder/$newFileName";
+    $uploadDir = __DIR__ . "/../../.." . dirname($relativePath);
+
+    // Créer le dossier s'il n'existe pas
+    if (!is_dir($uploadDir)) {
+        mkdir($uploadDir, 0777, true);
     }
 
-    // Déchiffrement et affichage
-    $tempFile = tempnam(sys_get_temp_dir(), 'convention_');
-    
-    if (FileCrypto::decrypt($conventionPath, $tempFile)) {
-        header('Content-Type: application/pdf');
-        header('Content-Disposition: inline; filename="convention.pdf"');
-        readfile($tempFile);
-        unlink($tempFile);
+    $absolutePath = $uploadDir . '/' . $newFileName;
+
+    // Déplacer le fichier
+    if (move_uploaded_file($file['tmp_name'], $absolutePath)) {
+        // Insérer dans la base
+        $label = 'Convention de stage';
+        $status = 'pending';
+        $uploadedAt = date('Y-m-d');
+
+        $stmt = $db->prepare("INSERT INTO request_documents (request_id, file_path, label, status, uploaded_at) VALUES (?, ?, ?, ?, ?)");
+        $stmt->execute([$requestId, $relativePath, $label, $status, $uploadedAt]);
+
+        echo json_encode(['message' => 'Convention enregistrée avec succès']);
     } else {
-        header('HTTP/1.0 500 Internal Server Error');
-        exit('Erreur lors de la lecture du fichier');
+        http_response_code(500);
+        echo json_encode(['message' => 'Erreur lors du déplacement du fichier.']);
     }
 }
+
+
 }

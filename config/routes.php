@@ -59,7 +59,7 @@ return [
    '/secretary/validate-all-documents' => ['App\Controller\SecretaryController', 'validateAllDocuments'],
    '/secretary/save-comment' => ['App\Controller\SecretaryController', 'saveComment'],
    // Route pour upload de convention
-'/secretary/upload-convention' => ['App\Controller\SecretaryController', 'uploadConvention'],
+   '/secretary/upload-convention' => ['App\Controller\SecretaryController', 'uploadConvention'],
 
 // Route pour envoyer la convention à l'étudiant
 '/secretary/send-convention' => ['App\Controller\SecretaryController', 'sendConventionToStudent'],

@@ -144,11 +144,7 @@ function getDisplayStatusClass($demande) {
   return statusToCssClass($demande['status'] ?? '');
 }
 
-// Ici, ajoutez votre logique pour récupérer les données utilisateur et demandes
-// Par exemple :
-// require_once __DIR__ . '/../config/database.php';
-// $user = getCurrentUser(); // fonction à adapter selon votre système
-// $demandes = getAllDemandes(); // fonction à adapter selon votre système
+
 ?>
 
 <!DOCTYPE html>
@@ -243,8 +239,11 @@ function getDisplayStatusClass($demande) {
     <p>Veuillez télécharger la convention ici :</p>
     <input type="file" id="convention-file" accept=".pdf,.doc,.docx" />
     <div class="popup-actions">
-      <button id="send-to-student">Envoyer à l'étudiant pour signer</button>
+      <button id="save-button">Save</button>
       <button id="close-popup">Annuler</button>
+      <a id="inform-student" href="#" class="email-button">
+  📧 Informer l’étudiant
+</a>
     </div>
   </div>
 </div>
@@ -259,4 +258,23 @@ function openConventionModal() {
 function closeModal() {
     document.getElementById('conventionModal').style.display = 'none';
 }
+
+ document.getElementById('inform-student').addEventListener('click', function(e) {
+    e.preventDefault();
+
+    const email = "<?= $requestDetails['email'] ?? '' ?>";
+    const prenom = "<?= $requestDetails['first_name'] ?? '' ?>";
+
+    const message =
+      `Bonjour ${prenom},\n\n` +
+      `Votre demande a été validée. Il ne reste plus qu'à signer votre convention de stage.\n\n` +
+      `Merci de vous connecter à votre espace pour finaliser la procédure.\n\nCordialement.`;
+
+    const mailtoLink =
+      `mailto:${encodeURIComponent(email)}?subject=` +
+      `${encodeURIComponent("StAlHub - Signature de votre convention")}` +
+      `&body=${encodeURIComponent(message)}`;
+
+    window.location.href = mailtoLink;
+  });
 </script>
