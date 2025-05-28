@@ -1,4 +1,17 @@
 document.addEventListener('DOMContentLoaded', function () {
+     // 👉 Ajout pour masquer les colonnes de "Convention de stage"
+    document.querySelectorAll('tbody tr').forEach(row => {
+        const labelCell = row.querySelector('td:first-child');
+        if (labelCell && labelCell.textContent.trim().toLowerCase() === 'convention de stage') {
+            const cells = row.querySelectorAll('td');
+            if (cells.length >= 5) {
+                cells[1].style.display = 'none';
+                cells[2].style.display = 'none';
+                cells[3].style.display = 'none';
+                cells[4].style.display = 'none';
+            }
+        }
+    });
     const validateAllBtn = document.getElementById('validateAllBtn');
     const commentInputs = document.querySelectorAll('.comment-input');
 
@@ -81,11 +94,11 @@ document.addEventListener('DOMContentLoaded', function () {
                 if (data.success) {
                     const statusCell = row.querySelector('.doc-status');
                     const statusText = statusCell.querySelector('.status-text');
-                    statusCell.dataset.status = 'validée';
-                    statusText.textContent = 'Validée';
+                    statusCell.dataset.status = 'validé';
+                    statusText.textContent = 'Validé';
                     statusText.style.color = 'green';
 
-                    const actionsCell = row.querySelector('td:last-child');
+                    const actionsCell = row.querySelector('td:nth-child(4)'); // Colonne Actions
                     actionsCell.innerHTML = `
                         <button class="btn-action cancel-btn" data-id="${documentId}">↩️ Annuler la validation</button>
                         <div class="message-container"></div>
@@ -122,11 +135,11 @@ document.addEventListener('DOMContentLoaded', function () {
                 if (data.success) {
                     const statusCell = row.querySelector('.doc-status');
                     const statusText = statusCell.querySelector('.status-text');
-                    statusCell.dataset.status = 'refusée';
-                    statusText.textContent = 'Refusée';
+                    statusCell.dataset.status = 'refusé';
+                    statusText.textContent = 'Refusé';
                     statusText.style.color = 'red';
 
-                    const actionsCell = row.querySelector('td:last-child');
+                    const actionsCell = row.querySelector('td:nth-child(4)'); // Colonne Actions
                     actionsCell.innerHTML = `
                         <button class="btn-action cancel-btn" data-id="${documentId}">↩️ Annuler la validation</button>
                         <div class="message-container"></div>
@@ -167,7 +180,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     statusText.textContent = 'Soumis';
                     statusText.style.color = 'orange';
 
-                    const actionsCell = row.querySelector('td:last-child');
+                    const actionsCell = row.querySelector('td:nth-child(4)'); // Colonne Actions
                     actionsCell.innerHTML = `
                         <button class="btn-action validate-btn" data-id="${documentId}">✅ Valider</button>
                         <button class="btn-action refuse-btn" data-id="${documentId}">❌ Refuser</button>
@@ -193,12 +206,12 @@ document.addEventListener('DOMContentLoaded', function () {
             allRows.forEach(row => {
                 const statusCell = row.querySelector('.doc-status');
                 const statusText = statusCell.querySelector('.status-text');
-                statusCell.dataset.status = 'validée';
-                statusText.textContent = 'Validée';
+                statusCell.dataset.status = 'validé';
+                statusText.textContent = 'Validé';
                 statusText.style.color = 'green';
 
                 const documentId = row.querySelector('[data-id]').dataset.id;
-                const actionsCell = row.querySelector('td:last-child');
+                const actionsCell = row.querySelector('td:nth-child(4)'); // Colonne Actions
                 actionsCell.innerHTML = `
                     <button class="btn-action cancel-btn" data-id="${documentId}">↩️ Annuler la validation</button>
                     <div class="message-container"></div>

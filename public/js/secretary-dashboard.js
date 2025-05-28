@@ -272,7 +272,8 @@ document.addEventListener('DOMContentLoaded', () => {
     button.addEventListener('click', function () {
       const requestId = this.dataset.id;
       document.getElementById('request-id-hidden').value = requestId;
-      document.getElementById('upload-popup').style.display = 'block';
+      document.getElementById('upload-popup').style.display = 'flex';
+
     });
   });
 
