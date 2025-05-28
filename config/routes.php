@@ -85,6 +85,23 @@ return [
    '/signature/convention/valider' => ['App\Controller\SignController', 'enregistrerSignature'],
 
 
+    // Direction
+    '/direction/dashboard'          => ['App\Controller\DirectionController', 'dashboard'],
+    '/direction/details'            => ['App\Controller\DirectionController', 'detailsFile'],
+
+    // Actions sur les documents (POST)
+    '/direction/document/sign'          => ['App\Controller\DirectionController', 'signDocument'],
+    '/direction/document/refuse'        => ['App\Controller\DirectionController', 'refuseDocument'],
+    '/direction/document/validate'      => ['App\Controller\DirectionController', 'validateDocument'],
+    '/direction/document/comment'       => ['App\Controller\DirectionController', 'updateCommentaire'],
+
+    // Actions globales (POST)
+    '/direction/documents/sign-all'     => ['App\Controller\DirectionController', 'signAllDocuments'],
+    '/direction/documents/validate-all' => ['App\Controller\DirectionController', 'validateAllDocuments'],
+    '/direction/dossier/finalize'       => ['App\Controller\DirectionController', 'finalizeDossier'],
+
+    // Compatibilité / anciennes routes
+    '/direction/save-comment'       => ['App\Controller\DirectionController', 'saveComment'],
 
 
 

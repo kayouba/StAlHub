@@ -1,171 +1,332 @@
 <?php
-
 namespace App\Controller;
-
 use App\View;
-use App\Model\RequestModel;
 use App\Model\UserModel;
+use App\Model\DirectionModel;
+use App\Model\RequestModel;
 
 class DirectionController
 {
-    public function dashboard(): void
-    {
-        $model = new RequestModel();
+    private function checkAccess(): bool{
+        return isset($_SESSION['user_id'], $_SESSION['role']) && $_SESSION['role'] === 'director';
+    }
+
+    private function redirectLogin(): void{
+        header('Location: /stalhub/login');
+        exit;
+    }
+
+    public function dashboard(): void{
+        if (!$this->checkAccess()) {
+            $this->redirectLogin();
+        }
+
         $userModel = new UserModel();
+        $user = $userModel->findById($_SESSION['user_id']);
+        if (!$user) {
+            session_destroy();
+            $this->redirectLogin();
+        }
 
-        $pendingRequests = $model->getAllWithStatuses(['VALID_SECRETAIRE', 'VALID_CFA']);
-        $validatedRequests = $model->getAllWithStatuses(['VALID_DIRECTION']);
+        $directionModel = new DirectionModel();
+        $demandes = $directionModel->getAll();
 
-        $programs = $userModel->getDistinctValues('program');
-        $tracks = $userModel->getDistinctValues('track');
-        $levels = $userModel->getDistinctValues('level');
-
-        View::render('/dashboard/direction', [
-            'pendingRequests' => $pendingRequests,
-            'validatedRequests' => $validatedRequests,
-            'programs' => $programs,
-            'tracks' => $tracks,
-            'levels' => $levels
-        ]);
+        require_once $_SERVER['DOCUMENT_ROOT'] . '/stalhub/views/dashboard/direction.php';
     }
 
-    public function validateView(): void
-    {
-        if (!isset($_GET['id'])) {
+    public function detailsFile(): void{
+        $userId = $_SESSION['user_id'] ?? null;
+        $role = $_SESSION['role'] ?? null;
+        
+        if (!$userId || $role !== 'director') {
+            header('Location: /stalhub/login');
+            exit;
+        }
+
+        $requestModel = new RequestModel();
+        $directionModel = new DirectionModel();
+        $requestId = $_GET['id'] ?? null;
+        $requestDetails = null;
+        $documents = [];
+        $history = [];
+
+        if ($requestId) {
+            $requestDetails = $requestModel->findById((int)$requestId);
+            // Récupérer les documents/conventions
+            $documents = $directionModel->getDocumentsByRequestId((int)$requestId);
+            // Récupérer l'historique
+            $history = $directionModel->getRequestHistory((int)$requestId);
+        }
+
+        require_once $_SERVER['DOCUMENT_ROOT'] . '/stalhub/views/direction/detailsfile.php';
+    }
+
+    /**
+     * Mettre à jour le commentaire d'un document
+     */
+    public function updateCommentaire(): void{
+        if (!$this->checkAccess()) {
+            http_response_code(403);
+            echo json_encode(['success' => false, 'message' => 'Accès refusé']);
+            return;
+        }
+
+        $input = json_decode(file_get_contents('php://input'), true);
+        $documentId = $input['document_id'] ?? null;
+        $comment = $input['comment'] ?? '';
+
+        if (!$documentId) {
             http_response_code(400);
-            exit("ID manquant");
+            echo json_encode(['success' => false, 'message' => 'ID du document manquant']);
+            return;
         }
 
-        $model = new \App\Model\RequestModel();
-        $request = $model->getByIdWithDetails((int)$_GET['id']);
-        $readonly = !empty($_GET['readonly']);
-
-        if (!$request) {
-            http_response_code(404);
-            exit("Demande introuvable.");
-        }
-
-        \App\View::render('/direction/validation', [
-            'request' => $request,
-            'readonly' => $readonly
-        ]);
-    }
-
-    public function validate(): void
-    {
-        if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['request_id'])) {
-            $requestId = (int)$_POST['request_id'];
-
-            $model = new \App\Model\RequestModel();
-            $model->updateStatus($requestId, 'VALID_DIRECTION');
-
-            $_SESSION['success_message'] = "✅ Demande validée avec succès.";
-        } else {
-            $_SESSION['error'] = "❌ Validation échouée. ID manquant.";
-        }
-
-        header('Location: /stalhub/direction/dashboard');
-        exit;
-    }
-
-    public function downloadAll(): void
-    {
-        if (empty($_GET['request_id'])) {
-            http_response_code(400);
-            exit("ID de la demande manquant.");
-        }
-
-        $requestId = (int)$_GET['request_id'];
-        $model = new \App\Model\RequestModel();
-        $documents = $model->getDocumentsForRequest($requestId);
-
-        if (empty($documents)) {
-            http_response_code(404);
-            exit("Aucun document à télécharger.");
-        }
-
-        $zipFile = tempnam(sys_get_temp_dir(), 'zip_');
-        $zip = new \ZipArchive();
-        if (!$zip->open($zipFile, \ZipArchive::CREATE | \ZipArchive::OVERWRITE)) {
-            http_response_code(500);
-            exit("Impossible d’ouvrir le ZIP.");
-        }
-
-        foreach ($documents as $doc) {
-            $encPath = __DIR__ . '/../../' . ltrim($doc['file_path'], '/');
-            if (!file_exists($encPath)) continue;
-
-            $decrypted = tempnam(sys_get_temp_dir(), 'dec_');
-            if (\App\Lib\FileCrypto::decrypt($encPath, $decrypted)) {
-                $safeName = preg_replace('/[^a-zA-Z0-9_\-]/', '_', $doc['label'] ?? 'document');
-                $zip->addFile($decrypted, $safeName . '.pdf');
+        $directionModel = new DirectionModel();
+        
+        try {
+            $result = $directionModel->updateDocumentComment((int)$documentId, $comment);
+            
+            if ($result) {
+                echo json_encode(['success' => true, 'message' => 'Commentaire mis à jour']);
             } else {
-                error_log("Erreur déchiffrement: $encPath");
+                echo json_encode(['success' => false, 'message' => 'Erreur lors de la mise à jour']);
             }
-        }
-
-        $zip->close();
-
-        header('Content-Type: application/zip');
-        header('Content-Disposition: attachment; filename="request_' . $requestId . '_documents.zip"');
-        header('Content-Length: ' . filesize($zipFile));
-        readfile($zipFile);
-        unlink($zipFile);
-        exit;
-    }
-    public function uploadSigned(): void
-    {
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST' || empty($_FILES['signed_file']) || empty($_POST['request_id'])) {
-            http_response_code(400);
-            exit("Paramètres manquants.");
-        }
-
-        $requestId = (int)$_POST['request_id'];
-
-        $tmpFile = $_FILES['signed_file']['tmp_name'];
-        $originalName = $_FILES['signed_file']['name'];
-
-        if (!is_uploaded_file($tmpFile)) {
-            http_response_code(400);
-            exit("Fichier non valide.");
-        }
-
-        // Récupérer le user_id via la demande
-        $requestModel = new \App\Model\RequestModel();
-        $request = $requestModel->findById($requestId);
-        $userId = $request['student_id'] ?? null;
-
-        if (!$userId) {
-            http_response_code(404);
-            exit("Demande ou étudiant introuvable.");
-        }
-
-        // Créer dossier
-        $folder = date('Y-m-d_His');
-        $uploadDir = __DIR__ . "/../public/uploads/users/$userId/signed/";
-        if (!file_exists($uploadDir)) mkdir($uploadDir, 0777, true);
-
-        // Encrypt & enregistrer
-        $filename = 'convention_signee_' . $folder . '.pdf.enc';
-        $encryptedPath = $uploadDir . $filename;
-
-        if (!\App\Lib\FileCrypto::encrypt($tmpFile, $encryptedPath)) {
+        } catch (Exception $e) {
             http_response_code(500);
-            exit("Échec de chiffrement.");
+            echo json_encode(['success' => false, 'message' => 'Erreur serveur: ' . $e->getMessage()]);
+        }
+    }
+
+
+
+    public function saveComment(): void {
+        header('Content-Type: application/json');
+        
+        try {
+            $input = json_decode(file_get_contents('php://input'), true);
+            
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                throw new \Exception('JSON invalide');
+            }
+            
+            $documentId = (int)($input['document_id'] ?? 0);
+            $comment = $input['comment'] ?? '';
+            
+            if ($documentId <= 0) {
+                throw new \Exception('ID du document invalide');
+            }
+            
+            $model = new DirectionModel();
+            $success = $model->saveDocumentComment($documentId, $comment);
+            
+            if ($success) {
+                echo json_encode([
+                    'success' => true, 
+                    'message' => 'Commentaire sauvegardé'
+                ]);
+            } else {
+                echo json_encode([
+                    'success' => false, 
+                    'message' => 'Erreur lors de la sauvegarde'
+                ]);
+            }
+            
+        } catch (\Exception $e) {
+            echo json_encode([
+                'success' => false, 
+                'message' => 'Erreur: ' . $e->getMessage()
+            ]);
+        }
+    }
+
+
+
+
+    /**
+     * Signer un document
+     */
+    public function signDocument(): void {
+        header('Content-Type: application/json');
+        
+        if (!$this->checkAccess()) {
+            http_response_code(403);
+            echo json_encode(['success' => false, 'message' => 'Accès refusé']);
+            return;
         }
 
-        $publicPath = "/stalhub/uploads/users/$userId/signed/" . $filename;
+        try {
+            $input = json_decode(file_get_contents('php://input'), true);
+            $documentId = (int)($input['document_id'] ?? 0);
+            $action = $input['action'] ?? '';
 
-        // 1. Ajouter dans request_documents
-        $documentModel = new \App\Model\RequestDocumentModel();
-        $documentModel->saveDocument($requestId, $publicPath, 'Convention signée');
+            if ($documentId <= 0) {
+                throw new \Exception('ID du document invalide');
+            }
 
-        // 2. Valider la demande
-        $requestModel->updateStatus($requestId, 'VALID_DIRECTION');
+            $model = new DirectionModel();
+            
+            if ($action === 'sign') {
+                $success = $model->updateDocumentStatus($documentId, 'validated');
+                $message = 'Document signé avec succès';
+            } elseif ($action === 'refuse') {
+                $success = $model->updateDocumentStatus($documentId, 'rejected');
+                $message = 'Document refusé';
+            } else {
+                throw new \Exception('Action non valide');
+            }
 
-        // 3. Redirection
-        $_SESSION['success_message'] = "📤 Document signé enregistré et demande validée.";
-        header('Location: /stalhub/direction/dashboard');
-        exit;
+            if ($success) {
+                echo json_encode(['success' => true, 'message' => $message]);
+            } else {
+                echo json_encode(['success' => false, 'message' => 'Erreur lors de la mise à jour']);
+            }
+
+        } catch (\Exception $e) {
+            echo json_encode(['success' => false, 'message' => 'Erreur: ' . $e->getMessage()]);
+        }
     }
+
+    /**
+     * Refuser un document (alias pour compatibilité)
+     */
+    public function refuseDocument(): void {
+        $this->signDocument();
+    }
+
+    /**
+     * Valider définitivement un document
+     */
+    public function validateDocument(): void {
+        header('Content-Type: application/json');
+        
+        if (!$this->checkAccess()) {
+            http_response_code(403);
+            echo json_encode(['success' => false, 'message' => 'Accès refusé']);
+            return;
+        }
+
+        try {
+            $input = json_decode(file_get_contents('php://input'), true);
+            $documentId = (int)($input['document_id'] ?? 0);
+
+            if ($documentId <= 0) {
+                throw new \Exception('ID du document invalide');
+            }
+
+            $model = new DirectionModel();
+            $success = $model->updateDocumentStatus($documentId, 'validated_final');
+
+            if ($success) {
+                echo json_encode(['success' => true, 'message' => 'Document validé définitivement']);
+            } else {
+                echo json_encode(['success' => false, 'message' => 'Erreur lors de la validation']);
+            }
+
+        } catch (\Exception $e) {
+            echo json_encode(['success' => false, 'message' => 'Erreur: ' . $e->getMessage()]);
+        }
+    }
+
+    /**
+     * Signer tous les documents d'une demande
+     */
+    public function signAllDocuments(): void {
+        header('Content-Type: application/json');
+        
+        if (!$this->checkAccess()) {
+            http_response_code(403);
+            echo json_encode(['success' => false, 'message' => 'Accès refusé']);
+            return;
+        }
+
+        try {
+            $input = json_decode(file_get_contents('php://input'), true);
+            $requestId = (int)($input['request_id'] ?? 0);
+
+            if ($requestId <= 0) {
+                throw new \Exception('ID de la demande invalide');
+            }
+
+            $model = new DirectionModel();
+            $success = $model->signAllDocumentsByRequest($requestId);
+
+            if ($success) {
+                echo json_encode(['success' => true, 'message' => 'Tous les documents ont été signés']);
+            } else {
+                echo json_encode(['success' => false, 'message' => 'Erreur lors de la signature']);
+            }
+
+        } catch (\Exception $e) {
+            echo json_encode(['success' => false, 'message' => 'Erreur: ' . $e->getMessage()]);
+        }
+    }
+
+    /**
+     * Valider tous les documents d'une demande
+     */
+    public function validateAllDocuments(): void {
+        header('Content-Type: application/json');
+        
+        if (!$this->checkAccess()) {
+            http_response_code(403);
+            echo json_encode(['success' => false, 'message' => 'Accès refusé']);
+            return;
+        }
+
+        try {
+            $input = json_decode(file_get_contents('php://input'), true);
+            $requestId = (int)($input['request_id'] ?? 0);
+
+            if ($requestId <= 0) {
+                throw new \Exception('ID de la demande invalide');
+            }
+
+            $model = new DirectionModel();
+            $success = $model->validateAllDocumentsByRequest($requestId);
+
+            if ($success) {
+                echo json_encode(['success' => true, 'message' => 'Tous les documents ont été validés']);
+            } else {
+                echo json_encode(['success' => false, 'message' => 'Erreur lors de la validation']);
+            }
+
+        } catch (\Exception $e) {
+            echo json_encode(['success' => false, 'message' => 'Erreur: ' . $e->getMessage()]);
+        }
+    }
+
+    /**
+     * Finaliser le dossier
+     */
+    public function finalizeDossier(): void {
+        header('Content-Type: application/json');
+        
+        if (!$this->checkAccess()) {
+            http_response_code(403);
+            echo json_encode(['success' => false, 'message' => 'Accès refusé']);
+            return;
+        }
+
+        try {
+            $input = json_decode(file_get_contents('php://input'), true);
+            $requestId = (int)($input['request_id'] ?? 0);
+
+            if ($requestId <= 0) {
+                throw new \Exception('ID de la demande invalide');
+            }
+
+            $model = new DirectionModel();
+            $success = $model->finalizeRequest($requestId);
+
+            if ($success) {
+                echo json_encode(['success' => true, 'message' => 'Dossier finalisé avec succès']);
+            } else {
+                echo json_encode(['success' => false, 'message' => 'Erreur lors de la finalisation']);
+            }
+
+        } catch (\Exception $e) {
+            echo json_encode(['success' => false, 'message' => 'Erreur: ' . $e->getMessage()]);
+        }
+    }
+
 }
