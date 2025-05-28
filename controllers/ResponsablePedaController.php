@@ -13,6 +13,7 @@
 declare(strict_types=1);
 namespace App\Controller;
 use App\Model\ResponsablePedaModel;
+use App\Model\SignModel; // ← ajoute ceci pour accéder au modèle des documents
 
 class ResponsablePedaController
 {
@@ -28,6 +29,7 @@ class ResponsablePedaController
     {
         // Instanciation du modèle pour accéder aux données
         $model = new ResponsablePedaModel();
+        $docModel = new SignModel();   // pour les documents
         
         // Récupération de toutes les demandes
         $demandes = $model->getAll();
@@ -292,4 +294,40 @@ class ResponsablePedaController
         header("Location: /stalhub/responsable/detailRequest?id=$demande_id");
         exit;
     }
+/**
+ * Génère un lien de signature pour la convention d'entreprise 
+ */
+
+    public function genererLienSignatureEntreprise(): void
+{
+    $requestId = $_GET['id'] ?? null;
+
+    if (!$requestId) {
+        echo "ID de la demande manquant.";
+        return;
+    }
+
+    $model = new \App\Model\SignModel();
+
+    if (!$model->conventionExistePourDemande((int)$requestId)) {
+        $_SESSION['flash_message'] = [
+            'type' => 'error',
+            'text' => "Aucune convention trouvée pour cette demande."
+        ];
+        header("Location: /stalhub/responsable/detailRequest?id=$requestId");
+        return;
+    }
+
+    $token = $model->generateCompanySignatureToken((int)$requestId);
+    $link = "https://stalhub/signature/convention?token=$token";
+
+    $_SESSION['flash_message'] = [
+        'type' => 'success',
+        'text' => "Lien de signature généré : <a href=\"$link\" target=\"_blank\">$link</a>"
+    ];
+
+    header("Location: /stalhub/responsable/detailRequest?id=$requestId");
+    exit;
+}
+
 }
