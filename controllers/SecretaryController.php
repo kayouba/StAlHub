@@ -5,6 +5,10 @@ use App\View;
 use App\Model\UserModel;
 use App\Model\SecretaryModel;
 use App\Model\RequestModel;
+use App\Model\RequestDocumentModel;
+use App\Model\CompanyModel;
+use App\Lib\StepGuard;
+use App\Lib\FileCrypto;
 
 class SecretaryController {
     /**
@@ -292,68 +296,56 @@ class SecretaryController {
             ]);
         }
     }
+    public function uploadConvention(): void
+    {
+        if (!isset($_SESSION['user_id'])) {
+            http_response_code(403);
+            echo json_encode(['message' => 'Non autorisé']);
+            exit;
+        }
 
-    public function uploadConvention()
-{
-    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-        http_response_code(405);
-        echo json_encode(['message' => 'Méthode non autorisée']);
-        return;
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            http_response_code(405);
+            echo json_encode(['message' => 'Méthode non autorisée']);
+            exit;
+        }
+
+        header('Content-Type: application/json');
+
+        $requestId = $_POST['request_id'] ?? null;
+        $file = $_FILES['convention'] ?? null;
+
+        if (!$requestId || !$file || $file['error'] !== UPLOAD_ERR_OK) {
+            http_response_code(400);
+            echo json_encode(['message' => 'Fichier ou identifiant manquant ou invalide']);
+            exit;
+        }
+
+
+        $requestModel = new RequestModel();
+        $userId = $requestModel->getUserIdByRequestId((int)$requestId);
+
+        $extension = pathinfo($file['name'], PATHINFO_EXTENSION);
+        $filename = "convention_{$requestId}_" . uniqid() . ".{$extension}.enc";
+
+        $uploadDir = __DIR__ . "/../public/uploads/users/{$userId}/demandes/";
+        if (!is_dir($uploadDir)) {
+            mkdir($uploadDir, 0777, true);
+        }
+
+        $absolutePath = $uploadDir . $filename;
+        $publicPath = "/stalhub/uploads/users/{$userId}/demandes/" . $filename;
+
+        if (!FileCrypto::encrypt($file['tmp_name'], $absolutePath)) {
+            http_response_code(500);
+            echo json_encode(['message' => 'Erreur lors du chiffrement du fichier']);
+            exit;
+        }
+
+        $documentModel = new RequestDocumentModel();
+        $documentModel->saveConvention($requestId, $publicPath, 'Convention de stage');
+
+        echo json_encode(['success' => true, 'message' => 'Convention envoyée avec succès']);
+        exit;
     }
-
-    // Récupérer l'ID de la demande
-    $requestId = $_POST['request_id'] ?? null;
-    if (!$requestId || !isset($_FILES['convention'])) {
-        http_response_code(400);
-        echo json_encode(['message' => 'Données manquantes']);
-        return;
-    }
-
-    $file = $_FILES['convention'];
-
-    // ⚠️ Tu dois récupérer l'user_id à partir de la demande :
-    $db = Database::getInstance();
-    $stmt = $db->prepare("SELECT user_id FROM requests WHERE id = ?");
-    $stmt->execute([$requestId]);
-    $userId = $stmt->fetchColumn();
-
-    if (!$userId) {
-        http_response_code(404);
-        echo json_encode(['message' => 'Demande introuvable']);
-        return;
-    }
-
-    // Construction du chemin
-    $dateFolder = date('Y-m-d_His');
-    $originalName = pathinfo($file['name'], PATHINFO_FILENAME);
-    $newFileName = $originalName . '.pdf.enc'; // ou génère un nom unique si besoin
-
-    $relativePath = "/stalhub/uploads/users/$userId/demandes/$dateFolder/$newFileName";
-    $uploadDir = __DIR__ . "/../../.." . dirname($relativePath);
-
-    // Créer le dossier s'il n'existe pas
-    if (!is_dir($uploadDir)) {
-        mkdir($uploadDir, 0777, true);
-    }
-
-    $absolutePath = $uploadDir . '/' . $newFileName;
-
-    // Déplacer le fichier
-    if (move_uploaded_file($file['tmp_name'], $absolutePath)) {
-        // Insérer dans la base
-        $label = 'Convention de stage';
-        $status = 'pending';
-        $uploadedAt = date('Y-m-d');
-
-        $stmt = $db->prepare("INSERT INTO request_documents (request_id, file_path, label, status, uploaded_at) VALUES (?, ?, ?, ?, ?)");
-        $stmt->execute([$requestId, $relativePath, $label, $status, $uploadedAt]);
-
-        echo json_encode(['message' => 'Convention enregistrée avec succès']);
-    } else {
-        http_response_code(500);
-        echo json_encode(['message' => 'Erreur lors du déplacement du fichier.']);
-    }
-}
-
-
 }

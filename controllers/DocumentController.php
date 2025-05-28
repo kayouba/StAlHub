@@ -90,4 +90,17 @@ class DocumentController
         unlink($zipPath);
         exit;
     }
+
+
+    public function encryptAndSave(string $sourceTmpPath, string $finalPath): ?string
+    {
+        // Chiffrer le fichier temporaire et l’écrire à sa destination
+        if (!FileCrypto::encrypt($sourceTmpPath, $finalPath)) {
+            return null;
+        }
+
+        // Retourne un chemin relatif utilisable pour l'URL
+        return str_replace(realpath(__DIR__ . '/../public'), '/stalhub', realpath($finalPath));
+    }
+
 }

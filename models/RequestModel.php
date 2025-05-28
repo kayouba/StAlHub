@@ -32,6 +32,16 @@ class RequestModel
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
+    public function getUserIdByRequestId(int $requestId): ?int
+    {
+        $stmt = $this->pdo->prepare("SELECT student_id FROM requests WHERE id = :id LIMIT 1");
+        $stmt->execute(['id' => $requestId]);
+        $userId = $stmt->fetchColumn();
+
+        return $userId !== false ? (int)$userId : null;
+    }
+
+
 
     public function createRequest(array $step3, int $userId, int $companyId, array $step2): int
     {

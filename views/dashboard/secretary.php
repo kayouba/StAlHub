@@ -236,17 +236,19 @@ function getDisplayStatusClass($demande) {
 <div id="upload-popup" class="popup-overlay" style="display:none;">
   <div class="popup-content" onclick="event.stopPropagation();">
     <h2>Télécharger la convention</h2>
-    <p>Veuillez télécharger la convention ici :</p>
-    <input type="file" id="convention-file" accept=".pdf,.doc,.docx" />
-    <div class="popup-actions">
-      <button id="save-button">Save</button>
-      <button id="close-popup">Annuler</button>
-      <a id="inform-student" href="#" class="email-button">
-  📧 Informer l’étudiant
-</a>
-    </div>
+    <form id="convention-form" enctype="multipart/form-data">
+      <input type="hidden" name="request_id" id="request-id-hidden" />
+      <p>Veuillez télécharger la convention ici :</p>
+      <input type="file" name="convention" id="convention-file" accept=".pdf,.doc,.docx" required />
+      <div class="popup-actions">
+        <button type="submit" id="save-button">Save</button>
+        <button type="button" id="close-popup">Annuler</button>
+        <a id="inform-student" href="#" class="email-button">📧 Informer l’étudiant</a>
+      </div>
+    </form>
   </div>
 </div>
+
 
 </body>
 </html>
