@@ -433,12 +433,35 @@ class StudentController
             exit;
         }
 
+        // Gestion de la convention
+        $conventionTo = null;
+        $hasSignedConvention = false;
+
+        foreach ($documents as $doc) {
+            if (strtolower($doc['label']) === 'convention de stage') {
+                if (
+                    (!isset($doc['signed_by_student']) || $doc['signed_by_student'] == 0)
+                ) {
+                    $conventionTo = $doc;
+                    break;
+                } elseif (
+                    isset($doc['signed_by_student']) &&
+                    $doc['signed_by_student'] == 1
+                ) {
+                    $hasSignedConvention = true;
+                }
+            }
+        }
+
         \App\View::render('student/view-request', [
             'request' => $request,
             'documents' => $documents,
-            'statusHistory' => $statusHistory
+            'statusHistory' => $statusHistory,
+            'conventionTo' => $conventionTo,
+            'hasSignedConvention' => $hasSignedConvention,
         ]);
     }
+
 
 
     public function uploadCorrection(): void
@@ -488,7 +511,7 @@ class StudentController
             return;
         }
 
-        $studentId = $_SESSION['user']['id']; // adapt if needed
+        $studentId = $_SESSION['user']['id'];
         $requestModel = new RequestModel();
         $request = $requestModel->getRequestWithDocumentsForStudent($requestId, $studentId);
 
@@ -613,6 +636,5 @@ class StudentController
 
         echo "Signature ajoutée et convention mise à jour.";
     }
-
 
 }
