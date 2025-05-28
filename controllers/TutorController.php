@@ -54,6 +54,31 @@ class TutorController
         $stmt->execute([$_SESSION['user_id']]);
         $requests = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
+
+        // 3. Vérifier la signature complète de la convention
+        foreach ($requests as &$req) {
+            $stmtDocs = $pdo->prepare("SELECT * FROM request_documents WHERE request_id = ?");
+            $stmtDocs->execute([$req['id']]);
+            $documents = $stmtDocs->fetchAll(PDO::FETCH_ASSOC);
+
+            $req['convention_fully_signed'] = false;
+            $req['signed_convention_path'] = null;
+
+            foreach ($documents as $doc) {
+                if (
+                    strtolower($doc['label']) === 'convention de stage' &&
+                    strtolower($doc['status']) === 'validated' &&
+                    ($doc['signed_by_student'] ?? 0) == 1 &&
+                    ($doc['signed_by_direction'] ?? 0) == 1
+                ) {
+                    $req['convention_fully_signed'] = true;
+                    $req['signed_convention_path'] = $doc['file_path'] ?? null;
+                    break;
+                }
+            }
+        }
+
+
         View::render('dashboard/tutor', [
             'students_to_assign' => $userData['students_to_assign'],
             'students_assigned' => $userData['students_assigned'],
@@ -154,4 +179,149 @@ class TutorController
 
         View::render('tutor/student-details', ['detail' => $details]);
     }
+
+
+    public function signConvention(): void
+    {
+        //  Vérification de session et rôle
+
+        if (!isset($_SESSION['user_id']) || ($_SESSION['role'] ?? '') !== 'tutor') {
+            header('Location: /stalhub/login');
+            exit;
+        }
+
+        //  Récupération de l'ID de la demande
+        $requestId = $_GET['id'] ?? null;
+
+        if (!$requestId || !ctype_digit($requestId)) {
+            http_response_code(400);
+            echo "ID de demande invalide.";
+            return;
+        }
+
+        //  Connexion à la base de données
+        $pdo = new \PDO('mysql:host=localhost;dbname=stalhub_dev', 'root', 'root');
+
+        //  Recherche de la convention validée
+        $stmt = $pdo->prepare("
+            SELECT * FROM request_documents 
+            WHERE request_id = ? 
+            AND label COLLATE utf8_general_ci = 'convention de stage'
+            AND status = 'validated'
+            AND signed_by_student = 1
+            AND (signed_by_tutor IS NULL OR signed_by_tutor = 0)
+        ");
+
+        $stmt->execute([$requestId]);
+        $convention = $stmt->fetch(\PDO::FETCH_ASSOC);
+
+        // Si aucune convention valide à signer n'est trouvée
+        if (!$convention) {
+            http_response_code(403);
+            echo "Aucune convention à signer ou déjà signée.";
+            return;
+        }
+
+        //  Affichage de la vue de signature pour le tuteur
+        \App\View::render('tutor/sign-convention', [
+            'convention' => $convention,
+            'requestId' => $requestId
+        ]);
+    }
+
+
+
+public function uploadSignature(): void
+{
+    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+        http_response_code(405);
+        echo "Méthode non autorisée.";
+        return;
+    }
+
+    $data = json_decode(file_get_contents('php://input'), true);
+    if (!isset($data['request_id'], $data['image']) || !is_numeric($data['request_id'])) {
+        http_response_code(400);
+        echo "Données invalides.";
+        return;
+    }
+
+    $tutorId = $_SESSION['user_id'] ?? null;
+    $requestId = (int) $data['request_id'];
+    if (!$tutorId || !$requestId) {
+        http_response_code(403);
+        echo "Non autorisé.";
+        return;
+    }
+
+    $pdo = new \PDO('mysql:host=localhost;dbname=stalhub_dev', 'root', 'root');
+    $stmt = $pdo->prepare("SELECT * FROM request_documents WHERE request_id = ? AND LOWER(label) = 'convention de stage'");
+    $stmt->execute([$requestId]);
+    $doc = $stmt->fetch();
+
+    if (!$doc || (int)$doc['signed_by_tutor'] === 1) {
+        http_response_code(404);
+        echo "Document introuvable ou déjà signé.";
+        return;
+    }
+
+    // === Étape 1 : sauvegarde de la signature
+    $imageData = explode(',', $data['image'])[1];
+    $decoded = base64_decode($imageData);
+
+    $tempDir = __DIR__ . '/../temp/';
+    if (!file_exists($tempDir)) {
+        mkdir($tempDir, 0777, true);
+    }
+
+    $signaturePath = $tempDir . "signature_tutor_{$tutorId}_{$requestId}.png";
+    file_put_contents($signaturePath, $decoded);
+
+    // === Étape 2 : déchiffrer le fichier
+$relativePath = str_replace('/stalhub', '', $doc['file_path']);
+$pdfPath = __DIR__ . '/../../public' . $relativePath;
+
+if (!file_exists($pdfPath)) {
+    http_response_code(500);
+    echo "❌ Fichier introuvable à l'emplacement : $pdfPath";
+    return;
+}
+
+$decryptedPdf = str_replace('.enc', '_temp.pdf', $pdfPath);
+if (!\App\Lib\FileCrypto::decrypt($pdfPath, $decryptedPdf)) {
+    http_response_code(500);
+    echo "Échec de déchiffrement.";
+    return;
+}
+
+
+    // === Étape 3 : signer
+    $signedPdf = str_replace('.enc', '_signed.pdf', $pdfPath);
+    if (!\App\Lib\PdfSigner::addSignatureToPdf($decryptedPdf, $signedPdf, $signaturePath)) {
+        http_response_code(500);
+        echo "Erreur ajout signature.";
+        return;
+    }
+
+    // === Étape 4 : réencrypter
+    if (!\App\Lib\FileCrypto::encrypt($signedPdf, $pdfPath)) {
+        http_response_code(500);
+        echo "Erreur de chiffrement.";
+        return;
+    }
+
+    // === Étape 5 : mise à jour DB + nettoyage
+    $stmt = $pdo->prepare("UPDATE request_documents SET signed_by_tutor = 1 WHERE id = ?");
+    $stmt->execute([$doc['id']]);
+
+    @unlink($signaturePath);
+    @unlink($decryptedPdf);
+    @unlink($signedPdf);
+
+    echo "Signature enregistrée avec succès.";
+}
+
+
+
+
 }
