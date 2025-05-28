@@ -221,9 +221,12 @@ function getDisplayStatusClass($demande) {
           <a href="/stalhub/secretary/details?id=<?= $demande['id'] ?>" title="Voir">
             👁️
           </a>
-          <button class="upload-btn" data-id="<?= $demande['id'] ?>" title="Télécharger la convention">
-            📤
-          </button>
+          <?php if (empty($demande['hasConvention']) || $demande['hasConvention'] === false): ?>
+    <button class="upload-btn" data-id="<?= htmlspecialchars($demande['id']) ?>" title="Télécharger la convention">
+        📤
+    </button>
+<?php endif; ?>
+
           
         </td>
 

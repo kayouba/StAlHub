@@ -22,30 +22,46 @@ class SecretaryController {
      * - Rend la vue du tableau de bord de la secrétaire.
     **/
     public function dashboard(): void
-    {
-        $userId = $_SESSION['user_id'] ?? null;
-        $role = $_SESSION['role'] ?? null;
+{
+    $userId = $_SESSION['user_id'] ?? null;
+    $role = $_SESSION['role'] ?? null;
 
-        if (!$userId || $role !== 'academic_secretary') {
-            header('Location: /stalhub/login');
-            exit;
-        }
-
-        // Charger l'utilisateur depuis la base via UserModel
-        $userModel = new UserModel();
-        $user = $userModel->findById($userId);
-
-        if (!$user) {
-            session_destroy();
-            header('Location: /stalhub/login');
-            exit;
-        }
-                
-        $model = new SecretaryModel();
-        $demandes = $model->getAll();
-
-        require_once $_SERVER['DOCUMENT_ROOT'] . '/stalhub/views/dashboard/secretary.php';
+    if (!$userId || $role !== 'academic_secretary') {
+        header('Location: /stalhub/login');
+        exit;
     }
+
+    // Charger l'utilisateur depuis la base via UserModel
+    $userModel = new UserModel();
+    $user = $userModel->findById($userId);
+
+    if (!$user) {
+        session_destroy();
+        header('Location: /stalhub/login');
+        exit;
+    }
+            
+    $model = new SecretaryModel();
+    $demandes = $model->getAll();
+
+    // Parcourir chaque demande pour savoir si elle a une convention déjà uploadée
+    foreach ($demandes as &$demande) {
+        $documents = $model->getDocumentsByRequestId((int)$demande['id']);
+        $hasConvention = false;
+
+        foreach ($documents as $doc) {
+            if (isset($doc['label']) && strtolower(trim($doc['label'])) === 'convention de stage') {
+                $hasConvention = true;
+                break;
+            }
+        }
+
+        $demande['hasConvention'] = $hasConvention;
+    }
+    unset($demande); // break reference
+
+    require_once $_SERVER['DOCUMENT_ROOT'] . '/stalhub/views/dashboard/secretary.php';
+}
 
     /**
      * Affiche les détails d'une demande spécifique pour la secrétaire académique.
