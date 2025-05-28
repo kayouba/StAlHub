@@ -4,7 +4,9 @@ function statusToCssClass($status) {
   return match ($status) {
     'validee_finale', 'complete' => 'complete',
     'signee', 'transmise' => 'transmise',
-    'attente', 'incomplete' => 'incomplete',
+    'attente' => 'pending',
+    'incomplete' => 'incomplete',
+    'refusee', 'rejected' => 'rejected',
     default => 'transmise'
   };
 }
@@ -23,7 +25,7 @@ function statusToCssClass($status) {
     }
 
     main {
-      margin-left: 240px; /* Pour la sidebar */
+      margin-left: 240px;
       padding: 20px;
     }
 
@@ -37,6 +39,11 @@ function statusToCssClass($status) {
       margin-bottom: 30px;
       font-size: 1.1em;
       color: #333;
+    }
+
+    .pending {
+      color: #d2a500;
+      font-weight: bold;
     }
 
     .filters {
@@ -79,7 +86,12 @@ function statusToCssClass($status) {
     }
 
     .incomplete {
-      color: orange;
+      color: red;
+      font-weight: bold;
+    }
+
+    .rejected {
+      color: #dc3545;
       font-weight: bold;
     }
 
@@ -136,7 +148,6 @@ function statusToCssClass($status) {
 <main>
   <div class="header-info">
     <h1>Bienvenue, <?= htmlspecialchars($user['first_name']) . ' ' . htmlspecialchars($user['last_name']) ?></h1>
-    <!-- <p><strong>Direction - Espace de signature</strong></p>-->
     <p>Gestion des conventions de stage et validation finale des dossiers.</p>
 </div>
 
@@ -147,6 +158,7 @@ function statusToCssClass($status) {
       'attente' => 0,
       'signee' => 0,
       'validee_finale' => 0,
+      'refusee' => 0,
       'total' => count($demandes)
     ];
 
@@ -171,6 +183,10 @@ function statusToCssClass($status) {
       <div class="stat-label">Dossiers validés</div>
     </div>
     <div class="stat-card">
+      <div class="stat-number"><?= $stats['refusee'] ?></div>
+      <div class="stat-label">Dossiers refusés</div>
+    </div>
+    <div class="stat-card">
       <div class="stat-number"><?= $stats['total'] ?></div>
       <div class="stat-label">Total des demandes</div>
     </div>
@@ -188,9 +204,10 @@ function statusToCssClass($status) {
 
     <select id="filter-etat">
       <option value="">Tous les états</option>
-      <option value="validé">Validé définitivement</option>
-      <option value="refusé">Convention signée</option>
-      <option value="attente">EN_ATTENTE_SIGNATURE_ENT</option>
+      <option value="validé définitivement">Validé définitivement</option>
+      <option value="convention signée">Convention signée</option>
+      <option value="en attente de signature">En attente de signature</option>
+      <option value="dossier refusé">Dossier refusé</option>
     </select>
 
     <input type="text" id="search" placeholder="Rechercher étudiant, entreprise..." />
@@ -227,6 +244,7 @@ function statusToCssClass($status) {
               'validee_finale' => 'Validé définitivement',
               'signee' => 'Convention signée',
               'attente' => 'En attente de signature',
+              'refusee' => 'Dossier refusé',
               default => ucfirst($demande['etat']),
             };
           ?>

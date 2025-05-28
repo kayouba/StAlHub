@@ -27,7 +27,7 @@ public function index(): void
         exit;
     }
 
-     if ($role === 'direction') {
+     if ($role === 'director') {
         header('Location: /stalhub/direction/dashboard');
         exit;
     }
