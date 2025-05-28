@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Controller;
 
 use App\View;
@@ -40,7 +41,6 @@ class StudentController
         View::render('dashboard/student', [
             'user' => $user,
         ]);
-
     }
 
     /**
@@ -86,7 +86,7 @@ class StudentController
      */
     public function step2(): void
     {
-        
+
         if (!empty($_POST)) {
             $_SESSION['step1'] = $_POST;
         }
@@ -140,7 +140,7 @@ class StudentController
             header('Location: /stalhub/login');
             exit;
         }
-        
+
         // Sauvegarde des données de step3 si présentes
         if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST)) {
             $_SESSION['step3'] = $_POST;
@@ -242,7 +242,6 @@ class StudentController
                         if (FileCrypto::encrypt($_FILES[$field]['tmp_name'], $tmpPath)) {
                             $_SESSION['step4'][$field] = $tmpPublic . '/' . $filename;
                         }
-
                     }
                 }
             }
@@ -308,7 +307,7 @@ class StudentController
      * 8. Nettoie les données de session.
      * 9. Redirige vers le tableau de bord avec un message de succès.
      */
-   public function submitRequest(): void
+    public function submitRequest(): void
     {
         $userId = $_SESSION['user_id'] ?? null;
         if (!$userId) {
@@ -328,7 +327,7 @@ class StudentController
         // 1. Créer l'entreprise et la demande
         $companyId = $companyModel->findOrCreate($step2);
         $requestId = $requestModel->createRequest($step3, $userId, $companyId, $step2);
-        
+
         // 2. Créer un dossier spécifique pour cette demande
         $requestFolder = date('Y-m-d_His');
         $uploadDir = __DIR__ . "/../public/uploads/users/$userId/demandes/$requestFolder/";
@@ -383,7 +382,7 @@ class StudentController
         // 5. Nettoyage session
         unset($_SESSION['step1'], $_SESSION['step2'], $_SESSION['step3'], $_SESSION['step4']);
 
-                
+
         // Nettoyer les fichiers temporaires
         $tempDir = __DIR__ . "/../public/uploads/users/$userId/temp/";
         if (file_exists($tempDir)) {
@@ -517,7 +516,7 @@ class StudentController
             return;
         }
 
-    require __DIR__ . '/../views/student/sign-convention.php';
+        require __DIR__ . '/../views/student/sign-convention.php';
     }
 
     public function uploadSignature(): void
@@ -571,15 +570,16 @@ class StudentController
             return;
         }
 
+
         // Sauvegarde temporaire de la signature
         $imageData = explode(',', $data['image'])[1];
         $decoded = base64_decode($imageData);
 
         $signaturePath = __DIR__ . "/../temp/signature_{$studentId}_{$requestId}.png";
         $tempDir = __DIR__ . '/../temp/';
-            if (!file_exists($tempDir)) {
-                mkdir($tempDir, 0777, true);
-            }
+        if (!file_exists($tempDir)) {
+            mkdir($tempDir, 0777, true);
+        }
 
         file_put_contents($signaturePath, $decoded);
 
@@ -592,11 +592,18 @@ class StudentController
         }
 
         // Ajouter la signature
+        $signatoryName = trim($data['signatory_name'] ?? '');
+        if (!$signatoryName) {
+            http_response_code(400);
+            echo "Nom requis.";
+            return;
+        }
         $signedPdf = str_replace('.enc', '_signed.pdf', $pdfPath);
-        if (!PdfSigner::addSignatureToPdf($decryptedPdf, $signedPdf, $signaturePath)) {
+        if (!PdfSigner::addSignatureToPdf($decryptedPdf, $signedPdf, $signaturePath, $signatoryName,false )) {
             echo "Échec ajout signature.";
             return;
         }
+
 
         // Réencrypter et écraser l’ancien fichier
         if (!FileCrypto::encrypt($signedPdf, $pdfPath)) {
@@ -609,10 +616,8 @@ class StudentController
         @unlink($decryptedPdf);
         @unlink($signedPdf);
 
-        $documentModel->markAsSignedByStudent($convention['id']);
+        $documentModel->markAsSignedByStudent($convention['id'], $signatoryName, date('Y-m-d H:i:s'));
 
         echo "Signature ajoutée et convention mise à jour.";
     }
-
-
 }

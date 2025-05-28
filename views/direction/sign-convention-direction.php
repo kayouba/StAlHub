@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="fr">
+
 <head>
     <meta charset="UTF-8">
     <title>Signer la convention</title>
@@ -11,10 +12,11 @@
             padding: 30px;
             background: white;
             border-radius: 12px;
-            box-shadow: 0 0 20px rgba(0,0,0,0.05);
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.05);
         }
 
-        h1, h2 {
+        h1,
+        h2 {
             text-align: center;
         }
 
@@ -31,9 +33,11 @@
         #signature-pad {
             margin-top: 10px;
             border-radius: 6px;
+            border: 1px solid #ccc;
         }
 
-        #clear-signature, #save-signature {
+        #clear-signature,
+        #save-signature {
             margin: 10px 5px;
             padding: 10px 20px;
             font-size: 14px;
@@ -75,76 +79,92 @@
     </style>
     <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.1.6/dist/signature_pad.umd.min.js"></script>
 </head>
+
 <body>
-<?php include __DIR__ . '/../components/sidebar.php'; ?>
+    <?php include __DIR__ . '/../components/sidebar.php'; ?>
 
-<main class="signature-container">
-    <h1>Signature de la convention</h1>
+    <main class="signature-container">
+        <h1>Signature de la convention</h1>
 
-    <?php if (isset($convention)): ?>
-        <p style="text-align: center;">Veuillez lire attentivement la convention ci-dessous avant de signer :</p>
-        <iframe src="/stalhub/document/view?file=<?= urlencode($convention['file_path']) ?>" width="100%" height="600px"></iframe>
+        <?php if (isset($convention)): ?>
+            <p style="text-align: center;">Veuillez lire attentivement la convention ci-dessous avant de signer :</p>
+            <iframe src="/stalhub/document/view?file=<?= urlencode($convention['file_path']) ?>" width="100%" height="600px"></iframe>
 
-        <div id="signature-area">
-            <h2>Votre signature</h2>
-            <canvas id="signature-pad" width="400" height="150" style="border:1px solid #ccc;"></canvas><br>
-            <button id="clear-signature">🧽 Effacer</button>
-            <button id="save-signature">✅ Enregistrer</button>
-            <p id="signature-message"></p>
+            <div id="signature-area">
+                <h2>Votre signature</h2>
+                <div style="text-align: center; margin-bottom: 20px;">
+                    <label for="signatory_name"><strong>Nom du signataire :</strong></label><br>
+                    <input type="text" id="signatory_name" style="padding: 8px; width: 60%;" placeholder="Nom et prénom">
+                </div>
+                <canvas id="signature-pad" width="400" height="150"></canvas><br>
+                <button id="clear-signature">🧽 Effacer</button>
+                <button id="save-signature">✅ Enregistrer</button>
+                <p id="signature-message"></p>
+            </div>
+        <?php else: ?>
+            <p class="error">Aucune convention à signer n'est disponible.</p>
+        <?php endif; ?>
+
+        <div style="text-align: center;">
+            <a href="/stalhub/dashboard" class="button">← Retour au tableau de bord</a>
         </div>
-    <?php else: ?>
-        <p class="error">Aucune convention à signer n'est disponible.</p>
-    <?php endif; ?>
+    </main>
 
-    <div style="text-align: center;">
-        <a href="/stalhub/dashboard" class="button">← Retour au tableau de bord</a>
-    </div>
-</main>
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const canvas = document.getElementById("signature-pad");
+            const signaturePad = new SignaturePad(canvas);
 
-<script>
-document.addEventListener("DOMContentLoaded", () => {
-    const canvas = document.getElementById("signature-pad");
-    if (!canvas) return;
+            const ratio = window.devicePixelRatio || 1;
+            canvas.width = canvas.offsetWidth * ratio;
+            canvas.height = canvas.offsetHeight * ratio;
+            canvas.getContext("2d").scale(ratio, ratio);
+            signaturePad.clear();
 
-    const signaturePad = new SignaturePad(canvas);
-    const ratio = window.devicePixelRatio || 1;
-    canvas.width = canvas.offsetWidth * ratio;
-    canvas.height = canvas.offsetHeight * ratio;
-    canvas.getContext("2d").scale(ratio, ratio);
+            document.getElementById("clear-signature").addEventListener("click", () => {
+                signaturePad.clear();
+            });
 
-    document.getElementById("clear-signature")?.addEventListener("click", () => signaturePad.clear());
+            document.getElementById("save-signature").addEventListener("click", () => {
+                const signatoryName = document.getElementById("signatory_name").value.trim();
 
-    document.getElementById("save-signature")?.addEventListener("click", () => {
-        if (signaturePad.isEmpty()) {
-            alert("Veuillez signer avant d’enregistrer !");
-            return;
-        }
+                if (!signatoryName) {
+                    alert("Veuillez saisir le nom du signataire.");
+                    return;
+                }
 
-        fetch("/stalhub/direction/signature/upload", { // <-- attention à bien utiliser la BONNE route
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                request_id: <?= (int) $requestId ?>,
-                image: signaturePad.toDataURL("image/png")
-            })
-        })
-        .then(res => res.text())
-        .then(msg => {
-            const message = document.getElementById("signature-message");
-            message.textContent = msg;
-            message.style.color = "green";
+                if (signaturePad.isEmpty()) {
+                    alert("Veuillez signer avant d’enregistrer !");
+                    return;
+                }
 
-            // ✅ Cacher les boutons et le canvas
-            document.getElementById("signature-area").style.display = "none";
-        })
-        .catch(() => {
-            const message = document.getElementById("signature-message");
-            message.textContent = "Erreur lors de l'enregistrement.";
-            message.style.color = "red";
+                fetch("/stalhub/direction/signature/upload", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify({
+                            request_id: <?= (int) $requestId ?>,
+                            signatory_name: signatoryName,
+                            image: signaturePad.toDataURL("image/png")
+                        })
+                    })
+                    .then(res => res.text())
+                    .then(msg => {
+                        const message = document.getElementById("signature-message");
+                        message.textContent = "✅ Signature direction bien enregistrée.";
+                        message.style.color = "green";
+                        document.getElementById("signature-area").style.display = "none";
+                    })
+                    .catch(() => {
+                        const message = document.getElementById("signature-message");
+                        message.textContent = "Erreur lors de l'enregistrement.";
+                        message.style.color = "red";
+                    });
+            });
         });
-    });
-});
-</script>
+    </script>
 
 </body>
+
 </html>
