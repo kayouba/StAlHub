@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Controller;
 
 use App\View;
@@ -51,13 +52,17 @@ class AdminController
         ]);
     }
 
-        // Onglet Demandes
+    // Onglet Demandes
     public function tabRequests(): void
     {
         $this->requireAdmin();
 
         $requestModel = new RequestModel();
         $requests = $requestModel->getAllWithTutors();
+        // Ajouter les documents à chaque demande
+        foreach ($requests as &$req) {
+            $req['documents'] = $requestModel->getDocumentsForRequest($req['id']);
+        }
 
         $userModel = new UserModel();
         $tutors = $userModel->findByRole('tutor');
@@ -202,7 +207,7 @@ class AdminController
         }
 
         $requestModel = new \App\Model\RequestModel();
-        
+
         $userModel = new \App\Model\UserModel();
         $companyModel = new \App\Model\CompanyModel();
 
@@ -229,16 +234,19 @@ class AdminController
         $requestModel = new \App\Model\RequestModel();
 
         $soumise    = $requestModel->countByStatus('SOUMISE');
-        $validPeda  = $requestModel->countByStatus('VALID_PEDAGO');  
+        $validPeda  = $requestModel->countByStatus('VALID_PEDAGO');
         $refusPeda   = $requestModel->countByStatus('REFUSEE_PEDAGO');
-        $attendSecret  = $requestModel->countByStatus('EN_ATTENTE_SECRETAIRE');  
-        $validSecret  = $requestModel->countByStatus('VALID_SECRETAIRE'); 
+        $attendSecret  = $requestModel->countByStatus('EN_ATTENTE_SECRETAIRE');
+        $validSecret  = $requestModel->countByStatus('VALID_SECRETAIRE');
         $refusSecret   = $requestModel->countByStatus('REFUSEE_SECRETAIRE');
-        $attendCFA  = $requestModel->countByStatus('EN_ATTENTE_CFA'); 
-        $validCFA  = $requestModel->countByStatus('VALID_CFA'); 
+        $attendCFA  = $requestModel->countByStatus('EN_ATTENTE_CFA');
+        $validCFA  = $requestModel->countByStatus('VALID_CFA');
         $refusCFA   = $requestModel->countByStatus('REFUSEE_CFA');
-        $validFinal  = $requestModel->countByStatus('VALIDE'); 
-        
+        $attendDirection  = $requestModel->countByStatus('EN_ATTENTE_DIRECTION');
+        $validDirection  = $requestModel->countByStatus('VALID_DIRECTION');
+        $refusDirection   = $requestModel->countByStatus('REFUSEE_DIRECTION');
+        $validFinal  = $requestModel->countByStatus('VALIDE');
+
 
         \App\View::render('admin/stats', [
             'soumise' => $soumise,
@@ -250,12 +258,16 @@ class AdminController
             'attendCFA' => $attendCFA,
             'validCFA' => $validCFA,
             'refusCFA' => $refusCFA,
+            'attendDirection' => $attendDirection,
+            'validDirection' => $validDirection,
+            'refusDirection' => $refusDirection,
             'validFinal' => $validFinal,
         ]);
     }
 
-    public function updateTutor(): void {
-        
+    public function updateTutor(): void
+    {
+
         $this->requireAdmin();
 
         $requestId = $_POST['request_id'] ?? null;
@@ -274,5 +286,4 @@ class AdminController
             'message' => $success ? null : 'Échec de mise à jour.'
         ]);
     }
-
 }

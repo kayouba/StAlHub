@@ -9,6 +9,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
 </head>
 <body>
+
     <!-- Inclusion de la sidebar commune -->
     <?php include __DIR__ . '/../components/sidebar.php'; ?>
 
@@ -402,6 +403,17 @@
 
 <!-- Inclusion du fichier JavaScript externe -->
 <script src="/stalhub/public/js/responsable-detailRequest.js"></script>
+<style>
+.sidebar .nav-links a {
+    display: flex !important;
+    align-items: center !important;
+    white-space: nowrap;
+}
+
+.sidebar .nav-links a span:first-child {
+    margin-right: 12px;
+}
+</style>
 
 </body>
 </html>

@@ -30,9 +30,8 @@
     // Calcul des statistiques à partir des vraies données
     $statusCounts = [
       'SOUMISE' => 0,
-      'VALIDEE' => 0,
-      'REFUSEE' => 0,
-      'BROUILLON' => 0
+      'VALIDE' => 0,
+      'REFUSE' => 0,
     ];
 
     foreach ($requests as $r) {
@@ -45,13 +44,12 @@
 
   <div class="stats">
     <div class="stat-box">En Cours de traitement<br><strong><?= $statusCounts['SOUMISE'] ?></strong></div>
-    <div class="stat-box">Validée<br><strong><?= $statusCounts['VALIDEE'] ?></strong></div>
-    <div class="stat-box">Refusée<br><strong><?= $statusCounts['REFUSEE'] ?></strong></div>
-    <div class="stat-box">Brouillon<br><strong><?= $statusCounts['BROUILLON'] ?></strong></div>
+    <div class="stat-box">Validée<br><strong><?= $statusCounts['VALIDE'] ?></strong></div>
+    <div class="stat-box">Refusée<br><strong><?= $statusCounts['REFUSE'] ?></strong></div>
   </div>
 
   <div class="stage-section">
-    <div class="stage-title">Stage / Alternance en cours</div>
+    <div class="stage-title">Toutes mes demandes</div>
 
     <?php if (empty($requests)): ?>
       <p style="text-align:center; padding: 20px;">Aucune demande pour le moment.</p>

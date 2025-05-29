@@ -11,9 +11,14 @@ $attendCFA      = $attendCFA ?? 0;
 $validCFA       = $validCFA ?? 0;
 $refusCFA       = $refusCFA ?? 0;
 
+
+$attendDirection      = $attendDirection ?? 0;
+$validDirection       = $validDirection ?? 0;
+$refusDirection       = $refusDirection ?? 0;
+
 $validFinal     = $validFinal ?? 0;
 
-$totalDemandes = $soumise + $validPeda + $refusPeda + $attendSecret + $validSecret + $refusSecret + $attendCFA + $validCFA + $refusCFA + $validFinal;
+$totalDemandes = $soumise + $validPeda + $refusPeda + $attendSecret + $validSecret + $refusSecret + $attendCFA + $validCFA + $refusCFA + $attendDirection + $validDirection + $refusDirection + $validFinal;
 
 // Évite division par zéro
 function percent($part, $total)
@@ -23,8 +28,8 @@ function percent($part, $total)
 
 // On regroupe par état global
 $totalValide = $validFinal;
-$totalRefuse = $refusPeda + $refusSecret + $refusCFA;
-$totalAttente = $soumise + $attendSecret + $attendCFA + $validPeda + $validSecret + $validCFA;
+$totalRefuse = $refusPeda + $refusSecret + $refusCFA + $refusDirection;
+$totalAttente = $soumise + $attendSecret + $attendCFA + $validPeda + $validSecret + $validCFA + $attendDirection + $validDirection;
 
 $pValide = percent($totalValide, $totalDemandes);
 $pRefuse = percent($totalRefuse, $totalDemandes);
@@ -213,6 +218,27 @@ $pAttente = percent($totalAttente, $totalDemandes);
                     <td><span class="tag red">Refusées CFA</span></td>
                     <td>Demandes refusées par le CFA</td>
                     <td class="align-right"><?= $refusCFA ?></td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="stats-section">
+            <div class="section-title">🏢 Direction</div>
+            <table class="stats-table">
+                <tr>
+                    <td><span class="tag orange">En attente Direction</span></td>
+                    <td>Demandes en attente de la direction</td>
+                    <td class="align-right"><?= $attendDirection ?></td>
+                </tr>
+                <tr>
+                    <td><span class="tag green">Validées Direction</span></td>
+                    <td>Demandes validées par la directioj</td>
+                    <td class="align-right"><?= $validDirection ?></td>
+                </tr>
+                <tr>
+                    <td><span class="tag red">Refusées Direction</span></td>
+                    <td>Demandes refusées par la direction</td>
+                    <td class="align-right"><?= $refusDirection ?></td>
                 </tr>
             </table>
         </div>

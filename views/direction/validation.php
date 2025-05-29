@@ -243,34 +243,10 @@
             </section>
 
             <?php if (empty($readonly)): ?>
-                <!-- SECTION UPLOAD SIGNÉ -->
-                <section class="dual-box">
-                    <!-- Télécharger -->
-                    <div class="box-card">
-                        <h3>📥 Télécharger le document à signer</h3>
-                        <p>
-                            <a href="/stalhub/request/pdf?id=<?= $request['id'] ?>" class="pdf-btn" target="_blank">
-                                📄 Télécharger la convention
-                            </a>
-                        </p>
-                    </div>
-
-                    <!-- Déposer -->
-                    <div class="box-card upload">
-                        <h3>📤 Déposer le document signé</h3>
-
-                        <form action="/stalhub/direction/upload-signed" method="POST" enctype="multipart/form-data" id="signedUploadForm">
-                            <input type="hidden" name="request_id" value="<?= $request['id'] ?>">
-                            <input type="file" name="signed_file" id="signedFileInput" accept=".pdf" required>
-                            <p id="errorMsg" style="color: red; display: none; margin-top: 0.5rem;">⚠️ Veuillez sélectionner un fichier avant de valider.</p>
-                        </form>
-                    </div>
-                </section>
-
+                
                 <!-- BOUTONS EN BAS -->
                 <div class="form-actions">
                     <a href="/stalhub/direction/dashboard" class="button">← Retour</a>
-                    <button id="validateBtn" class="validate-btn">📤 Valider</button>
                 </div>
             <?php endif; ?>
 

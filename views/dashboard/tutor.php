@@ -4,6 +4,7 @@ use App\Lib\StatusTranslator;
 $students_assigned = $students_assigned ?? 0;
 $students_to_assign = $students_to_assign ?? 0;
 $requests = $requests ?? [];
+
 ?>
 <!DOCTYPE html>
 <html lang="fr">
@@ -61,6 +62,11 @@ $requests = $requests ?? [];
                         <td><?= StatusTranslator::translate(($req['status'])) ?></td>
                         <td>
                             <button class="action-link" onclick='openRequestModal(<?= json_encode($req, JSON_HEX_APOS | JSON_HEX_QUOT) ?>)'>👁 Voir</button>
+                            <?php if ($req['can_sign_convention'] ?? false): ?>                                
+                                <a href="/stalhub/tutor/sign-convention?id=<?= $req['id'] ?>" title="Signer la convention">✍️</a>
+                            <?php endif; ?>
+
+
                         </td>
                     </tr>
                 <?php endforeach; ?>
@@ -98,12 +104,10 @@ function openRequestModal(data) {
         <h4>🏢 Entreprise</h4>
         <ul>
             <li><strong>Nom :</strong> ${data.company_name ?? '—'}</li>
-            <li><strong>Email :</strong> ${data.company_email ?? '—'}</li>
             <li><strong>SIRET :</strong> ${data.company_siret ?? '—'}</li>
             <li><strong>Adresse :</strong> ${data.company_address ?? '—'}</li>
             <li><strong>Code postal :</strong> ${data.company_postal_code ?? '—'}</li>
             <li><strong>Ville & Pays :</strong> ${data.company_city ?? '—'}, ${data.company_country ?? '—'}</li>
-            <li><strong>Détails :</strong> ${data.company_details ?? '—'}</li>
         </ul>
 
         <h4>📄 Demande</h4>

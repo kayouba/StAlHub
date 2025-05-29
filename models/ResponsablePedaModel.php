@@ -73,6 +73,7 @@ class ResponsablePedaModel {
             FROM requests r
             JOIN users u ON r.student_id = u.id
             JOIN companies c ON r.company_id = c.id
+            WHERE r.status IN ('SOUMISE', 'VALID_PEDAGO', 'REFUSEE_PEDAGO')
             ORDER BY r.created_on DESC
         ";
         
@@ -102,11 +103,12 @@ class ResponsablePedaModel {
                 u.program as formation,
                 c.name as entreprise,
                 CONCAT(t.first_name, ' ', t.last_name) as tutor_name
-            FROM requests r
+            FROM requests r 
             JOIN users u ON r.student_id = u.id
             JOIN companies c ON r.company_id = c.id
             LEFT JOIN users t ON r.tutor_id = t.id
             WHERE r.id = :id
+            
         ";
         
         $stmt = $this->pdo->prepare($sql);

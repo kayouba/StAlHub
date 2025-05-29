@@ -10,6 +10,12 @@ return [
     '/dashboard'      => ['App\Controller\DashboardController', 'index'],
     '/logout' => ['App\Controller\LogoutController', 'index'],
     '/mentions-legales' => ['App\Controller\AuthController', 'mentionsLegales'],
+    
+    // Mot de passe oublié
+    '/forgot-password'         => ['App\Controller\AuthController', 'showForgotForm'],
+    '/forgot-password/post'    => ['App\Controller\AuthController', 'sendResetLink'],
+    '/reset-password'          => ['App\Controller\AuthController', 'showResetForm'],
+    '/reset-password/post'     => ['App\Controller\AuthController', 'resetPassword'],
 
     // Student
     '/student/new-request'      => ['App\Controller\StudentController', 'newRequest'],
@@ -90,8 +96,15 @@ return [
    '/signature/convention/valider' => ['App\Controller\SignController', 'enregistrerSignature'],
     // Student
     '/student/sign-convention' => ['App\Controller\StudentController', 'signConvention'],
+    
     '/signature/upload' => ['App\Controller\StudentController', 'uploadSignature'],
 
+
+    '/direction/sign-convention' => ['App\Controller\DirectionController', 'signConvention'],
+    '/direction/signature/upload' => ['App\Controller\DirectionController', 'uploadDirectionSignature'],
+    // Tuteur - Signature de la convention
+    '/tutor/sign-convention' => ['App\Controller\TutorController', 'signConvention'],
+    '/tutor/signature/upload' => ['App\Controller\TutorController', 'uploadSignature'],
 
 
 

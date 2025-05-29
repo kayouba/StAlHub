@@ -10,7 +10,55 @@ $rejectedCount = $rejectedCount ?? 0;
     <meta charset="UTF-8">
     <title>StalHub - Admin Dashboard</title>
     <link rel="stylesheet" href="/stalhub/public/css/admin-dashboard.css">
+    <style>
+        .modal-content {
+            max-height: 90vh;
+            overflow-y: auto;
+            padding: 20px;
+            background: white;
+            border-radius: 8px;
+            width: 80%;
+            max-width: 900px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+        }
 
+        .document-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            margin-top: 15px;
+        }
+
+        .document-card {
+            width: 200px;
+            background: #f9f9f9;
+            border-radius: 6px;
+            overflow: hidden;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+            text-decoration: none;
+            color: inherit;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .doc-preview iframe {
+            width: 100%;
+            height: 120px;
+            border: none;
+        }
+
+        .doc-meta {
+            padding: 10px;
+            text-align: center;
+            font-size: 14px;
+            background-color: #fff;
+        }
+
+        .doc-title {
+            font-weight: 600;
+            color: #333;
+        }
+    </style>
 </head>
 
 <body>
@@ -239,30 +287,75 @@ $rejectedCount = $rejectedCount ?? 0;
             }
         }
 
+        function translateStatus(status) {
+            const statusMap = {
+                BROUILLON: "Brouillon",
+                SOUMISE: "Soumise",
+                VALID_PEDAGO: "Validée par référent pédagogique",
+                REFUSEE_PEDAGO: "Refusée par référent pédagogique",
+                EN_ATTENTE_SIGNATURE_ENT: "En attente de signature entreprise",
+                SIGNEE_PAR_ENTREPRISE: "Signée par l’entreprise",
+                EN_ATTENTE_CFA: "En attente CFA",
+                VALID_CFA: "Validée par le CFA",
+                REFUSEE_CFA: "Refusée par le CFA",
+                EN_ATTENTE_SECRETAIRE: "En attente du secrétariat",
+                VALID_SECRETAIRE: "Validée par le secrétariat",
+                REFUSEE_SECRETAIRE: "Refusée par le secrétariat",
+                EN_ATTENTE_DIRECTION: "En attente de la direction",
+                VALID_DIRECTION: "Validée par la direction",
+                REFUSEE_DIRECTION: "Refusée par la direction",
+                VALIDE: "Demande validée",
+                SOUTENANCE_PLANIFIEE: "Soutenance planifiée",
+                ANNULEE: "Annulée",
+                EXPIREE: "Expirée"
+            };
+            return statusMap[status?.toUpperCase()] || status;
+        }
+
         function openRequestModal(req) {
             const modal = document.getElementById('requestModal');
             const details = document.getElementById('requestDetails');
             const tutorSelect = document.getElementById('modalTutor');
 
+            let docsHtml = '';
+            if (req.documents && req.documents.length > 0) {
+                docsHtml = '<section class="document-section"><h4>📎 Documents disponibles :</h4><div class="document-grid">';
+                req.documents.forEach(doc => {
+                    const fileUrl = '/stalhub/document/view?file=' + encodeURIComponent(doc.file_path);
+                    docsHtml += `
+                <a href="${fileUrl}" target="_blank" class="document-card">
+                    <div class="doc-preview">
+                        <iframe src="${fileUrl}" frameborder="0"></iframe>
+                    </div>
+                    <div class="doc-meta">
+                        <div class="doc-title">📄 ${doc.label}</div>
+                    </div>
+                </a>`;
+                });
+                docsHtml += '</div></section>';
+            } else {
+                docsHtml = '<p><em>Aucun document joint.</em></p>';
+            }
+
             details.innerHTML = `
         <p><strong>Étudiant :</strong> ${req.student_name}</p>
         <p><strong>Entreprise :</strong> ${req.company_name}</p>
         <p><strong>Type :</strong> ${req.contract_type || '-'}</p>
-        <p><strong>Statut :</strong> ${req.status}</p>
+        <p><strong>Statut :</strong> ${translateStatus(req.status)}</p>
         <p><strong>Mission :</strong> ${req.mission || '-'}</p>
         <p><strong>Date :</strong> ${req.start_date || '-'} → ${req.end_date || '-'}</p>
+        ${docsHtml}
     `;
 
             tutorSelect.value = req.tutor_id;
             document.getElementById('modalRequestId').value = req.id;
             modal.style.display = 'flex';
 
-            // ⬇️ BIND dynamique ici
             const form = document.getElementById('updateTutorForm');
             form.addEventListener('submit', function(e) {
                 e.preventDefault();
                 const formData = new FormData(this);
-                console.log("📤 Envoi de :", Object.fromEntries(formData)); // pour debug
+                console.log("📤 Envoi de :", Object.fromEntries(formData));
 
                 fetch('/stalhub/admin/requests/updateTutor', {
                         method: 'POST',
@@ -270,7 +363,7 @@ $rejectedCount = $rejectedCount ?? 0;
                     })
                     .then(res => res.text())
                     .then(text => {
-                        console.log("📄 Réponse brute :", text); // 🟡 C’est ici que tu verras le message HTML d’erreur
+                        console.log("📄 Réponse brute :", text);
                         try {
                             const data = JSON.parse(text);
                             console.log("✅ JSON :", data);
@@ -291,7 +384,11 @@ $rejectedCount = $rejectedCount ?? 0;
 
             }, {
                 once: true
-            }); // ✅ pour éviter les doublons si plusieurs ouvertures
+            });
+        }
+
+        function closeRequestModal() {
+            document.getElementById('requestModal').style.display = 'none';
         }
 
 

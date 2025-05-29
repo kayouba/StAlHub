@@ -79,17 +79,20 @@ nav a {
 nav {
     display: flex;
     flex-direction: column;
-    gap: 10px; /* Espacement entre les éléments */
+    gap: 10px;
+    /* Espacement entre les éléments */
 }
 
 .nav-item a {
     text-decoration: none;
-    color: inherit; /* Utilise la couleur par défaut */
+    color: inherit;
+    /* Utilise la couleur par défaut */
     font-size: 16px;
 }
 
 .nav-item a i {
-    margin-right: 8px; /* Espacement entre l'icône et le texte */
+    margin-right: 8px;
+    /* Espacement entre l'icône et le texte */
 }
 
 /**
@@ -130,7 +133,8 @@ nav {
 }
 
 .main-content-with-sidebar {
-    margin-left: 220px; /* Même largeur que votre sidebar */
+    margin-left: 220px;
+    /* Même largeur que votre sidebar */
     min-height: 100vh;
     background-color: #f4f6f9;
 }
@@ -150,7 +154,7 @@ nav {
     background-color: #003366;
     color: white;
     padding: 1rem 2rem;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
 .topbar-left {
@@ -218,7 +222,7 @@ nav {
     background: white;
     padding: 1.5rem;
     border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     margin-bottom: 2rem;
 }
 
@@ -246,7 +250,7 @@ nav {
     background: white;
     padding: 1.5rem;
     border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .title-section h1 {
@@ -264,10 +268,11 @@ nav {
 /**
  * Espacement entre le titre h2 et les filtres
  */
-.container > h2 {
+.container>h2 {
     color: #333;
     font-size: 1.5rem;
-    margin-bottom: 2rem; /* Augmenté de 1.5rem à 2rem pour plus d'espace */
+    margin-bottom: 2rem;
+    /* Augmenté de 1.5rem à 2rem pour plus d'espace */
     font-weight: normal;
 }
 
@@ -284,7 +289,7 @@ nav {
 }
 
 .collapsible-card.collapsed {
-    box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 }
 
 /**
@@ -396,7 +401,7 @@ nav {
  */
 .collapsed .card-header {
     border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .collapsed .card-content {
@@ -608,7 +613,8 @@ nav {
     border-radius: 4px;
     font-weight: bold;
     transition: background-color 0.3s;
-    width: auto; /* Largeur auto pour ne pas prendre toute la page */
+    width: auto;
+    /* Largeur auto pour ne pas prendre toute la page */
 }
 
 #back-btn:hover {
@@ -681,7 +687,8 @@ table {
     background: white;
 }
 
-th, td {
+th,
+td {
     border: 1px solid #ddd;
     padding: 0.75rem;
     text-align: left;
@@ -696,21 +703,78 @@ th {
  * Section des filtres
  */
 .filters {
-    margin-bottom: 1rem;
     display: flex;
-    gap: 1rem;
     flex-wrap: wrap;
-    align-items: end;
+    gap: 1.5rem;
+    padding: 1.5rem;
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+    margin-bottom: 2rem;
+    align-items: flex-end;
 }
 
-.filters label {
+/* Style uniforme pour chaque champ */
+.filter-field {
     display: flex;
     flex-direction: column;
+    min-width: 180px;
+    flex: 1;
+    font-size: 0.95rem;
+    color: #003366;
 }
 
+/* Label avec icône */
+.filter-field span {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: 600;
+    margin-bottom: 6px;
+    color: #003366;
+}
+
+.filter-field span i {
+    color: #007bff;
+}
+
+/* Input et select stylés */
+.filters input,
+.filters select {
+    padding: 0.55rem 0.75rem;
+    font-size: 0.95rem;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    background-color: #f9f9f9;
+    transition: border-color 0.2s;
+}
+
+.filters input:focus,
+.filters select:focus {
+    border-color: #007bff;
+    background-color: #fff;
+    outline: none;
+}
+
+/* Bouton reset stylé */
 #resetFilters {
-    align-self: flex-end;
+    padding: 0.55rem 1rem;
+    border: none;
+    border-radius: 6px;
+    background-color: #999;
+    color: white;
+    font-weight: 500;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
     height: fit-content;
+}
+
+#resetFilters:hover {
+    background-color: #666;
 }
 
 /* ============================================================================
@@ -1001,7 +1065,7 @@ option.quota-disponible {
     border-radius: 8px;
     text-align: center;
     font-weight: bold;
-    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
 
 .flash-message.success {
@@ -1090,6 +1154,7 @@ option.quota-disponible {
         max-height: 0;
         opacity: 0;
     }
+
     to {
         max-height: 500px;
         opacity: 1;
@@ -1101,6 +1166,7 @@ option.quota-disponible {
         max-height: 500px;
         opacity: 1;
     }
+
     to {
         max-height: 0;
         opacity: 0;
@@ -1145,25 +1211,25 @@ i {
     .main-content-with-sidebar {
         margin-left: 0;
     }
-    
+
     .footer {
         margin-left: 0;
     }
-    
+
     /**
      * Ajustements pour mobile - boutons
      */
     .actions-buttons {
         flex-direction: column;
     }
-    
+
     /**
      * Ajustements pour mobile - quotas
      */
     .quota-grid {
         grid-template-columns: 1fr;
     }
-    
+
     /**
      * Ajustements pour mobile - tuteur sélectionné
      */
@@ -1171,39 +1237,39 @@ i {
         flex-direction: column;
         align-items: flex-start;
     }
-    
+
     .btn-change {
         margin-left: 0;
         margin-top: 0.5rem;
     }
-    
+
     /**
      * Ajustements pour mobile - cartes
      */
     .card-header h2 {
         font-size: 1rem;
     }
-    
+
     .card-controls {
         flex-direction: column;
         align-items: center;
     }
-    
+
     .toggle-icon {
         font-size: 1.3rem;
     }
-    
+
     /**
      * Réduction de la taille des icônes sur mobile
      */
     .card-header h2 i {
         font-size: 0.9rem;
     }
-    
+
     .title-section h1 i {
         font-size: 1.2rem;
     }
-    
+
     /**
      * Espacement réduit sur mobile
      */

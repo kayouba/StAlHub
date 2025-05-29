@@ -1,16 +1,18 @@
 <?php
+
 use App\Lib\StatusTranslator;
 
 $request = $request ?? [];
 $documents = $documents ?? [];
 $statusHistory = $statusHistory ?? [];
 
-function safe($value): string {
+function safe($value): string
+{
     return htmlspecialchars($value ?? '');
 }
 
 $statusLabel = StatusTranslator::translate($request['status'] ?? '');
-$statusClass = match($request['status']) {
+$statusClass = match ($request['status']) {
     'VALIDEE', 'VALID_DIRECTION', 'VALIDE' => 'badge-green',
     'REFUSEE', 'REFUSEE_CFA', 'REFUSEE_PEDAGO' => 'badge-red',
     'SOUMISE', 'EN_ATTENTE_CFA', 'EN_ATTENTE_SIGNATURE_ENT' => 'badge-blue',
@@ -18,21 +20,28 @@ $statusClass = match($request['status']) {
 };
 
 $allValidated = true;
+$signed = false;
 $conventionToSign = null;
 
 foreach ($documents as $doc) {
     if (strtolower($doc['status']) !== 'validated') {
         $allValidated = false;
     }
+
     if (
         strtolower($doc['label']) === 'convention de stage' &&
-        strtolower($doc['status']) === 'validated' &&
-        (!isset($doc['signed_by_student']) || !$doc['signed_by_student'])
+        strtolower($doc['status']) === 'validated'
     ) {
-        $conventionToSign = $doc;
+        // Si le champ signed_by_student existe et vaut 1 => signé
+        if (isset($doc['signed_by_student']) && (int)$doc['signed_by_student'] === 1) {
+            $signed = true;
+        } else {
+            $conventionToSign = $doc; // à signer
+        }
     }
-
 }
+
+
 
 $hasRejectedOrSubmitted = false;
 foreach ($documents as $doc) {
@@ -40,39 +49,37 @@ foreach ($documents as $doc) {
         $hasRejectedOrSubmitted = true;
     }
 }
-
-
 ?>
 
 <!DOCTYPE html>
 <html lang="fr">
+
 <head>
     <meta charset="UTF-8">
     <title>StalHub - Détail de la demande</title>
     <link rel="stylesheet" href="/stalhub/public/css/request-view.css">
 </head>
+
 <body>
-<?php include __DIR__ . '/../components/sidebar.php'; ?>
+    <?php include __DIR__ . '/../components/sidebar.php'; ?>
 
+<h1>Détail de la demande</h1>
 <main class="request-container">
-    <?php if ($allValidated): ?>
-        <?php if ($conventionToSign): ?>
-            <section class="signature-callout">
-                <h2>🖊️ Convention à signer</h2>
-                <p>La convention a été validée et nécessite votre signature.</p>
-                <a href="/stalhub/student/sign-convention?id=<?= $request['id'] ?>" class="button" style="font-size: 16px; padding: 10px 20px; background-color: #007bff; color: white; border-radius: 6px;">✍️ Signer maintenant</a>
-            </section>
-        <?php else: ?>
-            <section class="signature-callout">
-                <h2>✅ Convention signée</h2>
-                <p>La convention a été validée et signée. Vous pouvez la consulter ci-dessous.</p>
-            </section>
-        <?php endif; ?>
+
+    <?php if (!empty($conventionTo)): ?>
+        <section class="signature-callout">
+            <h2>🖊️ Convention à signer</h2>
+            <p>La convention a été validée et nécessite votre signature.</p>
+            <a href="/stalhub/student/sign-convention?id=<?= $request['id'] ?>" class="button">✍️ Signer maintenant</a>
+        </section>
+    <?php elseif ($hasSignedConvention): ?>
+        <section class="signature-callout">
+            <h2>✅ Convention signée</h2>
+            <p>La convention a été validée et signée. Vous pourrez la telecharger quand elle sera complètement signée.</p>
+        </section>
+    <?php else: ?>
+        <!-- Rien à afficher -->
     <?php endif; ?>
-
-
-
-    <h1>Détail de la demande</h1>
 
     <section>
         <h2>Statut actuel</h2>
@@ -81,7 +88,7 @@ foreach ($documents as $doc) {
 
     <section>
         <h2>Historique du statut</h2>
-        <button type="button" class="toggle-section">▼ Masquer</button>
+        <button type="button" class="toggle-section"></button>
         <div class="collapsible">
             <ul class="timeline">
                 <?php foreach ($statusHistory as $step): ?>
@@ -99,10 +106,16 @@ foreach ($documents as $doc) {
 
     <section>
         <h2>Entreprise</h2>
-        <button type="button" class="toggle-section">▼ Masquer</button>
+        <button type="button" class="toggle-section"></button>
         <div class="collapsible">
             <p><strong>Nom :</strong> <?= safe($request['company_name']) ?></p>
+
+            <?php if (!$request['is_abroad']): ?>
             <p><strong>SIRET :</strong> <?= safe($request['siret']) ?></p>
+            <?php else: ?>
+            <p><em>Entreprise à l'étranger – pas de SIRET</em></p>
+            <?php endif; ?>
+
             <p><strong>Ville :</strong> <?= safe($request['city']) ?></p>
             <p><strong>Code postal :</strong> <?= safe($request['postal_code']) ?></p>
         </div>
@@ -110,7 +123,7 @@ foreach ($documents as $doc) {
 
     <section>
         <h2>Poste</h2>
-        <button type="button" class="toggle-section">▼ Masquer</button>
+        <button type="button" class="toggle-section"></button>
         <div class="collapsible">
             <p><strong>Type :</strong> <?= $request['contract_type'] === 'stage' ? 'Stage' : 'Alternance' ?></p>
             <p><strong>Intitulé :</strong> <?= safe($request['job_title']) ?></p>
@@ -120,20 +133,25 @@ foreach ($documents as $doc) {
             <p><strong>Rémunération :</strong> <?= safe($request['salary']) ?> €/<?= safe($request['salary_duration']) ?></p>
             <p><strong>Missions :</strong> <?= nl2br(safe($request['mission'])) ?></p>
             <p><strong>Tuteur :</strong> <?= safe($request['supervisor_last_name'] . ' ' . $request['supervisor_first_name']) ?></p>
+            <p><strong>Travail à distance :</strong> <?= $request['is_remote'] ? 'Oui' : 'Non' ?></p>
+            <?php if ($request['is_remote']): ?>
+            <p><strong>Jours de télétravail par semaine :</strong> <?= safe($request['remote_days_per_week']) ?> jour(s)</p>
+            <?php endif; ?>
+
         </div>
     </section>
 
     <section>
         <h2>Documents fournis</h2>
-        <button type="button" class="toggle-section">▼ Masquer</button>
+        <button type="button" class="toggle-section"></button>
         <div class="collapsible">
             <form action="/stalhub/student/upload-correction" method="POST" enctype="multipart/form-data">
                 <input type="hidden" name="request_id" value="<?= $request['id'] ?>">
                 <ul>
                     <?php foreach ($documents as $doc): ?>
                         <li>
-                            <strong><?= safe($doc['label']) ?> :</strong>
-                            <a href="/stalhub/document/view?file=<?= urlencode($doc['file_path']) ?>" target="_blank">Voir</a>
+                            <strong><?= safe($doc['label']) ?> :  
+                            <a href="/stalhub/document/view?file=<?= urlencode($doc['file_path']) ?>" target="_blank">Voir</a></strong>
                             <?php if ($doc['status'] === 'rejected'): ?>
                                 <br><label>Remplacer le document :</label>
                                 <input type="file" name="documents[<?= $doc['id'] ?>]" accept=".pdf,.jpg,.jpeg,.png">
@@ -153,8 +171,9 @@ foreach ($documents as $doc) {
     </section>
 
     <div class="form-actions">
-        <a href="/stalhub/dashboard" class="button">← Retour au tableau de bord</a>
+        <a href="javascript:history.back()" class="button">← Retour à la page précédente</a>
     </div>
 </main>
 </body>
+
 </html>

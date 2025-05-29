@@ -1,14 +1,16 @@
 <?php
+
 namespace App\Model;
+
 use App\Lib\Database;
 
 
 use PDO;
+
 class RequestDocumentModel
 {
     protected PDO $pdo;
-    
-    
+
     public function __construct()
     {
         $this->pdo = Database::getConnection();
@@ -46,10 +48,9 @@ class RequestDocumentModel
         ]);
     }
 
-
     public function getDocumentsForRequest(int $requestId): array
     {
-        $sql = "SELECT id, label, file_path, status FROM request_documents WHERE request_id = :requestId";
+        $sql = "SELECT * FROM request_documents WHERE request_id = :requestId";
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute(['requestId' => $requestId]);
         return $stmt->fetchAll(\PDO::FETCH_ASSOC);
@@ -61,12 +62,35 @@ class RequestDocumentModel
         return $stmt->execute([$newPath, $status, $id]);
     }
 
-    public function markAsSignedByStudent(int $documentId): bool
+    public function markAsSignedByDirection(int $docId, string $signatoryName, string $timestamp): void
     {
-        $sql = "UPDATE request_documents SET signed_by_student = 1 WHERE id = :id";
-        $stmt = $this->pdo->prepare($sql);
-        return $stmt->execute(['id' => $documentId]);
+        $stmt = $this->pdo->prepare("
+        UPDATE request_documents
+        SET signed_by_direction = 1,
+            direction_signatory_name = :name,
+            direction_signed_at = :signed_at
+        WHERE id = :id
+    ");
+        $stmt->execute([
+            'id' => $docId,
+            'name' => $signatoryName,
+            'signed_at' => $timestamp
+        ]);
     }
-
-
+    
+    public function markAsSignedByStudent(int $docId, string $signatoryName, string $timestamp): void
+    {
+        $stmt = $this->pdo->prepare("
+        UPDATE request_documents
+        SET signed_by_student = 1,
+            student_signatory_name = :name,
+            student_signed_at = :signed_at
+        WHERE id = :id
+    ");
+        $stmt->execute([
+            'id' => $docId,
+            'name' => $signatoryName,
+            'signed_at' => $timestamp
+        ]);
+    }
 }
