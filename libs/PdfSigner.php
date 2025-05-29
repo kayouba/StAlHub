@@ -13,6 +13,7 @@ class PdfSigner extends Fpdi
         string $signatoryName,
         bool $isDirection = false,
         bool $isTutor = false,
+        bool $isCompany = false,
     ): bool {
         $pdf = new Fpdi();
         $pageCount = $pdf->setSourceFile($sourcePath);
@@ -32,8 +33,10 @@ class PdfSigner extends Fpdi
                 // Colonne 3 : Direction (droite)
 
                 $x = 20; // Default: étudiant
-                if ($isTutor) $x = $size['width'] / 2 - 20;
-                if ($isDirection) $x = $size['width'] - 60;
+                if ($isTutor) $x = $size['width'] / 4 + 10;
+                if ($isDirection) $x = $size['width'] / 2 + 10;
+                if ($isCompany) $x = $size['width'] * 3 / 4 + 10;
+
 
                 $y = $size['height'] - 40;
 

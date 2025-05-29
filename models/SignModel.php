@@ -41,6 +41,22 @@ public function markConventionSignedByCompany(string $token, string $nom): void 
     ]);
 }
 
+public function markAsSignedByCompany(string $token, int $docId, string $signatoryName, string $timestamp): void
+{
+    $stmt = $this->pdo->prepare("
+    UPDATE request_documents
+    SET signed_by_company = 1,
+        company_signatory_name = :name,
+        company_signed_at = :signed_at
+    WHERE id = :id and company_signature_token = :token
+");
+    $stmt->execute([
+        'id' => $docId,
+        'token' => $token,
+        'name' => $signatoryName,
+        'signed_at' => $timestamp
+    ]);
+}
 public function generateCompanySignatureToken(int $requestId): string {
     $token = bin2hex(random_bytes(16));
     $stmt = $this->pdo->prepare("
