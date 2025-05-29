@@ -33,12 +33,13 @@ class DirectionController
      * - Récupère les valeurs distinctes pour les filtres de recherche (programme, filière, niveau).
      * - Rend la vue du tableau de bord direction.
      */
+
     public function dashboard(): void
     {
         $model = new RequestModel();
         $userModel = new UserModel();
 
-        // 1. Demandes à signer par la direction
+        // 1. Demandes en attente (statut VALID_SECRETAIRE + convention existe + non signé par la direction)
         $requestsToCheck = $model->getAllWithStatus('VALID_SECRETAIRE');
         $pendingRequests = [];
 
@@ -46,12 +47,8 @@ class DirectionController
             $documents = $model->getDocumentsForRequest($request['id']);
 
             foreach ($documents as $doc) {
-                $label = $doc['label'] ?? '';
-                $signedByStudent = $doc['signed_by_student'] ?? 0;
-
                 if (
-                    $label == 'Convention de stage' &&
-                    $signedByStudent == 1
+                    ($doc['label'] ?? '') === 'Convention de stage' && ($doc['signed_by_direction'] ?? 0) == 0
                 ) {
                     $pendingRequests[] = $request;
                     break;
@@ -59,8 +56,22 @@ class DirectionController
             }
         }
 
-        // 2. Demandes déjà validées par la direction
-        $validatedRequests = $model->getAllWithStatus('VALID_DIRECTION');
+        // 2. Demandes validées (convention signée par la direction)
+        $validatedRequests = [];
+
+        foreach ($requestsToCheck as $request) {
+            $documents = $model->getDocumentsForRequest($request['id']);
+
+            foreach ($documents as $doc) {
+                if (
+                    ($doc['label'] ?? '') === 'Convention de stage' &&
+                    ($doc['signed_by_direction'] ?? 0) == 1
+                ) {
+                    $validatedRequests[] = $request;
+                    break;
+                }
+            }
+        }
 
         // Filtres pour la vue
         $programs = $userModel->getDistinctValues('program');
@@ -68,11 +79,11 @@ class DirectionController
         $levels = $userModel->getDistinctValues('level');
 
         View::render('/dashboard/direction', [
-            'pendingRequests' => $pendingRequests,
+            'pendingRequests'   => $pendingRequests,
             'validatedRequests' => $validatedRequests,
-            'programs' => $programs,
-            'tracks' => $tracks,
-            'levels' => $levels
+            'programs'          => $programs,
+            'tracks'            => $tracks,
+            'levels'            => $levels
         ]);
     }
 
@@ -214,9 +225,7 @@ class DirectionController
         foreach ($request['documents'] as $doc) {
             if (
                 strtolower($doc['label']) === 'convention de stage' &&
-                strtolower($doc['status']) === 'validated' &&
-                !empty($doc['signed_by_student']) &&           
-                empty($doc['signed_by_direction'])             
+                strtolower($doc['status']) === 'validated'             
             ) {
                 $convention = $doc;
                 break;

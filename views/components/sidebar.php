@@ -55,6 +55,16 @@
     .sidebar .logo h2 span {
         color: #00cfff !important;
     }
+    .nav-links a {
+        white-space: nowrap; 
+        overflow: hidden;           
+        text-overflow: ellipsis; 
+    }
+
+    .nav-links span {
+        flex-shrink: 0;   
+    }
+
 
     .nav-links a {
         display: flex;

@@ -138,6 +138,7 @@ function getDisplayStatusClass($demande) {
   <title>Dashboard Secrétaire</title>
   <link rel="stylesheet" href="/stalhub/public/css/secretary-dashboard.css">
   <script src="/stalhub/public/js/secretary-dashboard.js" defer></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
 <body>
 
@@ -194,25 +195,23 @@ function getDisplayStatusClass($demande) {
           $statusClass = getDisplayStatusClass($demande);
         ?>
         <tr>
-          <td><?= htmlspecialchars($demande['etudiant']) ?></td>
-          <td><?= htmlspecialchars($demande['formation'] ?? 'Non renseignée') ?></td>
-          <td><?= htmlspecialchars($demande['parcours']) ?></td>
-          <td><?= htmlspecialchars($demande['entreprise']) ?></td>
-          <td><?= htmlspecialchars($demande['date'] ?? '') ?></td>
-          <td><?= htmlspecialchars($demande['type'] ?? '') ?></td>
-          <td class="<?= $statusClass ?>"><?= htmlspecialchars($statusLabel) ?></td>
-          <td>
-          <a href="/stalhub/secretary/details?id=<?= $demande['id'] ?>" title="Voir">
-            👁️
-          </a>
-          <?php if (empty($demande['hasConvention']) || $demande['hasConvention'] === false): ?>
-    <button class="upload-btn" data-id="<?= htmlspecialchars($demande['id']) ?>" title="Télécharger la convention">
-        📤
-    </button>
-<?php endif; ?>
-
-          
-        </td>
+          <td data-label="Nom Prénom"><?= htmlspecialchars($demande['etudiant']) ?></td>
+          <td data-label="Formation"><?= htmlspecialchars($demande['formation'] ?? 'Non renseignée') ?></td>
+          <td data-label="Parcours"><?= htmlspecialchars($demande['parcours']) ?></td>
+          <td data-label="Entreprise"><?= htmlspecialchars($demande['entreprise']) ?></td>
+          <td data-label="Date"><?= htmlspecialchars($demande['date'] ?? '') ?></td>
+          <td data-label="Type"><?= htmlspecialchars($demande['type'] ?? '') ?></td>
+          <td data-label="État" class="<?= $statusClass ?>"><?= htmlspecialchars($statusLabel) ?></td>
+          <td data-label="Action">
+            <a href="/stalhub/secretary/details?id=<?= $demande['id'] ?>" title="Voir">
+              <span class="icon-wrapper">🔎</span>
+            </a>
+            <?php if (empty($demande['hasConvention']) || $demande['hasConvention'] === false): ?>
+              <button class="upload-btn" data-id="<?= htmlspecialchars($demande['id']) ?>" title="Télécharger la convention">
+                📤
+              </button>
+            <?php endif; ?>
+          </td>
 
         </tr>
       <?php endforeach; ?>

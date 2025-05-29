@@ -77,8 +77,6 @@ class TutorController
                 if (
                     strtolower($doc['label']) === 'convention de stage' &&
                     strtolower($doc['status']) === 'validated' &&
-                    ($doc['signed_by_student'] ?? 0) == 1 &&
-                    ($doc['signed_by_direction'] ?? 0) == 1 &&
                     (empty($doc['signed_by_tutor']) || $doc['signed_by_tutor'] == 0)
                 ) {
                     $req['can_sign_convention'] = true;
@@ -248,7 +246,6 @@ class TutorController
             WHERE request_id = ? 
             AND LOWER(label) = 'convention de stage'
             AND status = 'validated'
-            AND signed_by_student = 1
             AND (signed_by_tutor IS NULL OR signed_by_tutor = 0)
         ");
 

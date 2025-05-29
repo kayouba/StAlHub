@@ -62,8 +62,9 @@
             </div>
 
 
-            <div class="table-container">
-                <table id="demandesTable">
+                <div class="table-responsive">
+                    <table id="demandesTable">
+
                     <thead>
                         <tr>
                             <th>Étudiant</th>

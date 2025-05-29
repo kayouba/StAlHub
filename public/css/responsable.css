@@ -1200,6 +1200,20 @@ i {
     color: #007bff;
 }
 
+.table-responsive {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    border-radius: 8px;
+}
+
+.table-responsive table {
+    width: 100%;
+    min-width: 700px; /* Pour forcer le scroll horizontal sur petits écrans */
+    border-collapse: collapse;
+}
+
+
 /* ============================================================================
    14. RESPONSIVE DESIGN
    ============================================================================ */
