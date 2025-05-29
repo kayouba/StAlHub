@@ -98,10 +98,41 @@ class SignController
 
         // $statusModel = new \App\Model\StatusHistoryModel();
         // $statusModel->logStatusChange($requestId, 'SOUMISE', 'Convention signée par l\'entreprise.');
+      
 
+        // Redirection vers la page de confirmation après avoir ajouté la signature
+        header("Location: /stalhub/signature/convention/confirmation?token=" . urlencode($document['company_signature_token']));
+        exit; // S'assurer que le script s'arrête après la redirection
 
-        echo "Signature ajoutée et convention mise à jour.";
 
 
     } 
+
+
+    public function confirmation(): void
+    {
+        // Récupérer le token depuis l'URL
+        $token = $_GET['token'] ?? null;
+
+        if (!$token) {
+            echo "Lien invalide.";
+            return;
+        }
+
+        // Récupérer le document en fonction du token
+        $model = new SignModel();
+        $document = $model->getConventionByToken($token);
+
+        if (!$document) {
+            echo "Document introuvable.";
+            return;
+        }
+
+        // Vue pour la confirmation
+        require_once PROJECT_ROOT . '/views/sign/sign-confirm.php'; 
+    }
+
+
+
+
 }

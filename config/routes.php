@@ -94,6 +94,13 @@ return [
     
     '/signature/convention' => ['App\Controller\SignController', 'afficherFormulaire'],
    '/signature/convention/valider' => ['App\Controller\SignController', 'enregistrerSignature'],
+
+   // pour la page de confirmation après signature
+    '/signature/convention/confirmation' => ['App\Controller\SignController', 'confirmation'],
+
+  
+
+
     // Student
     '/student/sign-convention' => ['App\Controller\StudentController', 'signConvention'],
     

@@ -64,13 +64,18 @@
         <h2>Merci !</h2>
         <p>La convention a été signée avec succès par l’entreprise.</p>
 
+        <!-- Vérification de l'existence du fichier et affichage du lien -->
         <?php if (!empty($document['file_path'])): ?>
-           <a class="link-button" href="/stalhub/signature/pdf?token=<?= urlencode($document['company_signature_token']) ?>" target="_blank">
-             📄 Voir la convention signée
+            <?php 
+            // Récupérer le chemin sans préfixe supplémentaire
+            $filePath = $document['file_path'];
+            ?>
+            <!-- Affichage du lien pour voir la convention signée -->
+            <a class="link-button" href="/stalhub/document/view?file=<?= urlencode($filePath) ?>" target="_blank">
+                📄 Voir la convention signée
             </a>
-
-            
-
+        <?php else: ?>
+            <p>Le fichier signé est introuvable. Veuillez réessayer plus tard.</p>
         <?php endif; ?>
     </div>
 </body>
