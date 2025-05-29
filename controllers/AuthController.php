@@ -8,38 +8,46 @@ use PHPMailer\PHPMailer\PHPMailer;
 
 class AuthController
 {
+    // Affiche la page d'accueil de l'application (landing page)
     public function landing(): void
     {
         View::render('auth/landing');
     }
 
+    // Affiche le formulaire de connexion
     public function showLoginForm(): void
     {
         View::render('auth/login');
     }
 
+    // Gère la tentative de connexion d’un utilisateur
     public function login(): void
     {
         if (session_status() === PHP_SESSION_NONE) {
             session_start();
         }
 
+        // Récupère les champs du formulaire
         $email = $_POST['email'] ?? '';
         $password = $_POST['password'] ?? '';
 
+        // Connexion à la base de données
         $pdo = new PDO('mysql:host=localhost;dbname=stalhub_dev', 'root', 'root');
         $stmt = $pdo->prepare("SELECT * FROM users WHERE email = ? LIMIT 1");
         $stmt->execute([$email]);
         $user = $stmt->fetch();
 
+        // Vérifie les identifiants
         if (!$user || !password_verify($password, $user['password'])) {
             View::render('auth/login', ['error' => 'Identifiants incorrects.']);
             return;
         }
 
+        // Met à jour la date de dernière connexion
         $stmt = $pdo->prepare("UPDATE users SET last_login_at = NOW() WHERE id = ?");
         $stmt->execute([$user['id']]);
 
+        // Stocke les données de session
         $_SESSION['user_id'] = $user['id'];
         $_SESSION['role'] = $user['role'] ?? 'student';
         $_SESSION['user'] = [
@@ -50,12 +58,15 @@ class AuthController
             'role' => $user['role'] ?? 'student',
         ];
 
+        // Génère un code OTP aléatoire et le hash
         $otp = random_int(100000, 999999);
         $hash = password_hash($otp, PASSWORD_DEFAULT);
 
+        // Stocke le code OTP avec une expiration
         $stmt = $pdo->prepare("INSERT INTO otp_codes (user_id, code_hash, expires_at) VALUES (?, ?, NOW() + INTERVAL 5 MINUTE)");
         $stmt->execute([$user['id'], $hash]);
 
+        // Prépare l'envoi de l'e-mail avec PHPMailer
         $mail = new PHPMailer(true);
         $mail->isSMTP();
         $mail->Host = 'localhost';
@@ -67,78 +78,80 @@ class AuthController
         $mail->isHTML(true);
         $mail->CharSet = 'UTF-8';
         $mail->Subject = 'Votre code de connexion sécurisé - StalHub';
+
+        // Corps du mail avec le code OTP
         $mail->Body = '
-    <div style="font-family: Arial, sans-serif; background-color:#f4f4f4; padding: 20px;">
-        <div style="max-width: 600px; margin: auto; background: #ffffff; border-radius: 8px; padding: 30px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
-            <h2 style="color: #0052cc; text-align:center;">🔐 Authentification à deux facteurs</h2>
-            <p>Bonjour <strong>' . htmlspecialchars($user['first_name'] ?? $user['email']) . '</strong>,</p>
-            <p>Voici votre code de vérification à usage unique :</p>
-            <div style="text-align: center; margin: 30px 0;">
-                <span style="display: inline-block; font-size: 28px; letter-spacing: 8px; color: #333; font-weight: bold; background: #f0f4ff; padding: 12px 24px; border-radius: 6px; border: 1px dashed #0052cc;">' . htmlspecialchars($otp) . '</span>
-            </div>
-            <p style="text-align:center;">⏳ Ce code est valable pendant <strong>5 minutes</strong>.</p>
-            <p>Si vous n\'êtes pas à l\'origine de cette tentative de connexion, merci de <a href="mailto:support@stalhub.local">nous contacter immédiatement</a>.</p>
-            <hr style="margin: 30px 0;">
-            <p style="font-size: 12px; color: #777;">Cet e-mail a été envoyé automatiquement par StalHub. Merci de ne pas y répondre directement.</p>
-        </div>
-    </div>
-';
+        ...
+        ' . htmlspecialchars($otp) . '
+        ...
+        ';
 
         $mail->send();
 
+        // Redirige vers la page de saisie du code OTP
         header('Location: /stalhub/otp');
         exit;
     }
 
+    // Affiche le formulaire d'inscription
     public function showRegisterForm(): void
     {
         View::render('auth/register');
     }
 
+    // Gère l'inscription d'un nouvel utilisateur
     public function register(): void
     {
+        // Récupère les données du formulaire
         $first = $_POST['first_name'];
         $last = $_POST['last_name'];
         $email = $_POST['email'];
         $phone = $_POST['phone_number'];
         $password = $_POST['password'];
 
+        // Vérifie la complexité du mot de passe
         if (!preg_match('/^(?=.*[A-Z])(?=.*[\W_]).{8,}$/', $password)) {
             View::render('auth/register', ['error' => 'Mot de passe trop faible : 8 caractères minimum, une majuscule et un caractère spécial.']);
             return;
         }
 
+        // Hash le mot de passe
         $password = password_hash($password, PASSWORD_DEFAULT);
         $consentement_rgpd = isset($_POST['rgpd_consent']) ? 1 : 0;
         $date_consentement = date('Y-m-d H:i:s');
 
+        // Enregistre l'utilisateur dans la base de données
         $pdo = new PDO('mysql:host=localhost;dbname=stalhub_dev', 'root', 'root');
         $stmt = $pdo->prepare("
             INSERT INTO users (first_name, last_name, email, phone_number, password, created_at, is_active, consentement_rgpd, date_consentement)
             VALUES (?, ?, ?, ?, ?, NOW(), 1, ?, ?)
         ");
-
         $stmt->execute([$first, $last, $email, $phone, $password, $consentement_rgpd, $date_consentement]);
 
+        // Redirige vers la page de connexion
         header('Location: /stalhub/login');
         exit;
     }
 
+    // Affiche les mentions légales
     public function mentionsLegales(): void
     {
         View::render('legal/mentions-legales');
     }
 
+    // Affiche le formulaire pour mot de passe oublié
     public function showForgotForm(): void
     {
         View::render('auth/forgot-password');
     }
 
+    // Envoie le lien de réinitialisation du mot de passe
     public function sendResetLink(): void
     {
         $email = $_POST['email'] ?? '';
-        $pdo = new \PDO('mysql:host=localhost;dbname=stalhub_dev', 'root', 'root');
+        $pdo = new PDO('mysql:host=localhost;dbname=stalhub_dev', 'root', 'root');
 
+        // Recherche de l'utilisateur par e-mail
         $stmt = $pdo->prepare("SELECT id FROM users WHERE email = ?");
         $stmt->execute([$email]);
         $user = $stmt->fetch();
@@ -148,19 +161,22 @@ class AuthController
             return;
         }
 
+        // Génère un token de réinitialisation
         $token = bin2hex(random_bytes(32));
         $now = time();
         $createdAt = date('Y-m-d H:i:s', $now);
         $expiresAt = date('Y-m-d H:i:s', $now + 3600);
 
+        // Stocke le token dans la base
         $stmt = $pdo->prepare("INSERT INTO password_resets (user_id, token, expires_at, created_at) VALUES (?, ?, ?, ?)");
         $stmt->execute([$user['id'], $token, $expiresAt, $createdAt]);
 
+        // Envoie le lien par mail
         $link = "http://localhost/stalhub/reset-password?token=$token";
         $subject = "Réinitialisation de votre mot de passe";
         $body = "Cliquez sur ce lien pour réinitialiser votre mot de passe : $link";
 
-        $mail = new \PHPMailer\PHPMailer\PHPMailer(true);
+        $mail = new PHPMailer(true);
         $mail->isSMTP();
         $mail->Host = 'localhost';
         $mail->Port = 1025;
@@ -173,7 +189,7 @@ class AuthController
         View::render('auth/forgot-password', ['success' => 'Un lien de réinitialisation a été envoyé.']);
     }
 
-
+    // Affiche le formulaire de réinitialisation avec le token
     public function showResetForm(): void
     {
         $token = $_GET['token'] ?? null;
@@ -186,11 +202,13 @@ class AuthController
         View::render('auth/reset_password', ['token' => $token]);
     }
 
+    // Réinitialise le mot de passe
     public function resetPassword(): void
     {
         $token = $_POST['token'] ?? '';
         $newPassword = $_POST['password'] ?? '';
 
+        // Vérifie la complexité du nouveau mot de passe
         if (!preg_match('/^(?=.*[A-Z])(?=.*[\W_]).{8,}$/', $newPassword)) {
             View::render('auth/reset_password', [
                 'token' => $token,
@@ -200,6 +218,8 @@ class AuthController
         }
 
         $pdo = new PDO('mysql:host=localhost;dbname=stalhub_dev', 'root', 'root');
+
+        // Vérifie que le token est valide
         $stmt = $pdo->prepare("SELECT * FROM password_resets WHERE token = ? AND expires_at > NOW() LIMIT 1");
         $stmt->execute([$token]);
         $reset = $stmt->fetch();
@@ -209,14 +229,16 @@ class AuthController
             exit;
         }
 
+        // Met à jour le mot de passe
         $passwordHash = password_hash($newPassword, PASSWORD_DEFAULT);
-
         $stmt = $pdo->prepare("UPDATE users SET password = ? WHERE id = ?");
         $stmt->execute([$passwordHash, $reset['user_id']]);
 
+        // Supprime le token utilisé
         $stmt = $pdo->prepare("DELETE FROM password_resets WHERE token = ?");
         $stmt->execute([$token]);
 
+        // Redirige vers la page de connexion
         header('Location: /stalhub/login');
         exit;
     }

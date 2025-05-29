@@ -7,8 +7,10 @@ use App\Model\RequestModel;
 
 class DocumentController
 {
+    // Permet d'afficher un fichier PDF chiffré directement dans le navigateur
     public function view(): void
     {
+        // Vérifie que l'utilisateur est connecté
         if (!isset($_SESSION['user_id'])) {
             http_response_code(403);
             exit("Non autorisé");
@@ -16,23 +18,23 @@ class DocumentController
 
         $file = $_GET['file'] ?? '';
 
-        // Sanitize + local path
+        // Nettoyage + construction du chemin absolu
         $filePath = realpath(__DIR__ . "/../public" . str_replace('/stalhub', '', $file));
 
+        // Vérifie l'existence et l'extension du fichier
         if (!$filePath || !file_exists($filePath) || !str_ends_with($filePath, '.enc')) {
             http_response_code(404);
             exit("Fichier non trouvé ou format non autorisé.");
         }
 
-        // Temp decrypted file
+        // Déchiffre le fichier temporairement
         $tmpPath = tempnam(sys_get_temp_dir(), 'dec');
-
         if (!FileCrypto::decrypt($filePath, $tmpPath)) {
             http_response_code(500);
             exit("Erreur de déchiffrement.");
         }
 
-        // Envoyer le fichier déchiffré
+        // Affiche le fichier déchiffré
         header('Content-Type: application/pdf');
         header('Content-Disposition: inline; filename="document.pdf"');
         readfile($tmpPath);
@@ -40,9 +42,7 @@ class DocumentController
         exit;
     }
 
-    /**Permet de recuperer le nom complet de l'etudiant pour le nom du zip de tous ces docs
-     * 
-     */
+    // Récupère le nom complet d’un utilisateur pour nommer un fichier
     private function getUserFullName(int $userId): string
     {
         $pdo = \App\Lib\Database::getConnection();
@@ -57,6 +57,7 @@ class DocumentController
         return $user['first_name'] . '_' . $user['last_name'];
     }
 
+    // Crée une archive ZIP de tous les documents chiffrés d’un utilisateur
     public function zip(): void
     {
         if (!isset($_SESSION['user_id'])) {
@@ -92,10 +93,10 @@ class DocumentController
             exit("Aucun document à compresser.");
         }
 
+        // Déchiffre et ajoute chaque fichier à l'archive
         foreach ($files as $file) {
             $filename = basename($file, '.enc');
             $decryptedPath = tempnam(sys_get_temp_dir(), 'dec_');
-
             if (FileCrypto::decrypt($file, $decryptedPath)) {
                 $zip->addFile($decryptedPath, $filename . '.pdf');
             }
@@ -103,6 +104,7 @@ class DocumentController
 
         $zip->close();
 
+        // Téléchargement de l'archive
         header('Content-Type: application/zip');
         $userName = $this->getUserFullName((int)$userId);
         $safeName = preg_replace('/[^a-zA-Z0-9_-]/', '_', $userName);
@@ -115,7 +117,7 @@ class DocumentController
         exit;
     }
 
-
+    // Crée une archive ZIP des documents liés à une demande spécifique
     public function zipByRequest(): void
     {
         if (!isset($_SESSION['user_id'])) {
@@ -129,7 +131,7 @@ class DocumentController
             exit("Paramètre 'request_id' invalide.");
         }
 
-        // Récupérer le student_id associé à la demande
+        // Récupère l'étudiant concerné par la demande
         $pdo = \App\Lib\Database::getConnection();
         $stmt = $pdo->prepare("SELECT student_id FROM requests WHERE id = ?");
         $stmt->execute([(int)$requestId]);
@@ -144,7 +146,7 @@ class DocumentController
         $studentName = $this->getUserFullName($studentId);
         $safeName = preg_replace('/[^a-zA-Z0-9_-]/', '_', $studentName);
 
-        // Récupérer les documents liés à la demande
+        // Récupère les documents liés à la demande
         $model = new \App\Model\RequestDocumentModel();
         $documents = $model->getDocumentsForRequest((int)$requestId);
 
@@ -153,6 +155,7 @@ class DocumentController
             exit("Aucun document trouvé pour cette demande.");
         }
 
+        // Crée l'archive
         $zipPath = tempnam(sys_get_temp_dir(), 'docs_') . '.zip';
         $zip = new \ZipArchive();
 
@@ -166,7 +169,7 @@ class DocumentController
             if (!file_exists($filePath)) continue;
 
             $decryptedPath = tempnam(sys_get_temp_dir(), 'dec_');
-            if (\App\Lib\FileCrypto::decrypt($filePath, $decryptedPath)) {
+            if (FileCrypto::decrypt($filePath, $decryptedPath)) {
                 $safeDocName = preg_replace('/[^a-zA-Z0-9_\-]/', '_', $doc['label'] ?? basename($filePath));
                 $zip->addFile($decryptedPath, $safeDocName . '.pdf');
             }
@@ -184,7 +187,7 @@ class DocumentController
         exit;
     }
 
-
+    // Affiche le résumé PDF d'une demande spécifique
     public function viewSummaryByRequest(): void
     {
         if (!isset($_SESSION['user_id'])) {
@@ -201,7 +204,7 @@ class DocumentController
         $model = new \App\Model\RequestDocumentModel();
         $documents = $model->getDocumentsForRequest((int)$requestId);
 
-        // Chercher le résumé de la demande
+        // Recherche du document "Résumé de la demande"
         $summary = null;
         foreach ($documents as $doc) {
             if (strtolower($doc['label']) === 'résumé de la demande') {
@@ -234,17 +237,13 @@ class DocumentController
         exit;
     }
 
-
-
+    // Méthode utilitaire pour chiffrer un fichier temporaire et retourner son chemin relatif
     public function encryptAndSave(string $sourceTmpPath, string $finalPath): ?string
     {
-        // Chiffrer le fichier temporaire et l’écrire à sa destination
         if (!FileCrypto::encrypt($sourceTmpPath, $finalPath)) {
             return null;
         }
 
-        // Retourne un chemin relatif utilisable pour l'URL
         return str_replace(realpath(__DIR__ . '/../public'), '/stalhub', realpath($finalPath));
     }
-
 }

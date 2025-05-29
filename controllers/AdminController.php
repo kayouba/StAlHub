@@ -9,6 +9,7 @@ use App\Model\CompanyModel;
 
 class AdminController
 {
+    // Affiche le tableau de bord principal pour l'admin
     public function dashboard(): void
     {
         $this->requireAdmin();
@@ -16,11 +17,13 @@ class AdminController
         $userModel = new UserModel();
         $requestModel = new RequestModel();
 
+        // Récupère les utilisateurs et les statistiques des demandes
         $users = $userModel->findAll();
         $pendingCount = $requestModel->countByStatus('SOUMISE');
         $validatedCount = $requestModel->countByStatus('VALIDEE');
         $rejectedCount = $requestModel->countByStatus('REFUSEE');
 
+        // Rend la vue du dashboard avec les données
         View::render('dashboard/admin', [
             'users' => $users,
             'pendingCount' => $pendingCount,
@@ -29,6 +32,7 @@ class AdminController
         ]);
     }
 
+    // Vérifie si l'utilisateur est un administrateur
     private function requireAdmin(): void
     {
         if (!isset($_SESSION['user']) || empty($_SESSION['user']['is_admin'])) {
@@ -37,9 +41,7 @@ class AdminController
         }
     }
 
-
-
-    // Onglet Utilisateurs
+    // Onglet affichant tous les utilisateurs
     public function tabUsers(): void
     {
         $this->requireAdmin();
@@ -52,14 +54,15 @@ class AdminController
         ]);
     }
 
-    // Onglet Demandes
+    // Onglet affichant toutes les demandes avec leurs documents et tuteurs
     public function tabRequests(): void
     {
         $this->requireAdmin();
 
         $requestModel = new RequestModel();
         $requests = $requestModel->getAllWithTutors();
-        // Ajouter les documents à chaque demande
+
+        // Ajoute les documents à chaque demande
         foreach ($requests as &$req) {
             $req['documents'] = $requestModel->getDocumentsForRequest($req['id']);
         }
@@ -73,9 +76,7 @@ class AdminController
         ]);
     }
 
-
-
-    // Onglet Entreprises
+    // Onglet affichant la liste des entreprises
     public function tabCompanies(): void
     {
         $this->requireAdmin();
@@ -88,7 +89,7 @@ class AdminController
         ]);
     }
 
-    // Mise à jour du rôle utilisateur
+    // Mise à jour du rôle et du statut administrateur d'un utilisateur
     public function updateUserRole(): void
     {
         $this->requireAdmin();
@@ -97,7 +98,7 @@ class AdminController
         $role   = $_POST['role'] ?? null;
         $is_admin = isset($_POST['is_admin']) && $_POST['is_admin'] === 'on' ? 1 : 0;
 
-
+        // Vérifie les paramètres
         if (!$userId || !$role) {
             echo json_encode(['status' => 'error', 'message' => 'Paramètres invalides']);
             exit;
@@ -106,6 +107,7 @@ class AdminController
         $userModel = new UserModel();
         $success = $userModel->updateRole((int)$userId, $role, $is_admin);
 
+        // Retourne un message JSON selon le résultat
         if ($success) {
             echo json_encode(['status' => 'success']);
         } else {
@@ -115,6 +117,7 @@ class AdminController
         exit;
     }
 
+    // Suppression d’un utilisateur par ID
     public function deleteUser(): void
     {
         $this->requireAdmin();
@@ -136,6 +139,7 @@ class AdminController
         }
     }
 
+    // Active/désactive un utilisateur
     public function toggleActive(): void
     {
         $this->requireAdmin();
@@ -158,6 +162,7 @@ class AdminController
         echo "Utilisateur non trouvé.";
     }
 
+    // Supprime une entreprise
     public function deleteCompany(): void
     {
         $this->requireAdmin();
@@ -178,6 +183,8 @@ class AdminController
             echo "ID d'entreprise manquant.";
         }
     }
+
+    // Renvoie les demandes liées à une entreprise (JSON)
     public function getCompanyRequests(): void
     {
         header('Content-Type: application/json');
@@ -194,8 +201,7 @@ class AdminController
         echo json_encode($requests);
     }
 
-
-
+    // Vue détaillée d'une demande avec étudiant et entreprise associés
     public function viewRequest(): void
     {
         $this->requireAdmin();
@@ -227,12 +233,15 @@ class AdminController
             'company' => $company
         ]);
     }
+
+    // Statistiques globales des demandes selon leur statut
     public function stats(): void
     {
         $this->requireAdmin();
 
         $requestModel = new \App\Model\RequestModel();
 
+        // Comptage des statuts différents de demande
         $soumise    = $requestModel->countByStatus('SOUMISE');
         $validPeda  = $requestModel->countByStatus('VALID_PEDAGO');
         $refusPeda   = $requestModel->countByStatus('REFUSEE_PEDAGO');
@@ -247,7 +256,7 @@ class AdminController
         $refusDirection   = $requestModel->countByStatus('REFUSEE_DIRECTION');
         $validFinal  = $requestModel->countByStatus('VALIDE');
 
-
+        // Rend la vue avec toutes les statistiques
         \App\View::render('admin/stats', [
             'soumise' => $soumise,
             'validPeda' => $validPeda,
@@ -265,9 +274,9 @@ class AdminController
         ]);
     }
 
+    // Mise à jour du tuteur assigné à une demande
     public function updateTutor(): void
     {
-
         $this->requireAdmin();
 
         $requestId = $_POST['request_id'] ?? null;

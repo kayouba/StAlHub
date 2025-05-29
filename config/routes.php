@@ -10,7 +10,7 @@ return [
     '/dashboard'      => ['App\Controller\DashboardController', 'index'],
     '/logout' => ['App\Controller\LogoutController', 'index'],
     '/mentions-legales' => ['App\Controller\AuthController', 'mentionsLegales'],
-    
+
     // Mot de passe oublié
     '/forgot-password'         => ['App\Controller\AuthController', 'showForgotForm'],
     '/forgot-password/post'    => ['App\Controller\AuthController', 'sendResetLink'],
@@ -26,12 +26,15 @@ return [
     '/student/request/view'     => ['App\Controller\StudentController', 'viewRequest'],
     '/student/request/submit'   => ['App\Controller\StudentController', 'submitRequest'],
     '/student/upload-correction' => ['App\Controller\StudentController', 'uploadCorrection'],
+    '/student/sign-convention' => ['App\Controller\StudentController', 'signConvention'],
 
     // Tuteur
     '/tutor/dashboard'          => ['App\Controller\TutorController', 'index'],
     '/tutor/update'             => ['App\Controller\TutorController', 'updateCapacity'],
     '/tutor/students'           => ['App\Controller\TutorController', 'assignedStudents'],
     '/tutor/student'            => ['App\Controller\TutorController', 'viewStudent'],
+    '/tutor/sign-convention' => ['App\Controller\TutorController', 'signConvention'],
+    '/tutor/signature/upload' => ['App\Controller\TutorController', 'uploadSignature'],
 
     // Profil
     '/profile'                  => ['App\Controller\ProfileController', 'index'],
@@ -57,6 +60,7 @@ return [
     '/responsable/detailRequest'    => ['App\Controller\ResponsablePedaController', 'detailDemande'],
     '/responsable/traiter'          => ['App\Controller\ResponsablePedaController', 'traiter'],
     '/responsable/switchTutor' => ['\App\Controller\ResponsablePedaController', 'switchTutor'],
+    '/responsable/generer-lien-entreprise' => ['App\Controller\ResponsablePedaController', 'genererLienSignatureEntreprise'],
 
     //Secretary
     '/secretary/dashboard' => ['App\Controller\SecretaryController', 'dashboard'],
@@ -64,24 +68,25 @@ return [
     '/secretary/update-document-status' => ['App\Controller\SecretaryController', 'updateDocumentStatus'],
     '/secretary/validate-all-documents' => ['App\Controller\SecretaryController', 'validateAllDocuments'],
     '/secretary/save-comment' => ['App\Controller\SecretaryController', 'saveComment'],
-   // Route pour upload de convention
-   '/secretary/upload-convention' => ['App\Controller\SecretaryController', 'uploadConvention'],
+    '/secretary/upload-convention' => ['App\Controller\SecretaryController', 'uploadConvention'],
+    '/secretary/send-convention' => ['App\Controller\SecretaryController', 'sendConventionToStudent'],
 
-// Route pour envoyer la convention à l'étudiant
-'/secretary/send-convention' => ['App\Controller\SecretaryController', 'sendConventionToStudent'],
-
+    // Cfa
     '/cfa/dashboard' => ['App\Controller\CFAController', 'dashboard'],
     '/cfa/validate' => ['App\Controller\CFAController', 'validate'],
-    '/document/zip' => ['App\Controller\DocumentController', 'zip'],
 
+    // Direction
     '/direction/dashboard' => ['App\Controller\DirectionController', 'dashboard'],
     '/direction/request' => ['App\Controller\DirectionController', 'validateView'],
     '/direction/view'     => ['App\Controller\DirectionController', 'validateView'],
     '/direction/validate' => ['App\Controller\DirectionController', 'validate'],
-    '/document/zip-by-request' => ['App\Controller\DocumentController', 'zipByRequest'],
+    '/direction/sign-convention' => ['App\Controller\DirectionController', 'signConvention'],
+    '/direction/signature/upload' => ['App\Controller\DirectionController', 'uploadDirectionSignature'],
     '/direction/upload-signed' => ['App\Controller\DirectionController', 'uploadSigned'],
-    '/document/summary' => ['App\Controller\DocumentController', 'viewSummaryByRequest'],
 
+    '/document/zip-by-request' => ['App\Controller\DocumentController', 'zipByRequest'],
+    '/document/summary' => ['App\Controller\DocumentController', 'viewSummaryByRequest'],
+    '/document/zip' => ['App\Controller\DocumentController', 'zip'],
 
 
     // pour la signature entreprise
@@ -90,26 +95,7 @@ return [
     '/signature/send/{id}'      => ['App\Controller\SignController', 'send'],
     '/signature/status/{id}'    => ['App\Controller\SignController', 'status'],
     '/signature/download/{id}'  => ['App\Controller\SignController', 'download'],
-    '/responsable/generer-lien-entreprise' => ['App\Controller\ResponsablePedaController', 'genererLienSignatureEntreprise'],
-    
     '/signature/convention' => ['App\Controller\SignController', 'afficherFormulaire'],
-   '/signature/convention/valider' => ['App\Controller\SignController', 'enregistrerSignature'],
-    // Student
-    '/student/sign-convention' => ['App\Controller\StudentController', 'signConvention'],
-    
+    '/signature/convention/valider' => ['App\Controller\SignController', 'enregistrerSignature'],
     '/signature/upload' => ['App\Controller\StudentController', 'uploadSignature'],
-
-
-    '/direction/sign-convention' => ['App\Controller\DirectionController', 'signConvention'],
-    '/direction/signature/upload' => ['App\Controller\DirectionController', 'uploadDirectionSignature'],
-    // Tuteur - Signature de la convention
-    '/tutor/sign-convention' => ['App\Controller\TutorController', 'signConvention'],
-    '/tutor/signature/upload' => ['App\Controller\TutorController', 'uploadSignature'],
-
-
-
-
-
-
-
 ];
