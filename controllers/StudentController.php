@@ -638,7 +638,6 @@ class StudentController
         @unlink($signaturePath);
         @unlink($decryptedPdf);
         @unlink($signedPdf);
-file_put_contents(__DIR__ . "/../log.txt", "Appel update: ID={$convention['id']}, name=$signatoryName\n", FILE_APPEND);
 
         $documentModel->markAsSignedByStudent($convention['id'], $signatoryName, date('Y-m-d H:i:s'));
 
