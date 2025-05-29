@@ -10,3 +10,4 @@ $model->saveDocument($requestId, $testPath, 'Convention');
 
 echo "Document de test ajouté avec succès.";
 
+C:\MAMP\htdocs\StAlHub\public\uploads\users\1\demandes\convention_12_683747d5d95d2.pdf.enc

@@ -16,12 +16,16 @@ class SignModel
     
    public function getConventionByToken(string $token): ?array {
     $stmt = $this->pdo->prepare("
-        SELECT * FROM request_documents
-        WHERE company_signature_token = :token AND label = 'Convention'
+        SELECT rd.*, r.student_id
+        FROM request_documents rd
+        JOIN requests r ON rd.request_id = r.id
+        WHERE rd.company_signature_token = :token
+          AND rd.label = 'Convention'
     ");
     $stmt->execute(['token' => $token]);
     return $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
 }
+
 
 public function markConventionSignedByCompany(string $token, string $nom): void {
     $stmt = $this->pdo->prepare("
