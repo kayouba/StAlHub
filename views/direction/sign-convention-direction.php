@@ -149,12 +149,8 @@
                             image: signaturePad.toDataURL("image/png")
                         })
                     })
-                    .then(res => res.text())
-                    .then(msg => {
-                        const message = document.getElementById("signature-message");
-                        message.textContent = "✅ Signature direction bien enregistrée.";
-                        message.style.color = "green";
-                        document.getElementById("signature-area").style.display = "none";
+                    .then(() => {
+                        window.location.href = "/stalhub/direction/dashboard";
                     })
                     .catch(() => {
                         const message = document.getElementById("signature-message");
