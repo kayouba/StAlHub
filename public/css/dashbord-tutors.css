@@ -65,7 +65,7 @@ form button {
     background: linear-gradient(135deg, #00cfff, #005dab);
     border: none;
     padding: 12px 25px;
-    color: white;
+    color: rgb(33, 35, 145);
     border-radius: 30px;
     font-weight: bold;
     cursor: pointer;
@@ -89,8 +89,8 @@ th, td {
 }
 
 th {
-    background-color: #004A7C;
-    color: white;
+    background-color: #30249b;
+    color: rgb(255, 255, 255);;
 }
 
 tr:hover {
@@ -98,8 +98,8 @@ tr:hover {
 }
 
 .action-link {
-    background-color: #00cfff;
-    color: white;
+    background-color: #ffffff;
+    color: rgb(33, 35, 145);
     padding: 6px 14px;
     border-radius: 18px;
     font-weight: bold;
@@ -119,8 +119,8 @@ tr:hover {
 }
 
 .modal-glass {
-    background: linear-gradient(135deg, #001F3F, #005dab);
-    color: white;
+    background: linear-gradient(135deg, #ffffff, #ffffff);
+    color: rgb(31, 50, 195);
     padding: 40px;
     border-radius: 20px;
     width: 90%;
@@ -164,7 +164,7 @@ tr:hover {
 
 .modal-glass strong {
     font-weight: 600;
-    color: white;
+    color: rgb(33, 35, 145);;
 }
 
 .close {
@@ -174,7 +174,7 @@ tr:hover {
     font-size: 26px;
     background: transparent;
     border: none;
-    color: white;
+    color: rgb(33, 35, 145);;
     cursor: pointer;
 }
 
@@ -231,4 +231,25 @@ tr:hover {
         display: block;
         color: #004A7C;
     }
+}
+.action-link {
+    display: inline-block;
+    padding: 10px 16px;
+    font-size: 14px;
+    background-color: #007bff;
+    color: white;
+    text-decoration: none;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    text-align: center;
+    transition: background-color 0.2s ease;
+}
+
+.action-link:hover {
+    background-color: #0056b3;
+}
+
+.action-link:focus {
+    outline: none;
 }
