@@ -640,6 +640,9 @@ class StudentController
         @unlink($signedPdf);
 
         $documentModel->markAsSignedByStudent($convention['id'], $signatoryName, date('Y-m-d H:i:s'));
+        $statusModel = new \App\Model\StatusHistoryModel();
+        $statusModel->logStatusChange($requestId, 'SOUMISE', 'Convention signée par l\'étudiant.');
+
 
         echo "Signature ajoutée et convention mise à jour.";
     }

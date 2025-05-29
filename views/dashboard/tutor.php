@@ -110,7 +110,6 @@ $requests = $requests ?? [];
         <ul>
             <li><strong>Nom :</strong> ${data.company_name ?? '—'}</li>
             <li><strong>SIRET :</strong> ${data.company_siret ?? '—'}</li>
-            <li><strong>Adresse :</strong> ${data.company_address ?? '—'}</li>
             <li><strong>Code postal :</strong> ${data.company_postal_code ?? '—'}</li>
             <li><strong>Ville & Pays :</strong> ${data.company_city ?? '—'}, ${data.company_country ?? '—'}</li>
         </ul>
@@ -120,7 +119,8 @@ $requests = $requests ?? [];
             <li><strong>Type de contrat :</strong> ${formatContractType(data.contract_type)}</li>
             <li><strong>Période :</strong> du ${data.start_date} au ${data.end_date}</li>
             <li><strong>Statut :</strong> ${translate(data.status)}</li>
-            <li><strong>Email du référent :</strong> ${data.referent_email}</li>
+            <li><strong>Email du référent :</strong> ${data.supervisor_email}</li>
+            <li><strong>Numero du référent :</strong> ${data.supervisor_num}</li>
             <li><strong>Poste :</strong> ${data.job_title}</li>
             <li><strong>Missions :</strong> ${data.mission}</li>
             <li><strong>Heures / semaine :</strong> ${data.weekly_hours}</li>

@@ -135,7 +135,8 @@ class RequestModel
         $requestId = (int)$this->pdo->lastInsertId();
 
         $statusHistoryModel = new StatusHistoryModel();
-        $statusHistoryModel->logStatusChange($requestId, $status);
+        $statusHistoryModel->logStatusChange($requestId,'Demande soumise', $status);
+
 
         return $requestId;
     }
