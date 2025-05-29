@@ -4,8 +4,27 @@ namespace App\Lib;
 
 use setasign\Fpdi\Fpdi;
 
+/**
+ * Classe utilitaire pour ajouter des signatures numériques (images) à un fichier PDF.
+ * Étend FPDI pour importer et modifier des pages PDF existantes.
+ */
+
 class PdfSigner extends Fpdi
 {
+
+    /**
+     * Ajoute une signature sur la dernière page d'un PDF à une position spécifique selon le rôle.
+     *
+     * @param string $sourcePath      Chemin du fichier PDF source à signer.
+     * @param string $destPath        Chemin du fichier PDF signé à générer.
+     * @param string $signatureImage  Chemin de l'image de signature (format PNG recommandé).
+     * @param string $signatoryName   Nom du signataire à afficher au-dessus de la signature.
+     * @param bool   $isDirection     Si true, place la signature à droite (direction).
+     * @param bool   $isTutor         Si true, place la signature au centre (tuteur).
+     * @param bool   $isCompany       Si true, place la signature tout à droite (entreprise).
+     *
+     * @return bool  true si le fichier a été généré avec succès, false sinon.
+     */
     public static function addSignatureToPdf(
         string $sourcePath,
         string $destPath,

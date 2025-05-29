@@ -13,8 +13,26 @@ use App\Lib\FileCrypto;
 use App\Lib\PdfGenerator;
 use App\Lib\PdfSigner;
 
+/**
+ * Contrôleur de la direction.
+ *
+ * Gère :
+ * - L'affichage du tableau de bord pour les demandes à signer.
+ * - La validation des demandes par la direction.
+ * - La gestion de la signature de la convention.
+ * - Le téléchargement des documents.
+ */
 class DirectionController
 {
+    /**
+     * Affiche le tableau de bord de la direction.
+     *
+     * - Récupère les demandes à signer par la direction.
+     * - Filtre uniquement celles dont la convention a été signée par l'étudiant.
+     * - Récupère les demandes déjà validées par la direction.
+     * - Récupère les valeurs distinctes pour les filtres de recherche (programme, filière, niveau).
+     * - Rend la vue du tableau de bord direction.
+     */
     public function dashboard(): void
     {
         $model = new RequestModel();
@@ -58,6 +76,14 @@ class DirectionController
         ]);
     }
 
+    /**
+     * Affiche la vue de validation d’une demande par la direction.
+     *
+     * - Vérifie la présence de l’ID de la demande.
+     * - Récupère les détails complets de la demande.
+     * - Permet un affichage en lecture seule si le paramètre `readonly` est activé.
+     * - Rend la vue correspondante.
+     */
     public function validateView(): void
     {
         if (!isset($_GET['id'])) {
@@ -80,6 +106,13 @@ class DirectionController
         ]);
     }
 
+    /**
+     * Valide une demande côté direction (POST).
+     *
+     * - Met à jour le statut de la demande à `VALID_DIRECTION`.
+     * - Stocke un message de succès ou d'erreur en session.
+     * - Redirige vers le tableau de bord direction.
+     */
     public function validate(): void
     {
         if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['request_id'])) {
@@ -97,6 +130,14 @@ class DirectionController
         exit;
     }
 
+    /**
+     * Télécharge tous les documents d'une demande sous forme d'archive ZIP.
+     *
+     * - Vérifie la validité de l’ID de la demande.
+     * - Déchiffre chaque document temporairement.
+     * - Ajoute les fichiers au ZIP avec des noms sûrs.
+     * - Envoie le ZIP au client et supprime les fichiers temporaires.
+     */
     public function downloadAll(): void
     {
         if (empty($_GET['request_id'])) {
@@ -143,6 +184,13 @@ class DirectionController
         exit;
     }
 
+    /**
+     * Prépare l’interface de signature de la convention par la direction.
+     *
+     * - Vérifie que la demande existe et contient une convention signée par l’étudiant.
+     * - Empêche l’accès si aucune convention à signer n’est trouvée.
+     * - Charge la vue de signature pour la direction.
+     */
     public function signConvention(): void
     {
         $requestId = $_GET['id'] ?? null;
@@ -167,8 +215,8 @@ class DirectionController
             if (
                 strtolower($doc['label']) === 'convention de stage' &&
                 strtolower($doc['status']) === 'validated' &&
-                !empty($doc['signed_by_student']) &&           // ✅ signé par l'étudiant
-                empty($doc['signed_by_direction'])             // ❌ pas encore signé par la direction
+                !empty($doc['signed_by_student']) &&           
+                empty($doc['signed_by_direction'])             
             ) {
                 $convention = $doc;
                 break;
@@ -185,114 +233,125 @@ class DirectionController
         require __DIR__ . '/../views/direction/sign-convention-direction.php';
     }
 
+    /**
+     * Enregistre la signature de la direction sur la convention.
+     *
+     * - Reçoit une image de signature (base64), un nom, et un ID de demande.
+     * - Vérifie l’existence d’une convention valide à signer.
+     * - Déchiffre le PDF existant.
+     * - Appose la signature de la direction à l’endroit prévu.
+     * - Ré-encrypte le fichier signé.
+     * - Met à jour le statut et l'historique.
+     * - Nettoie tous les fichiers temporaires utilisés.
+     */
     public function uploadDirectionSignature(): void
-{
-    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-        http_response_code(405);
-        echo "Méthode non autorisée.";
-        return;
-    }
-
-    $data = json_decode(file_get_contents('php://input'), true);
-
-    if (
-        !isset($data['request_id'], $data['image'], $data['signatory_name']) ||
-        !is_numeric($data['request_id']) ||
-        empty(trim($data['signatory_name']))
-    ) {
-        http_response_code(400);
-        echo "Données invalides.";
-        return;
-    }
-
-    $requestId = (int)$data['request_id'];
-    $signatoryName = trim($data['signatory_name']);
-
-    $model = new RequestModel();
-    $request = $model->getRequestWithDocumentsForDirection($requestId);
-
-    if (!$request) {
-        http_response_code(404);
-        echo "Demande non trouvée.";
-        return;
-    }
-
-    $documentModel = new RequestDocumentModel();
-    $convention = null;
-
-    foreach ($request['documents'] as $doc) {
-        if (
-            strtolower($doc['label']) === 'convention de stage' &&
-            strtolower($doc['status']) === 'validated' &&
-            !empty($doc['signed_by_student']) &&
-            empty($doc['signed_by_direction'])
-        ) {
-            $convention = $doc;
-            break;
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            http_response_code(405);
+            echo "Méthode non autorisée.";
+            return;
         }
+
+        $data = json_decode(file_get_contents('php://input'), true);
+
+        if (
+            !isset($data['request_id'], $data['image'], $data['signatory_name']) ||
+            !is_numeric($data['request_id']) ||
+            empty(trim($data['signatory_name']))
+        ) {
+            http_response_code(400);
+            echo "Données invalides.";
+            return;
+        }
+
+        $requestId = (int)$data['request_id'];
+        $signatoryName = trim($data['signatory_name']);
+
+        $model = new RequestModel();
+        $request = $model->getRequestWithDocumentsForDirection($requestId);
+
+        if (!$request) {
+            http_response_code(404);
+            echo "Demande non trouvée.";
+            return;
+        }
+
+        $documentModel = new RequestDocumentModel();
+        $convention = null;
+
+        foreach ($request['documents'] as $doc) {
+            if (
+                strtolower($doc['label']) === 'convention de stage' &&
+                strtolower($doc['status']) === 'validated' &&
+                !empty($doc['signed_by_student']) &&
+                empty($doc['signed_by_direction'])
+            ) {
+                $convention = $doc;
+                break;
+            }
+        }
+
+        if (!$convention) {
+            http_response_code(403);
+            echo "Aucune convention valide à signer.";
+            return;
+        }
+
+        // Signature image base64
+        $imageData = explode(',', $data['image'])[1] ?? null;
+        if (!$imageData) {
+            http_response_code(400);
+            echo "Image de signature invalide.";
+            return;
+        }
+
+        $decoded = base64_decode($imageData);
+        $signaturePath = __DIR__ . "/../temp/signature_direction_{$requestId}.png";
+        if (!file_exists(dirname($signaturePath))) {
+            mkdir(dirname($signaturePath), 0777, true);
+        }
+        file_put_contents($signaturePath, $decoded);
+
+        // Déchiffrer PDF
+        $pdfPath = __DIR__ . '/../public' . str_replace('/stalhub', '', $convention['file_path']);
+        $decryptedPdf = str_replace('.enc', '_temp.pdf', $pdfPath);
+        $signedPdf = str_replace('.enc', '_signed.pdf', $pdfPath);
+
+        if (!FileCrypto::decrypt($pdfPath, $decryptedPdf)) {
+            echo "Échec de déchiffrement.";
+            return;
+        }
+
+        // Ajouter la signature + nom dans le PDF
+        if (!PdfSigner::addSignatureToPdf($decryptedPdf, $signedPdf, $signaturePath, $signatoryName, true)) {
+            echo "Échec ajout signature.";
+            return;
+        }
+
+        // Re-chiffrer le PDF signé
+        if (!FileCrypto::encrypt($signedPdf, $pdfPath)) {
+            echo "Erreur de chiffrement.";
+            return;
+        }
+
+        // Nettoyage temporaire
+        @unlink($signaturePath);
+        @unlink($decryptedPdf);
+        @unlink($signedPdf);
+
+        // ✅ Mise à jour de la base
+        $documentModel->markAsSignedByDirection(
+            $convention['id'],
+            $signatoryName,
+            date('Y-m-d H:i:s') 
+        );
+
+        $model->updateStatus($requestId, 'VALID_DIRECTION');
+        $statusModel = new \App\Model\StatusHistoryModel();
+        $statusModel->logStatusChange($requestId, 'VALID_DIRECTION', 'Convention signée par la direction.');
+
+
+        echo "Signature direction ajoutée avec succès.";
     }
-
-    if (!$convention) {
-        http_response_code(403);
-        echo "Aucune convention valide à signer.";
-        return;
-    }
-
-    // Signature image base64
-    $imageData = explode(',', $data['image'])[1] ?? null;
-    if (!$imageData) {
-        http_response_code(400);
-        echo "Image de signature invalide.";
-        return;
-    }
-
-    $decoded = base64_decode($imageData);
-    $signaturePath = __DIR__ . "/../temp/signature_direction_{$requestId}.png";
-    if (!file_exists(dirname($signaturePath))) {
-        mkdir(dirname($signaturePath), 0777, true);
-    }
-    file_put_contents($signaturePath, $decoded);
-
-    // Déchiffrer PDF
-    $pdfPath = __DIR__ . '/../public' . str_replace('/stalhub', '', $convention['file_path']);
-    $decryptedPdf = str_replace('.enc', '_temp.pdf', $pdfPath);
-    $signedPdf = str_replace('.enc', '_signed.pdf', $pdfPath);
-
-    if (!FileCrypto::decrypt($pdfPath, $decryptedPdf)) {
-        echo "Échec de déchiffrement.";
-        return;
-    }
-
-    // Ajouter la signature + nom dans le PDF
-    if (!PdfSigner::addSignatureToPdf($decryptedPdf, $signedPdf, $signaturePath, $signatoryName, true)) {
-        echo "Échec ajout signature.";
-        return;
-    }
-
-    // Re-chiffrer le PDF signé
-    if (!FileCrypto::encrypt($signedPdf, $pdfPath)) {
-        echo "Erreur de chiffrement.";
-        return;
-    }
-
-    // Nettoyage temporaire
-    @unlink($signaturePath);
-    @unlink($decryptedPdf);
-    @unlink($signedPdf);
-
-    // ✅ Mise à jour de la base
-    $documentModel->markAsSignedByDirection(
-        $convention['id'],
-        $signatoryName,
-        date('Y-m-d H:i:s') // timestamp actuel
-    );
-
-    $model->updateStatus($requestId, 'VALID_DIRECTION');
-    $statusModel = new \App\Model\StatusHistoryModel();
-    $statusModel->logStatusChange($requestId, 'VALID_DIRECTION', 'Convention signée par la direction.');
-
-
-    echo "Signature direction ajoutée avec succès.";
-}
 
 }

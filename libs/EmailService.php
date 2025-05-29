@@ -4,10 +4,22 @@ namespace Core;
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception as MailException;
 
+/**
+ * Service d’envoi d’e-mails via PHPMailer avec configuration SMTP.
+ *
+ * - Récupère les informations de configuration depuis les variables d’environnement.
+ * - Prend en charge l’envoi d’e-mails HTML.
+ */
 class EmailService
 {
     private PHPMailer $mailer;
 
+    /**
+     * Initialise PHPMailer avec les paramètres SMTP définis dans l'environnement.
+     *
+     * - Configure l’hôte, le port, les identifiants, le type de chiffrement et l’expéditeur.
+     * - Active le mode HTML par défaut.
+     */
     public function __construct()
     {
         $host = getenv('MAIL_HOST');

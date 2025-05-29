@@ -1,8 +1,17 @@
 <?php
 namespace App\Lib;
+/**
+ * Traduit des statuts techniques en libellés lisibles pour l'utilisateur.
+ */
 
 class StatusTranslator
 {
+    /**
+     * Traduit un code de statut en libellé utilisateur.
+     *
+     * @param string $status Code de statut en base (ex: 'VALID_PEDAGO', 'BROUILLON', etc.)
+     * @return string Libellé lisible (ex: 'Validée par référent pédagogique')
+     */
     public static function translate(string $status): string
     {
         $statusMap = [
@@ -30,6 +39,12 @@ class StatusTranslator
         return $statusMap[strtoupper($status)] ?? ucfirst(strtolower($status));
     }
 
+    /**
+     * Traduit un type de contrat technique en libellé utilisateur.
+     *
+     * @param string $type Type de contrat (ex: 'apprenticeship', 'internship')
+     * @return string Libellé lisible (ex: 'Apprentissage', 'Stage')
+     */
     public static function contractType(string $type): string
     {
         return match (strtolower($type)) {

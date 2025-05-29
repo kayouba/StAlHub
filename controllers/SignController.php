@@ -10,8 +10,30 @@ use App\Lib\PdfSigner;
 
 define('PROJECT_ROOT', dirname(__DIR__));
 
+/**
+ * Contrôleur chargé de la signature des conventions par l'entreprise.
+ *
+ * Gère :
+ * - L'affichage du formulaire de signature.
+ * - L'enregistrement de la signature électronique.
+ * - La confirmation post-signature.
+ *
+ * Utilise les classes :
+ * - SignModel : accès aux conventions via token.
+ * - FileCrypto : chiffrement / déchiffrement des fichiers PDF.
+ * - PdfSigner : apposition de la signature sur les conventions.
+ */
 class SignController
 {
+    /**
+     * Affiche le formulaire de signature pour une convention.
+     *
+     * Le token fourni en GET permet d'identifier la convention.
+     * Si le token est invalide ou expiré, un message d'erreur est affiché.
+     *
+     * Vue affichée :
+     * - `views/sign/sign.php`
+     */
     public function afficherFormulaire(): void
     {
         $token = $_GET['token'] ?? null;
@@ -32,6 +54,21 @@ class SignController
         require_once PROJECT_ROOT . '/views/sign/sign.php';
     }
 
+    /**
+     * Enregistre la signature transmise par l'entreprise.
+     *
+     * Étapes principales :
+     * - Vérifie la validité du token et du nom du signataire.
+     * - Décode l'image de signature envoyée en base64.
+     * - Déchiffre le fichier PDF concerné.
+     * - Appose la signature sur le PDF (dernière page).
+     * - Réencrypte le PDF et écrase l’ancien fichier.
+     * - Supprime les fichiers temporaires.
+     * - Redirige vers une page de confirmation.
+     *
+     * Vue de confirmation :
+     * - `views/sign/sign-confirm.php`
+     */
     public function enregistrerSignature(): void
     {
         $token = $_POST['token'] ?? null;
@@ -108,7 +145,15 @@ class SignController
 
     } 
 
-
+    /**
+     * Affiche une confirmation après la signature réussie.
+     *
+     * Le token est utilisé pour retrouver la convention signée.
+     * Si la convention n’est pas retrouvée, un message d’erreur est affiché.
+     *
+     * Vue affichée :
+     * - `views/sign/sign-confirm.php`
+     */
     public function confirmation(): void
     {
         // Récupérer le token depuis l'URL

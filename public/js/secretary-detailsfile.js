@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', function () {
-     // 👉 Ajout pour masquer les colonnes de "Convention de stage"
+     //  Ajout pour masquer les colonnes de "Convention de stage"
     document.querySelectorAll('tbody tr').forEach(row => {
         const labelCell = row.querySelector('td:first-child');
         if (labelCell && labelCell.textContent.trim().toLowerCase() === 'convention de stage') {
@@ -15,7 +15,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const validateAllBtn = document.getElementById('validateAllBtn');
     const commentInputs = document.querySelectorAll('.comment-input');
 
-    // 💾 Sauvegarde automatique des commentaires
+    //  Sauvegarde automatique des commentaires
     commentInputs.forEach(input => {
         let saveTimeout;
 
@@ -70,9 +70,9 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    // 🎯 Gestion des boutons Valider / Refuser / Annuler
+    //  Gestion des boutons Valider / Refuser / Annuler
     document.addEventListener('click', function (e) {
-        // ✅ VALIDER
+        //  VALIDER
         if (e.target.classList.contains('validate-btn')) {
             const button = e.target;
             const row = button.closest('tr');
@@ -113,7 +113,7 @@ document.addEventListener('DOMContentLoaded', function () {
             });
         }
 
-        // ❌ REFUSER
+        //  REFUSER
         else if (e.target.classList.contains('refuse-btn')) {
             const button = e.target;
             const row = button.closest('tr');
@@ -154,7 +154,7 @@ document.addEventListener('DOMContentLoaded', function () {
             });
         }
 
-        // ↩️ ANNULER
+        //  ANNULER
         else if (e.target.classList.contains('cancel-btn')) {
             const button = e.target;
             const row = button.closest('tr');
@@ -197,7 +197,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 
-    // ✅ Valider tous les documents
+    //  Valider tous les documents
     if (validateAllBtn) {
         validateAllBtn.addEventListener('click', function () {
             const allRows = document.querySelectorAll('tbody tr');

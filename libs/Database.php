@@ -5,10 +5,25 @@ namespace App\Lib;
 use PDO;
 use PDOException;
 
+/**
+ * Classe de gestion de la connexion à la base de données via PDO (Singleton).
+ *
+ * - Utilise les variables d’environnement pour la configuration (via Dotenv).
+ * - Fournit une seule instance PDO partagée dans toute l’application.
+ */
 class Database
 {
     private static ?PDO $instance = null;
 
+    /**
+     * Retourne une instance PDO connectée à la base de données.
+     *
+     * - Charge les variables d’environnement si nécessaire.
+     * - Initialise la connexion PDO si elle n’existe pas encore.
+     * - Lance une exception ou stoppe le script en cas d’échec.
+     *
+     * @return PDO Connexion à la base de données.
+     */
     public static function getConnection(): PDO
     {
         if (self::$instance === null) {

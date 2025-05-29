@@ -6,11 +6,17 @@ namespace App\Model;
 use App\Lib\Database;
 use PDO;
 
+/**
+ * Gère les opérations relatives aux utilisateurs.
+ * Interagit avec la table `users`.
+ */
 class UserModel
 {
     protected string $table = 'users';
     protected PDO $pdo;
-
+    /**
+     * Initialise la connexion à la base de données via PDO.
+     */
     public function __construct()
     {
         $this->pdo = Database::getConnection();
@@ -101,29 +107,47 @@ class UserModel
         return $stmt->execute($data);
     }
     
+    /**
+     * Supprime un utilisateur et les demandes associées.
+     *
+     * @param int $id ID de l'utilisateur.
+     * @return bool True si la suppression a réussi.
+     */
     public function deleteById(int $id): bool
-{
-    // Supprimer les demandes liées d'abord
-    $this->pdo->prepare("DELETE FROM requests WHERE student_id = :id")->execute(['id' => $id]);
+    {
+        // Supprimer les demandes liées d'abord
+        $this->pdo->prepare("DELETE FROM requests WHERE student_id = :id")->execute(['id' => $id]);
 
-    // Ensuite supprimer l'utilisateur
-    $stmt = $this->pdo->prepare("DELETE FROM users WHERE id = :id");
-    return $stmt->execute(['id' => $id]);
-}
+        // Ensuite supprimer l'utilisateur
+        $stmt = $this->pdo->prepare("DELETE FROM users WHERE id = :id");
+        return $stmt->execute(['id' => $id]);
+    }
+    
+    /**
+     * Récupère les utilisateurs ayant un rôle spécifique.
+     *
+     * @param string $role Rôle recherché (ex. : tutor, admin, student).
+     * @return array Liste des utilisateurs filtrés par rôle.
+     */
+    public function findByRole(string $role): array
+    {
+        $stmt = $this->pdo->prepare("SELECT id, first_name, last_name, students_assigned, students_to_assign FROM users WHERE role = :role");
+        $stmt->execute(['role' => $role]);
+        return $stmt->fetchAll(\PDO::FETCH_ASSOC);
+    }
 
-public function findByRole(string $role): array
-{
-    $stmt = $this->pdo->prepare("SELECT id, first_name, last_name, students_assigned, students_to_assign FROM users WHERE role = :role");
-    $stmt->execute(['role' => $role]);
-    return $stmt->fetchAll(\PDO::FETCH_ASSOC);
-}
+    /**
+     * Récupère les valeurs distinctes d'une colonne spécifique (ex. : niveau, programme...).
+     *
+     * @param string $column Nom de la colonne.
+     * @return array Liste des valeurs distinctes, triées.
+     */
+    public function getDistinctValues(string $column): array
+    {
+        $stmt = $this->pdo->prepare("SELECT DISTINCT $column FROM users WHERE $column IS NOT NULL AND $column != '' ORDER BY $column");
+        $stmt->execute();
 
-public function getDistinctValues(string $column): array
-{
-    $stmt = $this->pdo->prepare("SELECT DISTINCT $column FROM users WHERE $column IS NOT NULL AND $column != '' ORDER BY $column");
-    $stmt->execute();
-
-    return array_column($stmt->fetchAll(\PDO::FETCH_ASSOC), $column);
-}
+        return array_column($stmt->fetchAll(\PDO::FETCH_ASSOC), $column);
+    }
 
 }

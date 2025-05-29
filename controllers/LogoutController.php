@@ -1,8 +1,26 @@
 <?php
 namespace App\Controller;
 
+/**
+ * Contrôleur responsable de la déconnexion sécurisée de l'utilisateur.
+ *
+ * Cette classe détruit proprement la session utilisateur, supprime les cookies associés,
+ * puis redirige vers la page de connexion.
+ */
 class LogoutController
 {
+    /**
+     * Exécute la procédure complète de déconnexion :
+     *
+     * - Vide les variables de session.
+     * - Supprime le cookie de session si applicable.
+     * - Détruit complètement la session côté serveur.
+     * - Redirige l’utilisateur vers la page de login.
+     *
+     * Sécurité :
+     * - Garantit la suppression des traces de session, y compris les cookies.
+     * - Empêche les accès non autorisés après déconnexion.
+     */
     public function index(): void
     {
 

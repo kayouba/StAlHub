@@ -9,10 +9,36 @@ use App\Model\RequestModel;
 use App\Lib\StatusTranslator;
 
 
+/**
+ * Contrôleur du tableau de bord principal.
+ *
+ * Redirige l'utilisateur vers le tableau de bord approprié
+ * selon son rôle (admin, étudiant, CFA, direction, etc.).
+ * Si l'utilisateur est un étudiant, il voit ses demandes avec le statut traduit.
+ */
 class DashboardController extends BaseController
 {
 
 
+    /**
+     * Point d'entrée du tableau de bord.
+     *
+     * - Vérifie l'authentification de l'utilisateur.
+     * - Identifie le rôle de l'utilisateur en session.
+     * - Redirige automatiquement selon le rôle :
+     *     - admin → /admin/dashboard
+     *     - academic_secretary → /secretary/dashboard
+     *     - professional_responsible → /responsable/requestList
+     *     - cfa → /cfa/dashboard
+     *     - director → /direction/dashboard
+     *     - tutor → /tutor/dashboard
+     * - Si rôle = étudiant :
+     *     - Récupère les informations de l'étudiant et ses demandes.
+     *     - Traduit les statuts de chaque demande.
+     *     - Rend la vue du tableau de bord étudiant.
+     *
+     * @return void
+     */
     public function index(): void
     {
         $this->requireAuth();

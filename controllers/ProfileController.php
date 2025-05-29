@@ -7,8 +7,24 @@ use App\View;
 use App\Model\UserModel;
 use App\Lib\FileCrypto;
 
+/**
+ * Contrôleur responsable de la gestion du profil utilisateur.
+ *
+ * Gère :
+ * - L'affichage du formulaire de profil.
+ * - La mise à jour des données personnelles.
+ * - Le traitement des fichiers uploadés (CV, assurance).
+ *
+ * Accessible uniquement aux utilisateurs authentifiés.
+ */
 class ProfileController extends BaseController
 {
+    /**
+     * Affiche le formulaire de mise à jour du profil.
+     *
+     * Charge les informations actuelles de l'utilisateur connecté
+     * et les transmet à la vue `profile/student_form`.
+     */
     public function index(): void
     {
         $this->requireAuth();
@@ -25,6 +41,24 @@ class ProfileController extends BaseController
         }
     }
 
+    /**
+     * Traite la soumission du formulaire de profil.
+     *
+     * Étapes :
+     * 1. Vérifie que l'utilisateur est connecté.
+     * 2. Valide les champs obligatoires (`prenom`, `nom`, `email`).
+     * 3. Si étudiant :
+     *    - Calcule l'année scolaire courante.
+     *    - Récupère des infos spécifiques (numéro étudiant, programme, etc.).
+     *    - Chiffre les fichiers uploadés (CV et attestation d’assurance).
+     * 4. Met à jour les informations en base.
+     * 5. Redirige avec message de succès ou erreurs.
+     *
+     * Sécurité :
+     * - Validation d'email.
+     * - Chiffrement des fichiers via `FileCrypto`.
+     * - Filtrage des entrées utilisateur.
+     */
     public function submit(): void
     {
 

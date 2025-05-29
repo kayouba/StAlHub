@@ -462,7 +462,15 @@ class StudentController
     }
 
 
-
+    /**
+     * Permet à l'étudiant de téléverser une nouvelle version de documents corrigés.
+     *
+     * - Vérifie que l'utilisateur est authentifié.
+     * - Récupère les documents envoyés via POST.
+     * - Chiffre et enregistre chaque document corrigé dans un nouveau répertoire horodaté.
+     * - Met à jour les documents dans la base avec leur nouveau chemin.
+     * - Redirige vers la page de visualisation de la demande avec un message de succès.
+     */
     public function uploadCorrection(): void
     {
         $userId = $_SESSION['user_id'] ?? null;
@@ -498,7 +506,14 @@ class StudentController
     }
 
 
-
+    /**
+     * Affiche la page de signature de la convention de stage pour l’étudiant.
+     *
+     * - Vérifie que la demande appartient bien à l’étudiant connecté.
+     * - Récupère le document "convention de stage" s’il est prêt à être signé.
+     * - Affiche la vue contenant le formulaire de signature.
+     * - Affiche une erreur en cas de problème (demande introuvable, pas de convention à signer, etc.).
+     */
     public function signConvention(): void
     {
         $requestId = $_GET['id'] ?? null;
@@ -541,7 +556,18 @@ class StudentController
 
         require __DIR__ . '/../views/student/sign-convention.php';
     }
-
+    
+    /**
+     * Reçoit et enregistre la signature de l'étudiant pour la convention de stage.
+     *
+     * Étapes :
+     * - Vérifie que la requête est bien POST et que les données sont valides.
+     * - Vérifie l'appartenance de la demande à l'étudiant.
+     * - Déchiffre la convention, appose la signature sur le PDF, puis le chiffre à nouveau.
+     * - Enregistre la signature et met à jour le statut de la demande.
+     * - Nettoie les fichiers temporaires utilisés pour l'opération.
+     * - Répond avec un message de succès ou d'erreur.
+     */
     public function uploadSignature(): void
     {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {

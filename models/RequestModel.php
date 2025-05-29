@@ -8,18 +8,28 @@ use App\Lib\Database;
 
 use PDO;
 
+/**
+ * Gère les opérations relatives aux demandes d'étudiants.
+ * Interagit avec la table `requests` et ses relations (étudiants, entreprises, tuteurs...).
+ */
 class RequestModel
 {
     protected PDO $pdo;
 
 
+    /**
+     * Initialise la connexion PDO à la base de données.
+     */
     public function __construct()
     {
         $this->pdo = Database::getConnection();
     }
 
     /**
-     * Permets de recupérer les demande de l'étudiant
+     * Récupère toutes les demandes d’un étudiant.
+     *
+     * @param int $studentId ID de l'étudiant.
+     * @return array Liste des demandes.
      */
     public function findByStudentId(int $studentId): array
     {
@@ -34,6 +44,12 @@ class RequestModel
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
+    /**
+     * Récupère l’ID de l’étudiant associé à une demande.
+     *
+     * @param int $requestId ID de la demande.
+     * @return int|null ID de l’étudiant ou null si non trouvé.
+     */
     public function getUserIdByRequestId(int $requestId): ?int
     {
         $stmt = $this->pdo->prepare("SELECT student_id FROM requests WHERE id = :id LIMIT 1");
@@ -44,7 +60,15 @@ class RequestModel
     }
 
 
-
+    /**
+     * Crée une nouvelle demande à partir des informations fournies en plusieurs étapes.
+     *
+     * @param array $step3 Données du formulaire étape 3 (poste, rémunération...).
+     * @param int $userId ID de l'étudiant.
+     * @param int $companyId ID de l’entreprise.
+     * @param array $step2 Données du formulaire étape 2 (superviseur...).
+     * @return int ID de la demande créée.
+     */
     public function createRequest(array $step3, int $userId, int $companyId, array $step2): int
     {
         $status = 'SOUMISE';
@@ -142,7 +166,13 @@ class RequestModel
     }
 
 
-
+    /**
+     * Récupère une demande détaillée appartenant à un utilisateur spécifique.
+     *
+     * @param int $requestId ID de la demande.
+     * @param int $userId ID de l'étudiant.
+     * @return array|null Données de la demande ou null si non trouvée.
+     */
     public function findByIdForUser(int $requestId, int $userId): ?array
     {
         $sql = "SELECT 
@@ -174,6 +204,11 @@ class RequestModel
         return $result ?: null;
     }
 
+    /**
+     * Retourne les statistiques globales des demandes par statut.
+     *
+     * @return array Clés : 'pending', 'approved', 'rejected'.
+     */
     public function getAdminStats(): array
     {
         $sql = "
@@ -186,14 +221,24 @@ class RequestModel
         $stmt = $this->pdo->query($sql);
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
-
+    /**
+     * Récupère les informations de base d’une demande par son ID.
+     *
+     * @param int $id ID de la demande.
+     * @return array|null Données de la demande ou null.
+     */
     public function getById(int $id): ?array
     {
         $stmt = $this->pdo->prepare("SELECT * FROM requests WHERE id = :id");
         $stmt->execute(['id' => $id]);
         return $stmt->fetch(\PDO::FETCH_ASSOC) ?: null;
     }
-
+    /**
+     * Récupère les informations complètes d’une demande avec les documents associés.
+     *
+     * @param int $id ID de la demande.
+     * @return array|null Données enrichies ou null si la demande est introuvable.
+     */
     public function getByIdWithDetails(int $id): ?array
     {
         $stmt = $this->pdo->prepare("
@@ -222,7 +267,7 @@ class RequestModel
             return null;
         }
 
-        // 🔄 Documents liés
+        //  Documents liés
         $docStmt = $this->pdo->prepare("SELECT * FROM request_documents WHERE request_id = :id");
         $docStmt->execute(['id' => $id]);
         $data['documents'] = $docStmt->fetchAll(\PDO::FETCH_ASSOC);
@@ -230,20 +275,30 @@ class RequestModel
         return $data;
     }
 
-
+    /**
+     * Récupère tous les documents associés à une demande.
+     *
+     * @param int $requestId ID de la demande.
+     * @return array Liste des documents au format associatif.
+     */
     public function getDocumentsForRequest(int $requestId): array
-{
-    $stmt = $this->pdo->prepare("
-        SELECT id, label, file_path, status, signed_by_student, signed_by_direction
-        FROM request_documents
-        WHERE request_id = :requestId
-    ");
-    $stmt->execute(['requestId' => $requestId]);
-    return $stmt->fetchAll(\PDO::FETCH_ASSOC);
-}
+    {
+        $stmt = $this->pdo->prepare("
+            SELECT id, label, file_path, status, signed_by_student, signed_by_direction
+            FROM request_documents
+            WHERE request_id = :requestId
+        ");
+        $stmt->execute(['requestId' => $requestId]);
+        return $stmt->fetchAll(\PDO::FETCH_ASSOC);
+    }
 
 
-
+    /**
+     * Compte le nombre de demandes correspondant à un statut donné.
+     *
+     * @param string $status Statut des demandes (ex. : SOUMISE, VALIDEE...).
+     * @return int Nombre de demandes avec ce statut.
+     */
     public function countByStatus(string $status): int
     {
         $stmt = $this->pdo->prepare("SELECT COUNT(*) FROM requests WHERE status = :status");
@@ -251,6 +306,11 @@ class RequestModel
         return (int) $stmt->fetchColumn();
     }
 
+    /**
+     * Récupère l’ensemble des demandes avec les données des étudiants et entreprises.
+     *
+     * @return array Liste des demandes complètes.
+     */
     public function findAll(): array
     {
         $stmt = $this->pdo->query("
@@ -277,6 +337,11 @@ class RequestModel
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
+    /**
+     * Récupère toutes les demandes avec les informations du tuteur et de l’étudiant.
+     *
+     * @return array Liste des demandes enrichies avec noms et entreprises.
+     */
     public function getAllWithTutors(): array
     {
         $stmt = $this->pdo->prepare("
@@ -305,28 +370,36 @@ class RequestModel
         return $requests;
     }
 
+    /**
+     * Met à jour le tuteur associé à une demande.
+     * Met à jour également le compteur d’étudiants des tuteurs.
+     *
+     * @param int $requestId ID de la demande.
+     * @param int $newTutorId ID du nouveau tuteur.
+     * @return bool True si la mise à jour a réussi, false sinon.
+     */
     public function updateTutor(int $requestId, int $newTutorId): bool
     {
         $this->pdo->beginTransaction();
 
         try {
-            // 🔍 1. Récupérer le tuteur actuel (avant changement)
+            //  1. Récupérer le tuteur actuel (avant changement)
             $stmt = $this->pdo->prepare("SELECT tutor_id FROM requests WHERE id = :id");
             $stmt->execute(['id' => $requestId]);
             $oldTutorId = $stmt->fetchColumn();
 
-            // 🧭 2. Mettre à jour la demande avec le nouveau tuteur
+            //  2. Mettre à jour la demande avec le nouveau tuteur
             $stmt = $this->pdo->prepare("UPDATE requests SET tutor_id = :tutor WHERE id = :id");
             $stmt->execute([
                 'tutor' => $newTutorId,
                 'id' => $requestId
             ]);
 
-            // ✅ 3. Incrémenter le compteur du nouveau tuteur
+            //  3. Incrémenter le compteur du nouveau tuteur
             $stmt = $this->pdo->prepare("UPDATE users SET students_assigned = students_assigned + 1 WHERE id = :id");
             $stmt->execute(['id' => $newTutorId]);
 
-            // 🚫 4. Décrémenter le compteur de l'ancien tuteur (s'il existe et est différent)
+            //  4. Décrémenter le compteur de l'ancien tuteur (s'il existe et est différent)
             if ($oldTutorId && $oldTutorId != $newTutorId) {
                 $stmt = $this->pdo->prepare("UPDATE users SET students_assigned = students_assigned - 1 WHERE id = :id");
                 $stmt->execute(['id' => $oldTutorId]);
@@ -342,7 +415,12 @@ class RequestModel
     }
 
 
-
+    /**
+     * Récupère les informations détaillées d’une demande spécifique (étudiant + entreprise).
+     *
+     * @param int $requestId ID de la demande.
+     * @return array|null Données de la demande ou null si non trouvée.
+     */
     public function findRequestInfoById(int $requestId): ?array
     {
         $sql = "SELECT 
@@ -372,6 +450,11 @@ class RequestModel
         return $result ?: null;
     }
 
+    /**
+     * Récupère toutes les demandes avec leur statut et informations principales.
+     *
+     * @return array Liste des demandes.
+     */
     public function findAllRequests(): array
     {
         $stmt = $this->pdo->prepare("
@@ -398,6 +481,12 @@ class RequestModel
     }
 
 
+    /**
+     * Récupère toutes les demandes ayant un statut spécifique.
+     *
+     * @param string $status Statut de la demande.
+     * @return array Liste des demandes filtrées.
+     */
     public function getAllWithStatus(string $status): array
     {
         $stmt = $this->pdo->prepare("
@@ -412,7 +501,12 @@ class RequestModel
         $stmt->execute(['status' => $status]);
         return $stmt->fetchAll(\PDO::FETCH_ASSOC);
     }
-
+    /**
+     * Récupère toutes les demandes ayant l’un des statuts fournis.
+     *
+     * @param array $statuses Liste de statuts.
+     * @return array Résultats filtrés.
+     */
     public function getAllWithStatuses(array $statuses): array
     {
         $placeholders = implode(',', array_fill(0, count($statuses), '?'));
@@ -430,7 +524,13 @@ class RequestModel
 
         return $stmt->fetchAll(\PDO::FETCH_ASSOC);
     }
-
+    /**
+     * Récupère toutes les demandes selon un statut et un type de contrat.
+     *
+     * @param string $status Statut de la demande.
+     * @param string $contract_type Type de contrat (ex. : alternance, stage...).
+     * @return array Liste des demandes filtrées.
+     */
     public function getAllWithStatusAndContract(string $status, string $contract_type): array
     {
         $stmt = $this->pdo->prepare("
@@ -443,7 +543,7 @@ class RequestModel
         ORDER BY r.created_on DESC
     ");
 
-        // ✅ Combine les paramètres dans un seul tableau associatif
+        //  Combine les paramètres dans un seul tableau associatif
         $stmt->execute([
             'status' => $status,
             'contract_type' => $contract_type
@@ -452,7 +552,13 @@ class RequestModel
         return $stmt->fetchAll(\PDO::FETCH_ASSOC);
     }
 
-
+    /**
+     * Met à jour le statut d’une demande.
+     *
+     * @param int $id ID de la demande.
+     * @param string $status Nouveau statut à appliquer (ex. : VALIDEE, REFUSEE).
+     * @return bool True si la mise à jour a réussi, false sinon.
+     */
     public function updateStatus(int $id, string $status): bool
     {
         $stmt = $this->pdo->prepare("UPDATE requests SET status = :status WHERE id = :id");
@@ -462,6 +568,12 @@ class RequestModel
         ]);
     }
 
+    /**
+     * Récupère une demande par son identifiant.
+     *
+     * @param int $id ID de la demande.
+     * @return array|null Données de la demande ou null si non trouvée.
+     */
     public function findById(int $id): ?array
     {
         $stmt = $this->pdo->prepare("SELECT * FROM requests WHERE id = :id LIMIT 1");
@@ -483,7 +595,12 @@ class RequestModel
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-
+    /**
+     * Récupère toutes les demandes associées à une entreprise.
+     *
+     * @param int $companyId ID de l’entreprise.
+     * @return array Liste des demandes liées à cette entreprise.
+     */
     public function findByCompanyId(int $companyId): array
     {
         $stmt = $this->pdo->prepare("
@@ -506,6 +623,13 @@ class RequestModel
         $stmt->execute(['company_id' => $companyId]);
         return $stmt->fetchAll(\PDO::FETCH_ASSOC);
     }
+    /**
+     * Enregistre un document lié à une demande avec le statut "submitted".
+     *
+     * @param int $requestId ID de la demande.
+     * @param string $filePath Chemin du fichier.
+     * @param string $label Libellé du document.
+     */
     public function saveDocument(int $requestId, string $filePath, string $label): void
     {
         $stmt = $this->pdo->prepare("INSERT INTO request_documents (request_id, file_path, label, status, uploaded_at) VALUES (?, ?, ?, 'submitted', NOW())");
@@ -513,7 +637,11 @@ class RequestModel
     }
 
     /**
-     * Récupère une demande spécifique avec ses documents, si elle appartient à l'étudiant.
+     * Récupère une demande avec ses documents, si elle appartient à l’étudiant spécifié.
+     *
+     * @param int $requestId ID de la demande.
+     * @param int $studentId ID de l’étudiant propriétaire de la demande.
+     * @return array|null Données enrichies ou null si la demande n’existe pas ou n’appartient pas à l’étudiant.
      */
     public function getRequestWithDocumentsForStudent(int $requestId, int $studentId): ?array
     {
@@ -547,6 +675,12 @@ class RequestModel
 
         return $request;
     }
+    /**
+     * Récupère une demande avec ses documents, à destination de la direction (pas de vérification d’appartenance).
+     *
+     * @param int $requestId ID de la demande.
+     * @return array|null Données enrichies ou null si la demande n’existe pas.
+     */
     public function getRequestWithDocumentsForDirection(int $requestId): ?array
     {
         $stmt = $this->pdo->prepare("

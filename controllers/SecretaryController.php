@@ -22,46 +22,46 @@ class SecretaryController {
      * - Rend la vue du tableau de bord de la secrétaire.
     **/
     public function dashboard(): void
-{
-    $userId = $_SESSION['user_id'] ?? null;
-    $role = $_SESSION['role'] ?? null;
+    {
+        $userId = $_SESSION['user_id'] ?? null;
+        $role = $_SESSION['role'] ?? null;
 
-    if (!$userId || $role !== 'academic_secretary') {
-        header('Location: /stalhub/login');
-        exit;
-    }
-
-    // Charger l'utilisateur depuis la base via UserModel
-    $userModel = new UserModel();
-    $user = $userModel->findById($userId);
-
-    if (!$user) {
-        session_destroy();
-        header('Location: /stalhub/login');
-        exit;
-    }
-            
-    $model = new SecretaryModel();
-    $demandes = $model->getAll();
-
-    // Parcourir chaque demande pour savoir si elle a une convention déjà uploadée
-    foreach ($demandes as &$demande) {
-        $documents = $model->getDocumentsByRequestId((int)$demande['id']);
-        $hasConvention = false;
-
-        foreach ($documents as $doc) {
-            if (isset($doc['label']) && strtolower(trim($doc['label'])) === 'convention de stage') {
-                $hasConvention = true;
-                break;
-            }
+        if (!$userId || $role !== 'academic_secretary') {
+            header('Location: /stalhub/login');
+            exit;
         }
 
-        $demande['hasConvention'] = $hasConvention;
-    }
-    unset($demande); // break reference
+        // Charger l'utilisateur depuis la base via UserModel
+        $userModel = new UserModel();
+        $user = $userModel->findById($userId);
 
-    require_once $_SERVER['DOCUMENT_ROOT'] . '/stalhub/views/dashboard/secretary.php';
-}
+        if (!$user) {
+            session_destroy();
+            header('Location: /stalhub/login');
+            exit;
+        }
+                
+        $model = new SecretaryModel();
+        $demandes = $model->getAll();
+
+        // Parcourir chaque demande pour savoir si elle a une convention déjà uploadée
+        foreach ($demandes as &$demande) {
+            $documents = $model->getDocumentsByRequestId((int)$demande['id']);
+            $hasConvention = false;
+
+            foreach ($documents as $doc) {
+                if (isset($doc['label']) && strtolower(trim($doc['label'])) === 'convention de stage') {
+                    $hasConvention = true;
+                    break;
+                }
+            }
+
+            $demande['hasConvention'] = $hasConvention;
+        }
+        unset($demande); // break reference
+
+        require_once $_SERVER['DOCUMENT_ROOT'] . '/stalhub/views/dashboard/secretary.php';
+    }
 
     /**
      * Affiche les détails d'une demande spécifique pour la secrétaire académique.
@@ -379,43 +379,41 @@ class SecretaryController {
     }
 
     /**
- * Génère un lien de signature pour la convention d'entreprise 
- */
-
+     * Génère un lien de signature pour la convention d'entreprise 
+     */
     public function genererLienSignatureEntreprise(): void
-{
-    $requestId = $_GET['id'] ?? null;
+    {
+        $requestId = $_GET['id'] ?? null;
 
-    if (!$requestId) {
-        echo "ID de la demande manquant.";
-        return;
-    }
-   
+        if (!$requestId) {
+            echo "ID de la demande manquant.";
+            return;
+        }
+    
 
-    $model = new \App\Model\SignModel();
+        $model = new \App\Model\SignModel();
 
-    if (!$model->conventionExistePourDemande((int)$requestId)) {
+        if (!$model->conventionExistePourDemande((int)$requestId)) {
+            $_SESSION['flash_message'] = [
+                'type' => 'error',
+                'text' => "Aucune convention trouvée pour cette demande."
+            ];
+            
+            header("Location: /stalhub/secretary/details?id=$requestId");
+            return;
+        }
+
+        $token = $model->generateCompanySignatureToken((int)$requestId);
+        $link = "https://stalhub/signature/convention?token=$token";
+
+
         $_SESSION['flash_message'] = [
-            'type' => 'error',
-            'text' => "Aucune convention trouvée pour cette demande."
+            'type' => 'success',
+            'text' => "Lien de signature généré : <a href=\"$link\" target=\"_blank\">$link</a>"
         ];
-        
+
+
         header("Location: /stalhub/secretary/details?id=$requestId");
-        return;
+        exit;
     }
-
-    $token = $model->generateCompanySignatureToken((int)$requestId);
-    $link = "https://stalhub/signature/convention?token=$token";
-    var_dump($link); // Pour debug, à enlever en production
-         die();
-
-    $_SESSION['flash_message'] = [
-        'type' => 'success',
-        'text' => "Lien de signature généré : <a href=\"$link\" target=\"_blank\">$link</a>"
-    ];
-
-
-    header("Location: /stalhub/secretary/details?id=$requestId");
-    exit;
-}
 }

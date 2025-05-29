@@ -6,8 +6,19 @@ use App\Model\UserModel;
 use App\Model\CompanyModel;
 use DateTime;
 
+/**
+ * Génère un fichier PDF récapitulatif pour une demande de stage ou d'alternance,
+ * à partir des données de la base, puis le chiffre avant sauvegarde.
+ */
 class PdfGenerator
 {
+    /**
+     * Génère un PDF récapitulatif d'une demande, le chiffre, puis retourne son chemin.
+     *
+     * @param int    $requestId  ID de la demande à traiter.
+     * @param string $uploadDir  Dossier de destination du fichier généré.
+     * @return string|null       Chemin du fichier PDF chiffré, ou null en cas d’échec.
+     */
     public static function generateFromDatabase(int $requestId, string $uploadDir): ?string
     {
         $requestModel = new RequestModel();

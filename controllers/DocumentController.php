@@ -5,8 +5,24 @@ namespace App\Controller;
 use App\Lib\FileCrypto;
 use App\Model\RequestModel;
 
+/**
+ * Contrôleur responsable de la gestion et de la diffusion des documents liés aux demandes.
+ * 
+ * Fonctionnalités principales :
+ * - Lecture et affichage de fichiers PDF chiffrés
+ * - Téléchargement en ZIP de documents (par utilisateur ou par demande)
+ * - Visualisation du résumé d'une demande
+ * - Chiffrement et sauvegarde de fichiers
+ */
 class DocumentController
 {
+    /**
+     * Affiche un document PDF chiffré de façon sécurisée dans le navigateur.
+     *
+     * - Vérifie l'autorisation de l'utilisateur.
+     * - Déchiffre temporairement le fichier.
+     * - Envoie le contenu au navigateur.
+     */
     public function view(): void
     {
         if (!isset($_SESSION['user_id'])) {
@@ -40,8 +56,13 @@ class DocumentController
         exit;
     }
 
-    /**Permet de recuperer le nom complet de l'etudiant pour le nom du zip de tous ces docs
-     * 
+    /**
+     * Récupère le nom complet de l'utilisateur à partir de son ID.
+     *
+     * Utile pour nommer proprement les archives ZIP.
+     *
+     * @param int $userId
+     * @return string Le nom formaté "Prénom_Nom" ou un identifiant de secours.
      */
     private function getUserFullName(int $userId): string
     {
@@ -57,6 +78,14 @@ class DocumentController
         return $user['first_name'] . '_' . $user['last_name'];
     }
 
+    /**
+     * Génère un ZIP contenant tous les documents chiffrés d’un utilisateur.
+     *
+     * - Vérifie l'accès de l'utilisateur.
+     * - Déchiffre temporairement chaque fichier `.enc`.
+     * - Ajoute les fichiers au ZIP.
+     * - Le ZIP est nommé dynamiquement avec le nom de l'utilisateur et la date.
+     */
     public function zip(): void
     {
         if (!isset($_SESSION['user_id'])) {
@@ -115,7 +144,14 @@ class DocumentController
         exit;
     }
 
-
+    /**
+     * Génère un ZIP des documents associés à une demande spécifique.
+     *
+     * - Récupère les documents liés à une demande par son ID.
+     * - Vérifie la validité de l’ID.
+     * - Déchiffre chaque document avant ajout dans l’archive.
+     * - Le ZIP est nommé avec les infos de l’étudiant + date.
+     */
     public function zipByRequest(): void
     {
         if (!isset($_SESSION['user_id'])) {
@@ -184,7 +220,12 @@ class DocumentController
         exit;
     }
 
-
+    /**
+     * Affiche le résumé de la demande pour un étudiant ou un gestionnaire.
+     *
+     * - Recherche le document dont le label est "Résumé de la demande".
+     * - Déchiffre temporairement le fichier et l'affiche dans le navigateur.
+     */
     public function viewSummaryByRequest(): void
     {
         if (!isset($_SESSION['user_id'])) {
@@ -235,7 +276,15 @@ class DocumentController
     }
 
 
-
+    /**
+     * Chiffre un fichier temporaire et le déplace à sa destination finale.
+     *
+     * - Retourne le chemin relatif web-accessible si succès, sinon `null`.
+     *
+     * @param string $sourceTmpPath Chemin du fichier source à chiffrer.
+     * @param string $finalPath Chemin de destination du fichier chiffré.
+     * @return string|null
+     */
     public function encryptAndSave(string $sourceTmpPath, string $finalPath): ?string
     {
         // Chiffrer le fichier temporaire et l’écrire à sa destination
