@@ -27,7 +27,6 @@
   </div>
 
   <?php
-    // Calcul des statistiques à partir des vraies données
     $statusCounts = [
       'SOUMISE' => 0,
       'VALIDE' => 0,
@@ -36,10 +35,21 @@
 
     foreach ($requests as $r) {
       $status = strtoupper($r['status']);
-      if (isset($statusCounts[$status])) {
-        $statusCounts[$status]++;
+
+      // Si le statut est exactement "VALIDE", on l'incrémente normalement
+      if ($status === 'VALIDE') {
+        $statusCounts['VALIDE']++;
+      }
+      // Si le statut est exactement "REFUSE", on l'incrémente normalement
+      elseif ($status === 'REFUSE') {
+        $statusCounts['REFUSE']++;
+      }
+      // Tout le reste (inconnu, vide, rejeté, annulé, etc.) est compté comme "SOUMISE"
+      else {
+        $statusCounts['SOUMISE']++;
       }
     }
+
   ?>
 
   <div class="stats">

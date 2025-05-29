@@ -439,7 +439,7 @@ class StudentController
         foreach ($documents as $doc) {
             if (strtolower($doc['label']) === 'convention de stage') {
                 if (
-                    (!isset($doc['signed_by_student']) || $doc['signed_by_student'] == 0)
+                    ( $doc['signed_by_student'] == 0)
                 ) {
                     $conventionTo = $doc;
                     break;
@@ -638,6 +638,7 @@ class StudentController
         @unlink($signaturePath);
         @unlink($decryptedPdf);
         @unlink($signedPdf);
+file_put_contents(__DIR__ . "/../log.txt", "Appel update: ID={$convention['id']}, name=$signatoryName\n", FILE_APPEND);
 
         $documentModel->markAsSignedByStudent($convention['id'], $signatoryName, date('Y-m-d H:i:s'));
 
