@@ -10,6 +10,12 @@ return [
     '/dashboard'      => ['App\Controller\DashboardController', 'index'],
     '/logout' => ['App\Controller\LogoutController', 'index'],
     '/mentions-legales' => ['App\Controller\AuthController', 'mentionsLegales'],
+    
+    // Mot de passe oublié
+    '/forgot-password'         => ['App\Controller\AuthController', 'showForgotForm'],
+    '/forgot-password/post'    => ['App\Controller\AuthController', 'sendResetLink'],
+    '/reset-password'          => ['App\Controller\AuthController', 'showResetForm'],
+    '/reset-password/post'     => ['App\Controller\AuthController', 'resetPassword'],
 
     // Student
     '/student/new-request'      => ['App\Controller\StudentController', 'newRequest'],
