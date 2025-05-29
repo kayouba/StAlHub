@@ -17,8 +17,8 @@
     <main>
         <h2>Convention de stage</h2>
         <p>Merci de lire la convention ci-dessous, puis entrez votre nom pour la signer.</p>
-
-        <iframe src="/stalhub<?= htmlspecialchars($document['file_path']) ?>"></iframe>
+         <iframe src="/stalhub/document/view?file=<?= urlencode($document['file_path']) ?>" width="100%" height="600px"></iframe>
+        
 
 
        <form method="POST" action="/stalhub/signature/convention/valider" onsubmit="return prepareSignature()">

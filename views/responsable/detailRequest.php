@@ -389,13 +389,7 @@
     </div>
 </div>
 <?php endif; ?>
-<!-- 🔽 AJOUTE LE FORMULAIRE ICI 🔽 -->
-<form method="GET" action="/stalhub/responsable/generer-lien-entreprise" style="margin-top: 2rem;">
-    <input type="hidden" name="id" value="<?= htmlspecialchars($demande['id']) ?>">
-    <button type="submit" class="btn secondary">
-        <i class="fas fa-link"></i> Générer le lien de signature entreprise
-    </button>
-</form>
+
 
 <div style="text-align: center; padding: 1rem;">
     <a href="/stalhub/responsable/requestList" class="btn-retour">← Retour</a>

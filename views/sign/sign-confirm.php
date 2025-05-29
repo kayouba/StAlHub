@@ -65,7 +65,11 @@
         <p>La convention a été signée avec succès par l’entreprise.</p>
 
         <?php if (!empty($document['file_path'])): ?>
-            <a href="/stalhub<?= htmlspecialchars($document['file_path']) ?>">📄 Voir la convention signée</a>
+           <a class="link-button" href="/stalhub/signature/pdf?token=<?= urlencode($document['company_signature_token']) ?>" target="_blank">
+             📄 Voir la convention signée
+            </a>
+
+            
 
         <?php endif; ?>
     </div>

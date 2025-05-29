@@ -377,4 +377,45 @@ class SecretaryController {
         echo json_encode(['success' => true, 'message' => 'Convention envoyée avec succès']);
         exit;
     }
+
+    /**
+ * Génère un lien de signature pour la convention d'entreprise 
+ */
+
+    public function genererLienSignatureEntreprise(): void
+{
+    $requestId = $_GET['id'] ?? null;
+
+    if (!$requestId) {
+        echo "ID de la demande manquant.";
+        return;
+    }
+   
+
+    $model = new \App\Model\SignModel();
+
+    if (!$model->conventionExistePourDemande((int)$requestId)) {
+        $_SESSION['flash_message'] = [
+            'type' => 'error',
+            'text' => "Aucune convention trouvée pour cette demande."
+        ];
+        
+        header("Location: /stalhub/secretary/details?id=$requestId");
+        return;
+    }
+
+    $token = $model->generateCompanySignatureToken((int)$requestId);
+    $link = "https://stalhub/signature/convention?token=$token";
+    var_dump($link); // Pour debug, à enlever en production
+         die();
+
+    $_SESSION['flash_message'] = [
+        'type' => 'success',
+        'text' => "Lien de signature généré : <a href=\"$link\" target=\"_blank\">$link</a>"
+    ];
+
+
+    header("Location: /stalhub/secretary/details?id=$requestId");
+    exit;
+}
 }

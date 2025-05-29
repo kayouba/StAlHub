@@ -90,7 +90,7 @@ return [
     '/signature/send/{id}'      => ['App\Controller\SignController', 'send'],
     '/signature/status/{id}'    => ['App\Controller\SignController', 'status'],
     '/signature/download/{id}'  => ['App\Controller\SignController', 'download'],
-    '/responsable/generer-lien-entreprise' => ['App\Controller\ResponsablePedaController', 'genererLienSignatureEntreprise'],
+    '/secretary/generer-lien-entreprise' => ['App\Controller\SecretaryController', 'genererLienSignatureEntreprise'],
     
     '/signature/convention' => ['App\Controller\SignController', 'afficherFormulaire'],
    '/signature/convention/valider' => ['App\Controller\SignController', 'enregistrerSignature'],

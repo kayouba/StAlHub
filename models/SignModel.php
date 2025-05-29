@@ -20,7 +20,7 @@ class SignModel
         FROM request_documents rd
         JOIN requests r ON rd.request_id = r.id
         WHERE rd.company_signature_token = :token
-          AND rd.label = 'Convention'
+          AND rd.label = 'Convention de stage'
     ");
     $stmt->execute(['token' => $token]);
     return $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
@@ -46,7 +46,7 @@ public function generateCompanySignatureToken(int $requestId): string {
     $stmt = $this->pdo->prepare("
         UPDATE request_documents
         SET company_signature_token = :token
-        WHERE request_id = :id AND label = 'Convention'
+        WHERE request_id = :id AND label = 'Convention de stage'
     ");
     $stmt->execute(['token' => $token, 'id' => $requestId]);
     return $token;
@@ -56,7 +56,7 @@ public function conventionExistePourDemande(int $requestId): bool {
     $stmt = $this->pdo->prepare("
         SELECT COUNT(*) 
         FROM request_documents 
-        WHERE request_id = :id AND label = 'Convention'
+        WHERE request_id = :id AND label = 'Convention de stage'
     ");
     $stmt->execute(['id' => $requestId]);
     return (bool) $stmt->fetchColumn();

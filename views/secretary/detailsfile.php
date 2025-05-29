@@ -164,6 +164,13 @@
       >
         📧 Relancer l'étudiant par mail
       </a>
+      <!-- 🔽 AJOUTE LE FORMULAIRE ICI 🔽 -->
+      <form method="GET" action="/stalhub/secretary/generer-lien-entreprise" style="margin-top: 2rem;">
+          <input type="hidden" name="id" value="<?= htmlspecialchars($requestDetails['id']) ?>">
+          <button type="submit" class="btn secondary">
+              <i class="fas fa-link"></i> Générer le lien de signature entreprise
+          </button>
+      </form>
       <a
         class="btn-retour"
         href="javascript:history.back();">
