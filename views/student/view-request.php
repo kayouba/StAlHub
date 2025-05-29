@@ -150,8 +150,8 @@ foreach ($documents as $doc) {
                 <ul>
                     <?php foreach ($documents as $doc): ?>
                         <li>
-                            <strong><?= safe($doc['label']) ?> :</strong>
-                            <a href="/stalhub/document/view?file=<?= urlencode($doc['file_path']) ?>" target="_blank">Voir</a>
+                            <strong><?= safe($doc['label']) ?> :  
+                            <a href="/stalhub/document/view?file=<?= urlencode($doc['file_path']) ?>" target="_blank">Voir</a></strong>
                             <?php if ($doc['status'] === 'rejected'): ?>
                                 <br><label>Remplacer le document :</label>
                                 <input type="file" name="documents[<?= $doc['id'] ?>]" accept=".pdf,.jpg,.jpeg,.png">

@@ -31,6 +31,7 @@
         #signature-pad {
             margin-top: 10px;
             border-radius: 6px;
+            border: 1px solid #ccc;
         }
 
         #clear-signature, #save-signature {
@@ -87,7 +88,13 @@
 
         <div id="signature-area">
             <h2>Votre signature</h2>
-            <canvas id="signature-pad" width="400" height="150" style="border:1px solid #ccc;"></canvas><br>
+
+            <div style="margin-bottom: 20px;">
+                <label for="signatory_name"><strong>Nom complet du signataire :</strong></label><br>
+                <input type="text" id="signatory_name" style="padding: 8px; width: 60%;" placeholder="Nom et prénom">
+            </div>
+
+            <canvas id="signature-pad" width="400" height="150"></canvas><br>
             <button id="clear-signature">🧽 Effacer</button>
             <button id="save-signature">✅ Enregistrer</button>
             <p id="signature-message"></p>
@@ -115,6 +122,13 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("clear-signature")?.addEventListener("click", () => signaturePad.clear());
 
     document.getElementById("save-signature")?.addEventListener("click", () => {
+        const signatoryName = document.getElementById("signatory_name").value.trim();
+
+        if (!signatoryName) {
+            alert("Veuillez saisir le nom du signataire.");
+            return;
+        }
+
         if (signaturePad.isEmpty()) {
             alert("Veuillez signer avant d’enregistrer !");
             return;
@@ -125,22 +139,21 @@ document.addEventListener("DOMContentLoaded", () => {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
                 request_id: <?= (int) $requestId ?>,
+                signatory_name: signatoryName,
                 image: signaturePad.toDataURL("image/png")
             })
         })
         .then(res => res.text())
         .then(msg => {
             const message = document.getElementById("signature-message");
-            message.textContent = msg;
+            message.textContent = "✅ Signature enregistrée avec succès.";
             message.style.color = "green";
 
-            // Masquer la zone de signature
             const signatureArea = document.getElementById("signature-area");
             if (signatureArea) {
                 signatureArea.style.display = "none";
             }
         })
-
         .catch(() => {
             const message = document.getElementById("signature-message");
             message.textContent = "Erreur lors de l'enregistrement.";

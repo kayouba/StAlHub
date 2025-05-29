@@ -1,36 +1,29 @@
-<?php /** views/responsable/requestList.php */ ?>
 <!DOCTYPE html>
 <html lang="fr">
+
 <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>StaHub - Tableau de bord</title>
     <link rel="stylesheet" href="/stalhub/public/css/responsable.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
 </head>
-<body>
-    <!-- Inclusion de la sidebar commune -->
-    <?php include __DIR__ . '/../components/sidebar.php'; ?>
 
-    <!-- Contenu principal avec marge pour la sidebar -->
+<?php include __DIR__ . '/../components/sidebar.php'; ?>
+
+<body>
     <div class="main-content-with-sidebar">
         <div class="container">
-            <!-- Titre centré -->
             <div class="title-section">
                 <h1><i class="fas fa-graduation-cap"></i> Responsable Pédagogique</h1>
             </div>
-
-            <h2>Demandes en attente de validation</h2>
-
-            <!-- Section des filtres -->
             <div class="filters">
-                <label>
-                    Recherche:
+                <label class="filter-field">
+                    <span><i class="fas fa-search"></i> Recherche</span>
                     <input type="text" id="searchInput" placeholder="Rechercher un étudiant ou une entreprise...">
                 </label>
 
-                <label>
-                    Formation:
+                <label class="filter-field">
+                    <span><i class="fas fa-graduation-cap"></i> Formation</span>
                     <select id="filterFormation">
                         <option value="">Toutes</option>
                         <option value="Licence3 Miage">Licence 3 Miage</option>
@@ -39,13 +32,13 @@
                     </select>
                 </label>
 
-                <label>
-                    Date:
+                <label class="filter-field">
+                    <span><i class="fas fa-calendar-alt"></i> Date</span>
                     <input type="date" id="filterDate">
                 </label>
 
-                <label>
-                    Type:
+                <label class="filter-field">
+                    <span><i class="fas fa-briefcase"></i> Type</span>
                     <select id="filterType">
                         <option value="">Tous</option>
                         <option value="Stage">Stage</option>
@@ -53,8 +46,8 @@
                     </select>
                 </label>
 
-                <label>
-                    État:
+                <label class="filter-field">
+                    <span><i class="fas fa-info-circle"></i> État</span>
                     <select id="filterEtat">
                         <option value="">Tous</option>
                         <option value="attente">En attente</option>
@@ -64,11 +57,11 @@
                 </label>
 
                 <button class="btn secondary" id="resetFilters">
-                    Réinitialiser
+                    <i class="fas fa-undo"></i> Réinitialiser
                 </button>
             </div>
-            
-            <!-- Tableau des demandes -->
+
+
             <div class="table-container">
                 <table id="demandesTable">
                     <thead>
@@ -90,7 +83,7 @@
                                 data-date="<?= htmlspecialchars($demande['date']) ?>"
                                 data-type="<?= htmlspecialchars($demande['type']) ?>"
                                 data-etat="<?= htmlspecialchars($demande['etat']) ?>">
-                                
+
                                 <td><?= htmlspecialchars($demande['etudiant']) ?></td>
                                 <td><?= htmlspecialchars($demande['formation'] ?? 'Non renseigné') ?></td>
                                 <td><?= htmlspecialchars($demande['entreprise']) ?></td>
@@ -103,7 +96,7 @@
                                 </td>
                                 <td>
                                     <a class="btn" href="/stalhub/responsable/detailRequest?id=<?= $demande['id'] ?>">
-                                        Voir
+                                        <i class="fas fa-eye"></i> Voir
                                     </a>
                                 </td>
                             </tr>
@@ -111,23 +104,10 @@
                     </tbody>
                 </table>
             </div>
-
-           
         </div>
     </div>
 
-    <!-- Inclusion du fichier JavaScript externe -->
     <script src="/stalhub/public/js/responsable-requestList.js"></script>
-    <style>
-.sidebar .nav-links a {
-    display: flex !important;
-    align-items: center !important;
-    white-space: nowrap;
-}
-
-.sidebar .nav-links a span:first-child {
-    margin-right: 12px;
-}
-</style>
 </body>
+
 </html>

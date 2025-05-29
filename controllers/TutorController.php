@@ -208,7 +208,7 @@ class TutorController
         $stmt = $pdo->prepare("
             SELECT * FROM request_documents 
             WHERE request_id = ? 
-            AND label COLLATE utf8_general_ci = 'convention de stage'
+            AND LOWER(label) = 'convention de stage'
             AND status = 'validated'
             AND signed_by_student = 1
             AND (signed_by_tutor IS NULL OR signed_by_tutor = 0)
@@ -231,92 +231,108 @@ class TutorController
         ]);
     }
 
+public function uploadSignature(): void
+{
+    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+        http_response_code(405);
+        echo "Méthode non autorisée.";
+        return;
+    }
 
-    public function uploadSignature(): void
-        {
-            if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-                http_response_code(405);
-                echo "Méthode non autorisée.";
-                return;
-            }
+    $data = json_decode(file_get_contents('php://input'), true);
 
-            $data = json_decode(file_get_contents('php://input'), true);
+    if (!isset($data['request_id'], $data['image'], $data['signatory_name']) || !is_numeric($data['request_id'])) {
+        http_response_code(400);
+        echo "Données invalides.";
+        return;
+    }
 
-            if (!isset($data['request_id'], $data['image']) || !is_numeric($data['request_id'])) {
-                http_response_code(400);
-                echo "Données invalides.";
-                return;
-            }
+    $tutorId = $_SESSION['user_id'] ?? null;
+    $requestId = (int)$data['request_id'];
+    $signatoryName = trim($data['signatory_name']);
 
-            $tutorId = $_SESSION['user_id'] ?? null;
-            $requestId = (int) $data['request_id'];
+    if (!$tutorId || !$requestId || !$signatoryName) {
+        http_response_code(403);
+        echo "Non autorisé ou nom manquant.";
+        return;
+    }
 
-            if (!$tutorId || !$requestId) {
-                http_response_code(403);
-                echo "Non autorisé.";
-                return;
-            }
+    $pdo = new \PDO('mysql:host=localhost;dbname=stalhub_dev', 'root', 'root');
+    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-            $pdo = new \PDO('mysql:host=localhost;dbname=stalhub_dev', 'root', 'root');
+    $stmt = $pdo->prepare("SELECT * FROM request_documents WHERE request_id = ? AND LOWER(label) = LOWER('convention de stage')");
+    $stmt->execute([$requestId]);
+    $doc = $stmt->fetch();
 
-            $stmt = $pdo->prepare("SELECT * FROM request_documents WHERE request_id = ? AND LOWER(label) = 'convention de stage'");
-            $stmt->execute([$requestId]);
-            $doc = $stmt->fetch();
+    if (!$doc || (int)$doc['signed_by_tutor'] === 1) {
+        http_response_code(404);
+        echo "Document introuvable ou déjà signé.";
+        return;
+    }
 
-            if (!$doc || (int)$doc['signed_by_tutor'] === 1) {
-                http_response_code(404);
-                echo "Document introuvable ou déjà signé.";
-                return;
-            }
+    // === Étape 1 : Sauvegarde de la signature
+    $imageData = explode(',', $data['image'])[1];
+    $decoded = base64_decode($imageData);
+    $tempDir = __DIR__ . '/../temp/';
+    if (!file_exists($tempDir)) {
+        mkdir($tempDir, 0777, true);
+    }
 
-            // === Étape 1 : sauvegarder la signature
-            $imageData = explode(',', $data['image'])[1];
-            $decoded = base64_decode($imageData);
+    $signaturePath = $tempDir . "signature_tutor_{$tutorId}_{$requestId}.png";
+    file_put_contents($signaturePath, $decoded);
 
-            $tempDir = __DIR__ . '/../temp/';
-            if (!file_exists($tempDir)) {
-                mkdir($tempDir, 0777, true);
-            }
+    // === Étape 2 : Déchiffrement du PDF original
+    $pdfPath = __DIR__ . '/../public' . str_replace('/stalhub', '', $doc['file_path']);
+    $decryptedPdf = str_replace('.enc', '_temp.pdf', $pdfPath);
 
-            $signaturePath = $tempDir . "signature_tutor_{$tutorId}_{$requestId}.png";
-            file_put_contents($signaturePath, $decoded);
+    if (!\App\Lib\FileCrypto::decrypt($pdfPath, $decryptedPdf)) {
+        http_response_code(500);
+        echo "Échec de déchiffrement.";
+        return;
+    }
 
-            // === Étape 2 : déchiffrer le PDF original
-            $pdfPath = __DIR__ . '/../public' . str_replace('/stalhub', '', $doc['file_path']);
-            $decryptedPdf = str_replace('.enc', '_temp.pdf', $pdfPath);
+    // === Étape 3 : Ajout de la signature
+    $signedPdf = str_replace('.enc', '_signed.pdf', $pdfPath);
+    $success = \App\Lib\PdfSigner::addSignatureToPdf(
+        $decryptedPdf,
+        $signedPdf,
+        $signaturePath,
+        $signatoryName,
+        false,
+        true// ← Position en bas à gauche pour le tuteur
+    );
 
-            if (!\App\Lib\FileCrypto::decrypt($pdfPath, $decryptedPdf)) {
-                http_response_code(500);
-                echo " Échec de déchiffrement.";
-                return;
-            }
+    if (!$success) {
+        http_response_code(500);
+        echo "Erreur lors de l'ajout de la signature.";
+        return;
+    }
 
-            // === Étape 3 : signer le PDF
-            $signedPdf = str_replace('.enc', '_signed.pdf', $pdfPath);
-            if (!\App\Lib\PdfSigner::addSignatureToPdf($decryptedPdf, $signedPdf, $signaturePath)) {
-                http_response_code(500);
-                echo "Erreur lors de l'ajout de la signature.";
-                return;
-            }
+    // === Étape 4 : Réencryption du PDF
+    if (!\App\Lib\FileCrypto::encrypt($signedPdf, $pdfPath)) {
+        http_response_code(500);
+        echo "Erreur lors du chiffrement final.";
+        return;
+    }
 
-            // === Étape 4 : ré-encrypter le PDF signé
-            if (!\App\Lib\FileCrypto::encrypt($signedPdf, $pdfPath)) {
-                http_response_code(500);
-                echo " Échec du chiffrement final.";
-                return;
-            }
+    // === Étape 5 : Mise à jour BDD
+    $stmt = $pdo->prepare("UPDATE request_documents SET 
+        signed_by_tutor = 1,
+        tutor_signed_at = NOW(),
+        tutor_signatory_name = :name
+        WHERE id = :doc_id
+    ");
+    $stmt->execute([
+        'name' => $signatoryName,
+        'doc_id' => $doc['id']
+    ]);
 
-            // === Étape 5 : mise à jour DB + nettoyage
-            $stmt = $pdo->prepare("UPDATE request_documents SET signed_by_tutor = 1 WHERE id = ?");
-            $stmt->execute([$doc['id']]);
+    @unlink($signaturePath);
+    @unlink($decryptedPdf);
+    @unlink($signedPdf);
 
-            @unlink($signaturePath);
-            @unlink($decryptedPdf);
-            @unlink($signedPdf);
-
-            echo "Signature enregistrée avec succès.";
-        }
-
+    echo "Signature du tuteur enregistrée avec succès.";
+}
 
 
 }

@@ -11,7 +11,8 @@ class PdfSigner extends Fpdi
         string $destPath,
         string $signatureImage,
         string $signatoryName,
-        bool $isDirection = false
+        bool $isDirection = false,
+        bool $isTutor = false,
     ): bool {
         $pdf = new Fpdi();
         $pageCount = $pdf->setSourceFile($sourcePath);
@@ -23,15 +24,23 @@ class PdfSigner extends Fpdi
             $pdf->AddPage($size['orientation'], [$size['width'], $size['height']]);
             $pdf->useTemplate($templateId);
 
-            // Dernière page → ajoute signature
+            // Signature uniquement sur la dernière page
             if ($pageNo === $pageCount) {
-                $x = $isDirection ? $size['width'] - 60 : 20;
+                // === Positionnement horizontal ===
+                // Colonne 1 : Étudiant (gauche)
+                // Colonne 2 : Tuteur (centre)
+                // Colonne 3 : Direction (droite)
+
+                $x = 20; // Default: étudiant
+                if ($isTutor) $x = $size['width'] / 2 - 20;
+                if ($isDirection) $x = $size['width'] - 60;
+
                 $y = $size['height'] - 40;
 
-                // Ajouter l’image
+                // Ajouter l’image de signature
                 $pdf->Image($signatureImage, $x, $y, 40);
 
-                // Texte au-dessus
+                // Nom + Date au-dessus
                 $pdf->SetFont('Helvetica', '', 8);
                 $pdf->SetTextColor(0, 0, 0);
 
