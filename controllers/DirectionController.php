@@ -288,6 +288,9 @@ class DirectionController
     );
 
     $model->updateStatus($requestId, 'VALID_DIRECTION');
+    $statusModel = new \App\Model\StatusHistoryModel();
+    $statusModel->logStatusChange($requestId, 'VALID_DIRECTION', 'Convention signée par la direction.');
+
 
     echo "Signature direction ajoutée avec succès.";
 }

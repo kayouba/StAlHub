@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\View;
 use PDO;
+use App\Lib\Database;
 use PHPMailer\PHPMailer\PHPMailer;
 
 class AuthController
@@ -27,7 +28,7 @@ class AuthController
         $email = $_POST['email'] ?? '';
         $password = $_POST['password'] ?? '';
 
-        $pdo = new PDO('mysql:host=localhost;dbname=stalhub_dev', 'root', 'root');
+        $pdo = Database::getConnection();
         $stmt = $pdo->prepare("SELECT * FROM users WHERE email = ? LIMIT 1");
         $stmt->execute([$email]);
         $user = $stmt->fetch();
@@ -112,7 +113,7 @@ class AuthController
         $consentement_rgpd = isset($_POST['rgpd_consent']) ? 1 : 0;
         $date_consentement = date('Y-m-d H:i:s');
 
-        $pdo = new PDO('mysql:host=localhost;dbname=stalhub_dev', 'root', 'root');
+        $pdo = Database::getConnection();
         $stmt = $pdo->prepare("
             INSERT INTO users (first_name, last_name, email, phone_number, password, created_at, is_active, consentement_rgpd, date_consentement)
             VALUES (?, ?, ?, ?, ?, NOW(), 1, ?, ?)
@@ -137,7 +138,7 @@ class AuthController
     public function sendResetLink(): void
     {
         $email = $_POST['email'] ?? '';
-        $pdo = new \PDO('mysql:host=localhost;dbname=stalhub_dev', 'root', 'root');
+        $pdo = Database::getConnection();
 
         $stmt = $pdo->prepare("SELECT id FROM users WHERE email = ?");
         $stmt->execute([$email]);
@@ -199,7 +200,7 @@ class AuthController
             return;
         }
 
-        $pdo = new PDO('mysql:host=localhost;dbname=stalhub_dev', 'root', 'root');
+        $pdo = Database::getConnection();
         $stmt = $pdo->prepare("SELECT * FROM password_resets WHERE token = ? AND expires_at > NOW() LIMIT 1");
         $stmt->execute([$token]);
         $reset = $stmt->fetch();

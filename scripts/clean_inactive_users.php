@@ -1,5 +1,11 @@
 <?php
-$pdo = new PDO('mysql:host=localhost;dbname=stalhub_dev', 'root', 'root');
+
+require_once __DIR__ . '/../vendor/autoload.php';
+
+use App\Lib\Database;
+
+// Connexion via .env
+$pdo = Database::getConnection();
 
 // Date de suppression
 $cutoff = date('Y-m-d H:i:s', strtotime('-22 months'));

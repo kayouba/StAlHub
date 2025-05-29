@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\View;
+use App\Lib\Database;
 use PDO;
 
 class TutorController
@@ -18,8 +19,7 @@ class TutorController
             exit;
         }
 
-        $pdo = new PDO('mysql:host=localhost;dbname=stalhub_dev', 'root', 'root');
-
+        $pdo = Database::getConnection(); 
         // 1. Récupérer la capacité du tuteur
         $stmt = $pdo->prepare("SELECT students_to_assign, students_assigned FROM users WHERE id = ?");
         $stmt->execute([$_SESSION['user_id']]);
@@ -99,7 +99,7 @@ class TutorController
 
         $value = (int) ($_POST['students_to_assign'] ?? 0);
 
-        $pdo = new PDO('mysql:host=localhost;dbname=stalhub_dev', 'root', 'root');
+        $pdo = Database::getConnection();
         $stmt = $pdo->prepare("UPDATE users SET students_to_assign = ? WHERE id = ?");
         $stmt->execute([$value, $_SESSION['user_id']]);
 
@@ -116,7 +116,7 @@ class TutorController
             exit;
         }
 
-        $pdo = new PDO('mysql:host=localhost;dbname=stalhub_dev', 'root', 'root');
+        $pdo = Database::getConnection();
         $stmt = $pdo->prepare("
             SELECT r.id AS request_id, u.first_name, u.last_name, u.email, r.contract_type, r.start_date, r.end_date
             FROM requests r
@@ -144,7 +144,7 @@ class TutorController
             return;
         }
 
-        $pdo = new PDO('mysql:host=localhost;dbname=stalhub_dev', 'root', 'root');
+        $pdo = Database::getConnection();
 
         $stmt = $pdo->prepare("
             SELECT 
@@ -202,7 +202,7 @@ class TutorController
         }
 
         //  Connexion à la base de données
-        $pdo = new \PDO('mysql:host=localhost;dbname=stalhub_dev', 'root', 'root');
+        $pdo = Database::getConnection();
 
         //  Recherche de la convention validée
         $stmt = $pdo->prepare("
@@ -257,8 +257,7 @@ public function uploadSignature(): void
         return;
     }
 
-    $pdo = new \PDO('mysql:host=localhost;dbname=stalhub_dev', 'root', 'root');
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    $pdo = Database::getConnection();
 
     $stmt = $pdo->prepare("SELECT * FROM request_documents WHERE request_id = ? AND LOWER(label) = LOWER('convention de stage')");
     $stmt->execute([$requestId]);
@@ -326,6 +325,9 @@ public function uploadSignature(): void
         'name' => $signatoryName,
         'doc_id' => $doc['id']
     ]);
+    $statusModel = new \App\Model\StatusHistoryModel();
+    $statusModel->logStatusChange($requestId, 'SIGNED_BY_TUTOR', 'Convention signée par le tuteur.');
+
 
     @unlink($signaturePath);
     @unlink($decryptedPdf);

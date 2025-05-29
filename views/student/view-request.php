@@ -45,7 +45,7 @@ foreach ($documents as $doc) {
 
 $hasRejectedOrSubmitted = false;
 foreach ($documents as $doc) {
-    if (in_array(strtolower($doc['status']), ['rejected', 'submitted'])) {
+    if (in_array(strtolower($doc['status']), ['rejected'])) {
         $hasRejectedOrSubmitted = true;
     }
 }
@@ -93,12 +93,12 @@ foreach ($documents as $doc) {
             <ul class="timeline">
                 <?php foreach ($statusHistory as $step): ?>
                     <li>
-                        <strong><?= safe(StatusTranslator::translate($step['label'])) ?></strong>
-                        — <?= date('d/m/Y H:i', strtotime($step['updated_at'])) ?>
+                        <?= date('d/m/Y H:i', strtotime($step['updated_at'])) ?>
                         <?php if (!empty($step['comment'])): ?>
                             <br><em><?= nl2br(safe($step['comment'])) ?></em>
                         <?php endif; ?>
                     </li>
+
                 <?php endforeach; ?>
             </ul>
         </div>
