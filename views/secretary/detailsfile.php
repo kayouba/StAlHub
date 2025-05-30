@@ -157,26 +157,35 @@
                     "&body=" . rawurlencode($emailBody);
     ?>
 
-    <div class="actions-section">
-      <a
-        class="btn-relancer"
-        href="<?= $mailtoLink ?>"
-      >
-        📧 Relancer l'étudiant par mail
-      </a>
-      <!-- 🔽 AJOUTE LE FORMULAIRE ICI 🔽 -->
-      <form method="GET" action="/stalhub/secretary/generer-lien-entreprise" style="margin-top: 2rem;">
-          <input type="hidden" name="id" value="<?= htmlspecialchars($requestDetails['id']) ?>">
-          <button type="submit" class="btn secondary">
-              <i class="fas fa-link"></i> Générer le lien de signature entreprise
-          </button>
-      </form>
-      <a
-        class="btn-retour"
-        href="javascript:history.back();">
-        🔙 Retour
-      </a>
-    </div>
+ <div class="actions-section">
+  <a class="btn-relancer" href="<?= $mailtoLink ?>">
+    📧 Relancer l'étudiant par mail
+  </a>
+
+  <?php if (
+    isset($requestDetails['signed_by_student']) && $requestDetails['signed_by_student'] == 1 &&
+    isset($requestDetails['signed_by_tutor']) && $requestDetails['signed_by_tutor'] == 1 &&
+    isset($requestDetails['signed_by_direction']) && $requestDetails['signed_by_direction'] == 1 &&
+    isset($requestDetails['signed_by_company']) && $requestDetails['signed_by_company'] == 0
+  ): ?>
+    <!-- Formulaire pour envoyer le lien de signature entreprise -->
+    <form method="GET" action="/stalhub/secretary/generer-lien-entreprise">
+      <input type="hidden" name="id" value="<?= htmlspecialchars($requestDetails['id']) ?>">
+      <button type="submit" class="btn-relancer">
+        <i class="fas fa-link"></i> Envoyer lien signature entreprise
+      </button>
+    </form>
+  <?php elseif (isset($requestDetails['signed_by_company']) && $requestDetails['signed_by_company'] == 1 ): ?>
+    <!-- Message si les signatures de l'étudiant, du tuteur et de la direction sont complètes -->
+    <p class="status-message">Convention signée par toutes les parties.</p>
+  <?php endif; ?>
+ 
+
+  <a class="btn-retour" href="javascript:history.back();">
+    🔙 Retour
+  </a>
+</div>
+
 
 
   <?php endif; ?>

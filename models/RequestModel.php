@@ -343,9 +343,8 @@ class RequestModel
 
 
 
-    public function findRequestInfoById(int $requestId): ?array
-    {
-        $sql = "SELECT 
+    public function findRequestInfoById(int $requestId): ?array {
+    $sql = "SELECT 
                 r.*, 
                 c.name AS company_name, 
                 c.siret, 
@@ -359,18 +358,25 @@ class RequestModel
                 r.mission,
                 r.salary_value AS salary,
                 r.salary_duration,
-                u.level
+                u.level,
+                rd.signed_by_student,
+                rd.signed_by_tutor,
+                rd.signed_by_company,
+                rd.signed_by_direction
             FROM requests r
             JOIN companies c ON r.company_id = c.id
             JOIN users u ON r.student_id = u.id
-            WHERE r.id = :requestId";
+            LEFT JOIN users t ON r.tutor_id = t.id
+            LEFT JOIN request_documents rd ON rd.request_id = r.id
+            WHERE r.id = :requestId
+              AND rd.label = 'Convention de stage'";  // Ajout de cette condition
+            $stmt = $this->pdo->prepare($sql);
+            $stmt->execute(['requestId' => $requestId]);
 
-        $stmt = $this->pdo->prepare($sql);
-        $stmt->execute(['requestId' => $requestId]);
-
-        $result = $stmt->fetch(\PDO::FETCH_ASSOC);
-        return $result ?: null;
+            $result = $stmt->fetch(\PDO::FETCH_ASSOC);
+            return $result ?: null;
     }
+
 
     public function findAllRequests(): array
     {
