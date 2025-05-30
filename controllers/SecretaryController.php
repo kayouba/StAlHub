@@ -85,6 +85,7 @@ class SecretaryController {
 
         $requestModel = new RequestModel();
         $secretaryModel = new SecretaryModel();
+         
 
         $requestId = $_GET['id'] ?? null;
         $requestDetails = null;
@@ -94,6 +95,7 @@ class SecretaryController {
             $requestDetails = $requestModel->findRequestInfoById((int)$requestId);
             $documents = $secretaryModel->getDocumentsByRequestId((int)$requestId);
         }
+        
 
         require_once $_SERVER['DOCUMENT_ROOT'] . '/stalhub/views/secretary/detailsfile.php';
     }
@@ -378,42 +380,37 @@ class SecretaryController {
         exit;
     }
 
-    /**
-     * Génère un lien de signature pour la convention d'entreprise 
-     */
-    public function genererLienSignatureEntreprise(): void
-    {
-        $requestId = $_GET['id'] ?? null;
+  public function genererLienSignatureEntreprise(): void
+{
+    $requestId = $_GET['id'] ?? null;
 
-        if (!$requestId) {
-            echo "ID de la demande manquant.";
-            return;
-        }
-    
+    if (!$requestId) {
+        echo "ID de la demande manquant.";
+        return;
+    }
 
         $model = new \App\Model\SignModel();
 
-        if (!$model->conventionExistePourDemande((int)$requestId)) {
-            $_SESSION['flash_message'] = [
-                'type' => 'error',
-                'text' => "Aucune convention trouvée pour cette demande."
-            ];
-            
-            header("Location: /stalhub/secretary/details?id=$requestId");
-            return;
-        }
-
-        $token = $model->generateCompanySignatureToken((int)$requestId);
-        $link = "https://stalhub/signature/convention?token=$token";
-
-
+    if (!$model->conventionExistePourDemande((int)$requestId)) {
         $_SESSION['flash_message'] = [
-            'type' => 'success',
-            'text' => "Lien de signature généré : <a href=\"$link\" target=\"_blank\">$link</a>"
+            'type' => 'error',
+            'text' => "Aucune convention trouvée pour cette demande."
         ];
-
-
         header("Location: /stalhub/secretary/details?id=$requestId");
-        exit;
+        return;
     }
+
+    $token = $model->generateCompanySignatureToken((int)$requestId);
+    $link = "https://stalhub/signature/convention?token=$token";
+
+    $emailEntreprise = $model->getEmailEntrepriseParDemande((int)$requestId);
+    $mailtoLink = "mailto:$emailEntreprise?subject=Signature%20de%20la%20convention&body=Bonjour,%0A%0AVeuillez signer la convention à l’aide du lien suivant :%0A$link%0A%0ACordialement,";
+
+    header("Location: $mailtoLink");
+    exit;
+}
+
+
+
+
 }

@@ -156,6 +156,30 @@ class SecretaryModel  {
     return $documents;
 }
 
+public function getRequestDetailsById(int $requestId): ?array 
+{
+    $sql = "
+        SELECT 
+            r.id,
+            r.student_id,
+            r.company_id,   
+            r.supervisor_email,  // Ajoute l'email du superviseur
+            r.supervisor_first_name,
+            r.supervisor_last_name,
+            CONCAT(r.supervisor_first_name, ' ', r.supervisor_last_name) AS supervisor_name,
+            r.supervisor_position,
+            c.name AS entreprise
+        FROM requests r
+        LEFT JOIN companies c ON r.company_id = c.id
+        WHERE r.id = :id
+    ";
+
+    $stmt = $this->pdo->prepare($sql);
+    $stmt->execute(['id' => $requestId]);
+    return $stmt->fetch(PDO::FETCH_ASSOC) ?: null;  // Retourne les informations de la demande
+}
+
+
     /**
      * Met à jour le statut (et éventuellement le commentaire) d'un document spécifique.
      * 
