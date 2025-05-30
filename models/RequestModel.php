@@ -438,6 +438,8 @@ class RequestModel
                 r.salary_value AS salary,
                 r.salary_duration,
                 u.level,
+                u.program,
+                u.track,
                 rd.signed_by_student,
                 rd.signed_by_tutor,
                 rd.signed_by_company,
