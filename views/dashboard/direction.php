@@ -104,7 +104,7 @@ use App\Lib\StatusTranslator; ?>
                                 <td><?= htmlspecialchars($req['student']) ?></td>
                                 <td><?= htmlspecialchars($req['program']) ?></td>
                                 <td><?= htmlspecialchars($req['track']) ?></td>
-                                <td><?= htmlspecialchars(StatusTranslator::translate($req['status'])) ?></td>
+                                <td>Validée</td>
                                 <td class="actions">
                                     <a href="/stalhub/direction/view?id=<?= urlencode($req['id']) ?>&readonly=1" class="pdf-btn">👁 Voir</a>
                                 </td>

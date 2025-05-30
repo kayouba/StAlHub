@@ -58,8 +58,9 @@ class DirectionController
 
         // 2. Demandes validées (convention signée par la direction)
         $validatedRequests = [];
+        $allRequest = $model->getAllRequestsWithUserData();
 
-        foreach ($requestsToCheck as $request) {
+        foreach ($allRequest as $request) {
             $documents = $model->getDocumentsForRequest($request['id']);
 
             foreach ($documents as $doc) {
@@ -292,7 +293,6 @@ class DirectionController
             if (
                 strtolower($doc['label']) === 'convention de stage' &&
                 strtolower($doc['status']) === 'validated' &&
-                !empty($doc['signed_by_student']) &&
                 empty($doc['signed_by_direction'])
             ) {
                 $convention = $doc;

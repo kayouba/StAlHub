@@ -501,6 +501,26 @@ class RequestModel
         $stmt->execute(['status' => $status]);
         return $stmt->fetchAll(\PDO::FETCH_ASSOC);
     }
+/**
+ * Récupère toutes les demandes avec les informations associées aux étudiants,
+ * sans filtrer par statut de la demande.
+ *
+ * @return array Liste des demandes avec les données de l'étudiant (nom complet, niveau, programme, etc.)
+ */
+    public function getAllRequestsWithUserData(): array
+    {
+        $stmt = $this->pdo->prepare("
+            SELECT r.*, 
+                CONCAT(u.first_name, ' ', u.last_name) AS student,
+                u.level, u.program, u.track
+            FROM requests r
+            JOIN users u ON u.id = r.student_id
+            ORDER BY r.created_on DESC
+        ");
+        $stmt->execute();
+        return $stmt->fetchAll(\PDO::FETCH_ASSOC);
+    }
+
     /**
      * Récupère toutes les demandes ayant l’un des statuts fournis.
      *
