@@ -1,5 +1,7 @@
 <?php
+
 declare(strict_types=1);
+
 namespace App\Controller;
 
 use App\Model\SignModel;
@@ -41,10 +43,10 @@ class SignController
             echo "Lien invalide.";
             return;
         }
-          
-        $model = new SignModel(); 
-        $document = $model->getConventionByToken($token);  
-         
+
+        $model = new SignModel();
+        $document = $model->getConventionByToken($token);
+
 
         if (!$document) {
             echo "Document introuvable ou lien expiré.";
@@ -90,10 +92,10 @@ class SignController
 
         $model = new SignModel();
         $model->markConventionSignedByCompany($token, $nom);
-       
+
 
         $document = $model->getConventionByToken($token);
-        
+
         if (!$document || empty($document['file_path'])) {
             echo "Document introuvable.";
             return;
@@ -115,7 +117,7 @@ class SignController
             return;
         }
         $signedPdf = str_replace('.enc', '_signed.pdf', $pdfPath);
-        if (!PdfSigner::addSignatureToPdf($decryptedPath, $signedPdf, $signatureImagePath, $nom, false,false,true)) {
+        if (!PdfSigner::addSignatureToPdf($decryptedPath, $signedPdf, $signatureImagePath, $nom, false, false, true)) {
 
             echo "Échec ajout signature.";
             return;
@@ -127,7 +129,9 @@ class SignController
             echo "Erreur de chiffrement.";
             return;
         }
-
+        
+        $model->enregistrerFinalValidation((int)$document['request_id'], $nom);
+        $model->updateStatus((int)$document['request_id'], 'VALIDE');
         // Supprimer fichiers temporaires
         @unlink($signatureImagePath);
         @unlink($decryptedPath);
@@ -135,7 +139,7 @@ class SignController
 
         // $statusModel = new \App\Model\StatusHistoryModel();
         // $statusModel->logStatusChange($requestId, 'SOUMISE', 'Convention signée par l\'entreprise.');
-      
+
 
         // Redirection vers la page de confirmation après avoir ajouté la signature
         header("Location: /stalhub/signature/convention/confirmation?token=" . urlencode($document['company_signature_token']));
@@ -143,7 +147,7 @@ class SignController
 
 
 
-    } 
+    }
 
     /**
      * Affiche une confirmation après la signature réussie.
@@ -174,10 +178,6 @@ class SignController
         }
 
         // Vue pour la confirmation
-        require_once PROJECT_ROOT . '/views/sign/sign-confirm.php'; 
+        require_once PROJECT_ROOT . '/views/sign/sign-confirm.php';
     }
-
-
-
-
 }
