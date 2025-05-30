@@ -15,7 +15,7 @@
 
     <form action="/stalhub/student/request/step4" method="POST" class="request-form">
         <h2>Informations sur l’entreprise</h2>
-        <label>Pays</label>
+        <label>Pays <span style="color: red;">*</span></label>
         <select name="country" id="country" required>
             <option value="France" <?= ($step3['country'] ?? '') === 'France' ? 'selected' : '' ?>>France</option>
             <option value="Étranger" <?= ($step3['country'] ?? '') === 'Étranger' ? 'selected' : '' ?>>Étranger</option>
@@ -32,29 +32,29 @@
         <div id="manual-entry-note" style="display: none; margin-bottom: 1rem; color: #555; font-style: italic;">
             🔎 Les informations doivent être saisies manuellement pour une entreprise à l'étranger.
         </div>
-        <label>Nom de l'entreprise</label>
+        <label>Nom de l'entreprise<span style="color: red;">*</span></label>
         <input type="text" name="company_name" value="<?= htmlspecialchars($step3['company_name'] ?? '') ?>" required>
         
-        <label>Ville</label>
+        <label>Ville<span style="color: red;">*</span></label>
         <input type="text" name="city" value="<?= htmlspecialchars($step3['city'] ?? '') ?>" required>
 
-        <label>Code Postal</label>
+        <label>Code Postal<span style="color: red;">*</span></label>
         <input type="text" name="postal_code" value="<?= htmlspecialchars($step3['postal_code'] ?? '') ?>" required>
 
-        <label>Nom du tuteur de stage en entreprise</label>
+        <label>Nom du tuteur de stage en entreprise<span style="color: red;">*</span></label>
         <input type="text" name="supervisor_last_name" value="<?= htmlspecialchars($step3['supervisor_last_name'] ?? '') ?>" required>
 
-        <label>Prénom du tuteur de stage en entreprise</label>
+        <label>Prénom du tuteur de stage en entreprise<span style="color: red;">*</span></label>
         <input type="text" name="supervisor_first_name" value="<?= htmlspecialchars($step3['supervisor_first_name'] ?? '') ?>" required>
 
-        <label>Mail du tuteur de stage en entreprise</label>
+        <label>Mail du tuteur de stage en entreprise<span style="color: red;">*</span></label>
         <input type="email" name="supervisor_email" value="<?= htmlspecialchars($step3['supervisor_email'] ?? '') ?>" required
             placeholder="tuteur@entreprise.com">
 
-        <label>Numéro du tuteur <small>avec indicatif international (ex : +33...)</small></label>
+        <label>Numéro du tuteur<span style="color: red;">*</span> <small>avec indicatif international (ex : +33...)</small></label>
         <input type="tel" name="supervisor_num" value="<?= htmlspecialchars($step3['supervisor_num'] ?? '') ?>" required pattern="^\+[0-9]{7,15}$" title="Numéro au format international requis, ex : +33612345678">
 
-        <label>Rôle du tuteur (Chef de projet, Consultant...)</label>
+        <label>Rôle du tuteur <span style="color: red;">*</span> (Chef de projet, Consultant...)</label>
         <input type="text" name="supervisor_position" value="<?= htmlspecialchars($step3['supervisor_position'] ?? '') ?>" required>
 
 

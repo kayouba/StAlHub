@@ -130,7 +130,7 @@ class SignController
             return;
         }
         
-        $model->enregistrerFinalValidation((int)$document['request_id'], $nom);
+        // $model->enregistrerFinalValidation((int)$document['request_id'], $nom);
         $model->updateStatus((int)$document['request_id'], 'VALIDE');
         // Supprimer fichiers temporaires
         @unlink($signatureImagePath);

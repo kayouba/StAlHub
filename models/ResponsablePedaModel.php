@@ -101,7 +101,11 @@ class ResponsablePedaModel {
                 u.student_number as student_id,
                 u.phone_number as telephone,
                 u.program as formation,
+                u.track,
                 c.name as entreprise,
+                c.siret,
+                c.city,
+                c.postal_code,
                 CONCAT(t.first_name, ' ', t.last_name) as tutor_name
             FROM requests r 
             JOIN users u ON r.student_id = u.id

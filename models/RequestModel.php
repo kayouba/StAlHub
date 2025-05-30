@@ -421,42 +421,85 @@ class RequestModel
      * @param int $requestId ID de la demande.
      * @return array|null Données de la demande ou null si non trouvée.
      */
+    // public function findRequestInfoById(int $requestId): ?array
+    // {
+    //     $sql = "SELECT 
+    //             r.*, 
+    //             c.name AS company_name, 
+    //             c.siret, 
+    //             c.city, 
+    //             c.postal_code,
+    //             u.first_name,
+    //             u.last_name,
+    //             u.email,
+    //             u.student_number,
+    //             u.phone_number AS phone,
+    //             r.mission,
+    //             r.salary_value AS salary,
+    //             r.salary_duration,
+    //             u.level,
+    //             u.program,
+    //             u.track,
+    //             CONCAT(t.first_name, ' ', t.last_name) AS tutor_name,
+    //             t.first_name AS tutor_first_name,
+    //             t.last_name AS tutor_last_name
+
+    //             -- rd.signed_by_student,
+    //             -- rd.signed_by_tutor,
+    //             -- rd.signed_by_company,
+    //             -- rd.signed_by_direction
+    //         FROM requests r
+    //         JOIN companies c ON r.company_id = c.id
+    //         JOIN users u ON r.student_id = u.id
+    //         LEFT JOIN users t ON r.tutor_id = t.id
+    //         -- LEFT JOIN users t ON r.tutor_id = t.id
+    //         -- LEFT JOIN request_documents rd ON rd.request_id = r.id
+    //         WHERE r.id = :requestId";
+    //         // AND rd.label = 'Convention de stage'";  // Ajout de cette condition
+    //         $stmt = $this->pdo->prepare($sql);
+    //         $stmt->execute(['requestId' => $requestId]);
+
+    //         $result = $stmt->fetch(\PDO::FETCH_ASSOC);
+    //         return $result ?: null;
+    // }
+
     public function findRequestInfoById(int $requestId): ?array
     {
         $sql = "SELECT 
-                r.*, 
-                c.name AS company_name, 
-                c.siret, 
-                c.city, 
-                c.postal_code,
-                u.first_name,
-                u.last_name,
-                u.email,
-                u.student_number,
-                u.phone_number AS phone,
-                r.mission,
-                r.salary_value AS salary,
-                r.salary_duration,
-                u.level,
-                u.program,
-                u.track,
-                rd.signed_by_student,
-                rd.signed_by_tutor,
-                rd.signed_by_company,
-                rd.signed_by_direction
-            FROM requests r
-            JOIN companies c ON r.company_id = c.id
-            JOIN users u ON r.student_id = u.id
-            LEFT JOIN users t ON r.tutor_id = t.id
-            LEFT JOIN request_documents rd ON rd.request_id = r.id
-            WHERE r.id = :requestId
-              AND rd.label = 'Convention de stage'";  // Ajout de cette condition
-            $stmt = $this->pdo->prepare($sql);
-            $stmt->execute(['requestId' => $requestId]);
+                    r.*, 
+                    c.name AS company_name, 
+                    c.siret, 
+                    c.city, 
+                    c.postal_code,
+                    u.first_name,
+                    u.last_name,
+                    u.email,
+                    u.student_number,
+                    u.phone_number AS phone,
+                    r.mission,
+                    r.salary_value AS salary,
+                    r.salary_duration,
+                    u.level,
+                    u.program,
+                    u.track,
+                    CONCAT(t.first_name, ' ', t.last_name) AS tutor_name,
+                    t.first_name AS tutor_first_name,
+                    t.last_name AS tutor_last_name
+                FROM requests r
+                JOIN companies c ON r.company_id = c.id
+                JOIN users u ON r.student_id = u.id
+                LEFT JOIN users t ON r.tutor_id = t.id
+                WHERE r.id = :requestId";
 
-            $result = $stmt->fetch(\PDO::FETCH_ASSOC);
-            return $result ?: null;
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute(['requestId' => $requestId]);
+
+        $result = $stmt->fetch(\PDO::FETCH_ASSOC);
+        return $result ?: null;
     }
+
+
+
 
     /**
      * Récupère toutes les demandes avec leur statut et informations principales.

@@ -15,7 +15,7 @@
       <p><span class="label">Nom :</span> <span class="value"><?= htmlspecialchars($requestDetails['last_name']) ?></span></p>
       <p><span class="label">Prénom :</span> <span class="value"><?= htmlspecialchars($requestDetails['first_name']) ?></span></p>
       <p><span class="label">Numéro d'Étudiant :</span> <span class="value"><?= htmlspecialchars($requestDetails['student_number']) ?></span></p>
-      <p><span class="label">Formation :</span> <span class="value"><?= htmlspecialchars($requestDetails['program']) ?> <span class="value"><?= htmlspecialchars($requestDetails['track']) ?></span></p>
+      <p><span class="label">Formation :</span> <span class="value"><?= htmlspecialchars($requestDetails['level']) ?></span></p>
       <p><span class="label">Type de contrat :</span> <span class="value"><?= htmlspecialchars($requestDetails['contract_type']) ?></span></p>
     </div>
 
@@ -24,8 +24,12 @@
       <p><span class="label">Intitulé du poste :</span> <span class="value"><?= htmlspecialchars($requestDetails['job_title']) ?></span></p>
       <p><span class="label">Mission :</span> <span class="value"><?= htmlspecialchars($requestDetails['mission']) ?></span></p>
       <p><span class="label">Volume Horaire :</span> <span class="value"><?= htmlspecialchars($requestDetails['weekly_hours'] ?? 'Non précisé') ?></span></p>
-      <p><span class="label">Tuteur :</span> <span class="value"><?= htmlspecialchars($requestDetails['supervisor'] ?? 'Non renseigné') ?></span></p>
-      <p><span class="label">Numéro e-sup :</p>
+      <!-- <p><span class="label">Tuteur :</span> <span class="value"><?= htmlspecialchars($requestDetails['tutor_name'] ?? 'Non renseigné') ?></span></p> -->
+      <!-- <p><span class="label">Numéro e-sup :</p> -->
+      <p><span class="label">Nom du superviseur :</span> <span class="value"><?= htmlspecialchars($requestDetails['supervisor_last_name'] ?? 'Non précisé') ?> <?= htmlspecialchars($requestDetails['supervisor_first_name'] ?? '') ?></span></p>
+      <p><span class="label">Email du superviseur :</span> <span class="value"><?= htmlspecialchars($requestDetails['supervisor_email'] ?? 'Non précisé') ?></span></p>
+      <p><span class="label">Téléphone du superviseur :</span> <span class="value"><?= htmlspecialchars($requestDetails['supervisor_num'] ?? 'Non précisé') ?></span></p>
+
       <?php
       $durationText = 'Non renseignée';
       if (!empty($requestDetails['start_date']) && !empty($requestDetails['end_date'])) {
@@ -159,35 +163,26 @@
                     "&body=" . rawurlencode($emailBody);
     ?>
 
- <div class="actions-section">
-  <a class="btn-relancer" href="<?= $mailtoLink ?>">
-    📧 Relancer l'étudiant par mail
-  </a>
-
-  <?php if (
-    isset($requestDetails['signed_by_student']) && $requestDetails['signed_by_student'] == 1 &&
-    isset($requestDetails['signed_by_tutor']) && $requestDetails['signed_by_tutor'] == 1 &&
-    isset($requestDetails['signed_by_direction']) && $requestDetails['signed_by_direction'] == 1 &&
-    isset($requestDetails['signed_by_company']) && $requestDetails['signed_by_company'] == 0
-  ): ?>
-    <!-- Formulaire pour envoyer le lien de signature entreprise -->
-    <form method="GET" action="/stalhub/secretary/generer-lien-entreprise">
-      <input type="hidden" name="id" value="<?= htmlspecialchars($requestDetails['id']) ?>">
-      <button type="submit" class="btn-relancer">
-        <i class="fas fa-link"></i> Envoyer lien signature entreprise
-      </button>
-    </form>
-  <?php elseif (isset($requestDetails['signed_by_company']) && $requestDetails['signed_by_company'] == 1 ): ?>
-    <!-- Message si les signatures de l'étudiant, du tuteur et de la direction sont complètes -->
-    <p class="status-message">Convention signée par toutes les parties.</p>
-  <?php endif; ?>
- 
-
-  <a class="btn-retour" href="javascript:history.back();">
-    🔙 Retour
-  </a>
-</div>
-
+    <div class="actions-section">
+      <a
+        class="btn-relancer"
+        href="<?= $mailtoLink ?>"
+      >
+        📧 Relancer l'étudiant par mail
+      </a>
+      <!-- 🔽 AJOUTE LE FORMULAIRE ICI 🔽 -->
+      <form method="GET" action="/stalhub/secretary/generer-lien-entreprise" style="margin-top: 2rem;">
+          <input type="hidden" name="id" value="<?= htmlspecialchars($requestDetails['id']) ?>">
+          <button type="submit" class="btn secondary">
+              <i class="fas fa-link"></i> Générer le lien de signature entreprise
+          </button>
+      </form>
+      <a
+        class="btn-retour"
+        href="javascript:history.back();">
+        🔙 Retour
+      </a>
+    </div>
 
 
   <?php endif; ?>

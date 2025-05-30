@@ -41,7 +41,7 @@
         <div class="grid-2">
             <div>
                 <label>Volume horaire (heures/semaine) <span class="required">*</span> </label>
-                <input type="number" name="weekly_hours" value="<?= htmlspecialchars($step2['weekly_hours'] ?? '') ?>" required>
+                <input type="number" id="weekly_hours" name="weekly_hours" value="<?= htmlspecialchars($step2['weekly_hours'] ?? '') ?>" required min="20" max="35">
             </div>
             <div>
                 <label>Rémunération (€ / mois) <span class="required">*</span> </label>
@@ -94,6 +94,19 @@
             remoteDaysInput.value = '';
         }
     });
+
+    const weeklyHoursInput = document.getElementById('weekly_hours');
+
+    form.addEventListener('submit', function (e) {
+        const weeklyHours = parseInt(weeklyHoursInput.value);
+
+        if (isNaN(weeklyHours) || weeklyHours < 20 || weeklyHours > 35) {
+            e.preventDefault();
+            alert("Le volume horaire doit être compris entre 20 et 35 heures par semaine.");
+            weeklyHoursInput.focus();
+        }
+    });
+
 </script>
 
 </html>

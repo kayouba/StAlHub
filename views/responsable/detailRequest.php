@@ -51,6 +51,7 @@
                     <p><strong> Email :</strong> <?= htmlspecialchars($demande['email'] ?? 'N/A') ?></p>
                     <p><strong> Numéro étudiant :</strong> <?= htmlspecialchars($demande['student_id'] ?? 'N/A') ?></p>
                     <p><strong> Téléphone :</strong> <?= htmlspecialchars($demande['telephone'] ?? 'N/A') ?></p>
+                    <p><strong> Programme :</strong> <?= htmlspecialchars($demande['formation'] ?? 'N/A') ?></p>
                 </div>
             </div>
 
@@ -60,16 +61,25 @@
                     <span class="toggle-icon" id="icon-demande"><i class="fas fa-plus"></i></span>
                 </div>
                 <div class="card-content" id="content-demande" style="display: none;">
-                    <p><strong> Entreprise :</strong> <?= htmlspecialchars($demande['entreprise']) ?></p>
                     <p><strong> Type :</strong> <?= htmlspecialchars($demande['type'] ?? 'N/A') ?></p>
+                    <p><strong> Entreprise :</strong> <?= htmlspecialchars($demande['entreprise']) ?></p>
+                    <?php if (empty($demande['is_abroad']) || $demande['is_abroad'] != 1): ?>
+                        <p><strong>SIRET :</strong> <?= htmlspecialchars($demande['siret'] ?? $demande['company_siret'] ?? 'N/A') ?></p>
+                    <?php endif; ?>
+                    <p><strong>Ville :</strong> <?= htmlspecialchars($demande['city'] ?? 'N/A') ?></p>
+                    <p><strong>Code postal :</strong> <?= htmlspecialchars($demande['postal_code'] ?? 'N/A') ?></p>
+
                     <p><strong> Dates :</strong>
                         <?= htmlspecialchars($demande['start_date'] ?? '') ?> - <?= htmlspecialchars($demande['end_date'] ?? '') ?>
                     </p>
                     <p><strong> Intitulé du poste :</strong> <?= htmlspecialchars($demande['job_title'] ?? $demande['mission']) ?></p>
+                    <p><strong> Volume horaire :</strong> <?= htmlspecialchars($demande['weekly_hours'] ?? 'N/A') ?> h/semaine</p>
                     <p><strong> Rémunération :</strong> <?= htmlspecialchars($demande['salary_value'] ?? 0) ?>€/<?= htmlspecialchars($demande['salary_duration'] ?? 'mois') ?></p>
                     
                     <!-- Contact en entreprise -->
-                    <p><strong> Contact en entreprise :</strong> <?= htmlspecialchars($demande['referent_email'] ?? 'N/A') ?></p>
+                     <p><strong> Nom du responsable :</strong> <?= htmlspecialchars($demande['supervisor_first_name'] ?? '') ?> <?= htmlspecialchars($demande['supervisor_last_name'] ?? '') ?></p>
+                     <p><strong> Téléphone du responsable :</strong> <?= htmlspecialchars($demande['supervisor_num'] ?? 'N/A') ?></p>
+                    <p><strong> Email du responsable en entreprise :</strong> <?= htmlspecialchars($demande['supervisor_email'] ?? 'N/A') ?></p>
                     
                     <!-- Afficher le tuteur pédagogique seulement s'il a été affecté -->
                     <?php if (!empty($demande['tutor_id']) && !empty($demande['tutor_name'])): ?>

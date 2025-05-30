@@ -38,7 +38,7 @@
                     <p><strong>Prénom :</strong> <?= htmlspecialchars($_SESSION['step1']['first_name'] ?? '') ?></p>
                     <p><strong>Email :</strong> <?= htmlspecialchars($_SESSION['step1']['email'] ?? '') ?></p>
                     <p><strong>Numéro étudiant :</strong> <?= htmlspecialchars($_SESSION['step1']['student_number'] ?? '') ?></p>
-                    <p><strong>Formation :</strong> <?= htmlspecialchars($_SESSION['step1']['formation'] ?? '') ?></p>
+                    <p><strong>Formation :</strong> <?= htmlspecialchars($_SESSION['step1']['program'] ?? '') ?></p>
                 </section>
 
                 <section>

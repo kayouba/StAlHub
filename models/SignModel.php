@@ -51,8 +51,8 @@ class SignModel
 
         // Préparer insertion
         $stmt = $this->pdo->prepare("
-        INSERT INTO final_validation (request_id, validated_at, signatory_id, tutor_id)
-        VALUES (:request_id, NOW(), NULL, :tutor_id)
+        INSERT INTO final_validation (request_id, validated_at, signatory_id, tutor_id,jury2_id)
+        VALUES (:request_id, NOW(), 1, :tutor_id,NULL)
     ");
 
         return $stmt->execute([
